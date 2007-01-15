@@ -1,26 +1,21 @@
-package cpas.@@MODULE_LOWERCASE_NAME@@;
+package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
-import org.fhcrc.cpas.module.DefaultModule;
-import org.fhcrc.cpas.module.ModuleContext;
-import org.fhcrc.cpas.data.ContainerManager;
-import org.fhcrc.cpas.data.Container;
-import org.fhcrc.cpas.data.DbSchema;
-import org.fhcrc.cpas.view.WebPartFactory;
-import org.fhcrc.cpas.view.WebPartView;
-import org.fhcrc.cpas.view.Portal;
-import org.fhcrc.cpas.view.ViewContext;
-import org.fhcrc.cpas.util.PageFlowUtil;
+import org.labkey.api.module.DefaultModule;
+import org.labkey.api.module.ModuleContext;
+import org.labkey.api.data.ContainerManager;
+import org.labkey.api.data.Container;
+import org.labkey.api.data.DbSchema;
+import org.labkey.api.view.WebPartFactory;
+import org.labkey.api.view.WebPartView;
+import org.labkey.api.view.Portal;
+import org.labkey.api.view.ViewContext;
+import org.labkey.api.util.PageFlowUtil;
 import org.apache.log4j.Logger;
 
 import java.beans.PropertyChangeEvent;
-import java.sql.SQLException;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Set;
-import java.lang.reflect.InvocationTargetException;
-
-import @@MODULE_LOWERCASE_NAME@@.@@MODULE_NAME@@Controller;
 
 public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerManager.ContainerListener
 {
@@ -62,10 +57,5 @@ public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerMan
     public Set<DbSchema> getSchemasToTest()
     {
         return PageFlowUtil.set(@@MODULE_NAME@@Schema.getInstance().getSchema());
-    }
-
-    public String[] getPageFlows()
-    {
-        return RECOGNIZED_PAGEFLOWS;
     }
 }

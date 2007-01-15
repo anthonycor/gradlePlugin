@@ -1,7 +1,5 @@
-package @@MODULE_LOWERCASE_NAME@@;
+package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
-import cpas.@@MODULE_LOWERCASE_NAME@@.@@MODULE_NAME@@Manager;
-import cpas.@@MODULE_LOWERCASE_NAME@@.@@MODULE_NAME@@Schema;
 import org.apache.beehive.netui.pageflow.FormData;
 import org.apache.beehive.netui.pageflow.Forward;
 import org.apache.beehive.netui.pageflow.annotations.Jpf;
@@ -10,10 +8,10 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-import org.fhcrc.cpas.data.*;
-import org.fhcrc.cpas.security.ACL;
-import org.fhcrc.cpas.view.*;
-import org.fhcrc.cpas.util.PageFlowUtil;
+import org.labkey.api.data.*;
+import org.labkey.api.security.ACL;
+import org.labkey.api.view.*;
+import org.labkey.api.util.PageFlowUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -30,7 +28,7 @@ public class @@MODULE_NAME@@Controller extends ViewController
     @Jpf.Action
     protected Forward begin() throws Exception
     {
-        JspView v = new JspView("/cpas/@@MODULE_LOWERCASE_NAME@@/view/hello.jsp");
+        JspView v = new JspView("/org/labkey/@@MODULE_LOWERCASE_NAME@@/view/hello.jsp");
         return renderInTemplate(v);
     }
 

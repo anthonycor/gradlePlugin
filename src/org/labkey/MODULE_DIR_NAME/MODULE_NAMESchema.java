@@ -1,8 +1,8 @@
-package cpas.@@MODULE_LOWERCASE_NAME@@;
+package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
-import org.fhcrc.cpas.data.DbSchema;
-import org.fhcrc.cpas.data.SqlDialect;
-import org.fhcrc.cpas.data.TableInfo;
+import org.labkey.api.data.DbSchema;
+import org.labkey.api.data.SqlDialect;
+import org.labkey.api.data.TableInfo;
 
 public class @@MODULE_NAME@@Schema
 {

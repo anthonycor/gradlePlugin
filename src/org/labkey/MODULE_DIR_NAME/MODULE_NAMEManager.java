@@ -1,4 +1,4 @@
-package cpas.@@MODULE_LOWERCASE_NAME@@;
+package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
 public class @@MODULE_NAME@@Manager
 {
