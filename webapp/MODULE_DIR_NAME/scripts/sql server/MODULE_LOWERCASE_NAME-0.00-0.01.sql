@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+CREATE SCHEMA @@MODULE_LOWERCASE_NAME@@
+GO
+
 -- Tables and views used for @@MODULE_NAME@@ module
 EXEC sp_addapprole '@@MODULE_LOWERCASE_NAME@@', 'password'
 GO

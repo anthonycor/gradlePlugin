@@ -26,7 +26,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerMan
 
     public @@MODULE_NAME@@Module()
     {
-        super(NAME, 0.01, "/@@MODULE_LOWERCASE_NAME@@", new WebPartFactory[0]);
+        super(NAME, 0.01, null, "/@@MODULE_LOWERCASE_NAME@@");
         addController("@@MODULE_LOWERCASE_NAME@@", @@MODULE_NAME@@Controller.class);
     }
 
@@ -52,6 +52,11 @@ public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerMan
         super.startup(moduleContext);
         // add a container listener so we'll know when our container is deleted:
         ContainerManager.addContainerListener(this);
+    }
+
+    public Set<String> getSchemaNames()
+    {
+        return Collections.singleton("@@MODULE_LOWERCASE_NAME@@");
     }
 
     public Set<DbSchema> getSchemasToTest()
