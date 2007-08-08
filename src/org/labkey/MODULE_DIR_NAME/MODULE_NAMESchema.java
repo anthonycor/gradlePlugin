@@ -2,7 +2,6 @@ package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.api.data.DbSchema;
 import org.labkey.api.data.SqlDialect;
-import org.labkey.api.data.TableInfo;
 
 public class @@MODULE_NAME@@Schema
 {

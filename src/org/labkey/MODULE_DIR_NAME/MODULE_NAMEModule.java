@@ -5,12 +5,7 @@ import org.labkey.api.module.ModuleContext;
 import org.labkey.api.data.ContainerManager;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.DbSchema;
-import org.labkey.api.view.WebPartFactory;
-import org.labkey.api.view.WebPartView;
-import org.labkey.api.view.Portal;
-import org.labkey.api.view.ViewContext;
 import org.labkey.api.util.PageFlowUtil;
-import org.apache.log4j.Logger;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Collection;
@@ -19,10 +14,7 @@ import java.util.Set;
 
 public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerManager.ContainerListener
 {
-    private static final Logger _log = Logger.getLogger(@@MODULE_NAME@@Module.class);
     public static final String NAME = "@@MODULE_NAME@@";
-
-    private static final String[] RECOGNIZED_PAGEFLOWS = new String[]{"@@MODULE_LOWERCASE_NAME@@"};
 
     public @@MODULE_NAME@@Module()
     {
