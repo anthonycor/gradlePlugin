@@ -26,7 +26,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerMan
     {
     }
 
-    public void containerDeleted(Container c)
+    public void containerDeleted(Container c, User user)
     {
     }
 
