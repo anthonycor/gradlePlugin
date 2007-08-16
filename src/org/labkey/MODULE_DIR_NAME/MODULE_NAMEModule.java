@@ -6,6 +6,7 @@ import org.labkey.api.data.ContainerManager;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.DbSchema;
 import org.labkey.api.util.PageFlowUtil;
+import org.labkey.api.security.User;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Collection;
