@@ -19,7 +19,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerMan
 
     public @@MODULE_NAME@@Module()
     {
-        super(NAME, 0.01, null, "/@@MODULE_LOWERCASE_NAME@@");
+        super(NAME, 0.01, null, true);
         addController("@@MODULE_LOWERCASE_NAME@@", @@MODULE_NAME@@Controller.class);
     }
 

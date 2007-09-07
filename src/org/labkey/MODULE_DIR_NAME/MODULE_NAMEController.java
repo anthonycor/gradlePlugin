@@ -1,6 +1,5 @@
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
-import org.apache.log4j.Logger;
 import org.labkey.api.security.ACL;
 import org.labkey.api.security.RequiresPermission;
 import org.labkey.api.view.*;
