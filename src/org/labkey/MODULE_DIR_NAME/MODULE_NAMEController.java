@@ -15,7 +15,7 @@ public class @@MODULE_NAME@@Controller extends SpringActionController
     public @@MODULE_NAME@@Controller() throws Exception
     {
         super();
-        setActionResolver(_actionResolver.getInstance(this));
+        setActionResolver(_actionResolver);
     }
 
     @RequiresPermission(ACL.PERM_READ)
