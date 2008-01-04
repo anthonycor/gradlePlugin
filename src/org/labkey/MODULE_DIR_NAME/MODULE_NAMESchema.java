@@ -19,7 +19,7 @@ public class @@MODULE_NAME@@Schema
     {
         // private contructor to prevent instantiation from
         // outside this class: this singleton should only be
-        // accessed via cpas.@@MODULE_LOWERCASE_NAME@@.@@MODULE_NAME@@Schema.getInstance()
+        // accessed via org.labkey.@@MODULE_LOWERCASE_NAME@@.@@MODULE_NAME@@Schema.getInstance()
     }
 
     public DbSchema getSchema()
