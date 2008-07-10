@@ -14,4 +14,6 @@
  * limitations under the License.
  */
 
+-- Create schema, tables, indexes, and constraints used for @@MODULE_NAME@@ module here
+-- All SQL VIEW definitions should be created in @@MODULE_LOWERCASE_NAME@@-create.sql and dropped in @@MODULE_LOWERCASE_NAME@@-drop.sql
 CREATE SCHEMA @@MODULE_LOWERCASE_NAME@@;

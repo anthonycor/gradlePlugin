@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
--- Tables and views used for @@MODULE_NAME@@ module
+-- Create schema, tables, indexes, and constraints used for @@MODULE_NAME@@ module here
+-- All SQL VIEW definitions should be created in @@MODULE_LOWERCASE_NAME@@-create.sql and dropped in @@MODULE_LOWERCASE_NAME@@-drop.sql
 EXEC sp_addapprole '@@MODULE_LOWERCASE_NAME@@', 'password'
 GO
