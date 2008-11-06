@@ -16,35 +16,43 @@
 
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
+import org.labkey.api.data.Container;
+import org.labkey.api.data.ContainerManager;
+import org.labkey.api.data.DbSchema;
 import org.labkey.api.module.DefaultModule;
 import org.labkey.api.module.ModuleContext;
-import org.labkey.api.data.ContainerManager;
-import org.labkey.api.data.Container;
-import org.labkey.api.data.DbSchema;
 import org.labkey.api.util.PageFlowUtil;
-import org.labkey.api.security.User;
+import org.labkey.api.view.WebPartFactory;
 
-import java.beans.PropertyChangeEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerManager.ContainerListener
+public class @@MODULE_NAME@@Module extends DefaultModule
 {
-    public static final String NAME = "@@MODULE_NAME@@";
-
-    public @@MODULE_NAME@@Module()
+    public String getName()
     {
-        super(NAME, 0.01, null, true);
+        return "@@MODULE_NAME@@";
+    }
+
+    public double getVersion()
+    {
+        return 0.01;
+    }
+
+    public boolean hasScripts()
+    {
+        return true;
+    }
+
+    protected Collection<? extends WebPartFactory> createWebPartFactories()
+    {
+        return Collections.emptyList();
+    }
+
+    protected void init()
+    {
         addController("@@MODULE_LOWERCASE_NAME@@", @@MODULE_NAME@@Controller.class);
-    }
-
-    public void containerCreated(Container c)
-    {
-    }
-
-    public void containerDeleted(Container c, User user)
-    {
     }
 
     public Collection<String> getSummary(Container c)
@@ -52,15 +60,11 @@ public class @@MODULE_NAME@@Module extends DefaultModule implements ContainerMan
         return Collections.emptyList();
     }
 
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-    }
-
     public void startup(ModuleContext moduleContext)
     {
         super.startup(moduleContext);
         // add a container listener so we'll know when our container is deleted:
-        ContainerManager.addContainerListener(this);
+        ContainerManager.addContainerListener(new @@MODULE_NAME@@ContainerListener());
     }
 
     public Set<String> getSchemaNames()

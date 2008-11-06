@@ -21,13 +21,10 @@ import org.labkey.api.data.SqlDialect;
 
 public class @@MODULE_NAME@@Schema
 {
-    private static @@MODULE_NAME@@Schema _instance = null;
+    private static final @@MODULE_NAME@@Schema _instance = new @@MODULE_NAME@@Schema();
 
     public static @@MODULE_NAME@@Schema getInstance()
     {
-        if (null == _instance)
-            _instance = new @@MODULE_NAME@@Schema();
-
         return _instance;
     }
 

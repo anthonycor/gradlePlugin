@@ -26,11 +26,10 @@ import org.springframework.validation.BindException;
 
 public class @@MODULE_NAME@@Controller extends SpringActionController
 {
-    static DefaultActionResolver _actionResolver = new DefaultActionResolver(@@MODULE_NAME@@Controller.class);
+    private static final DefaultActionResolver _actionResolver = new DefaultActionResolver(@@MODULE_NAME@@Controller.class);
 
     public @@MODULE_NAME@@Controller() throws Exception
     {
-        super();
         setActionResolver(_actionResolver);
     }
 

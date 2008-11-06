@@ -16,17 +16,23 @@
 
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
-public class @@MODULE_NAME@@Manager
-{
-    private static final @@MODULE_NAME@@Manager _instance = new @@MODULE_NAME@@Manager();
+import org.labkey.api.data.Container;
+import org.labkey.api.data.ContainerManager.ContainerListener;
+import org.labkey.api.security.User;
 
-    private @@MODULE_NAME@@Manager()
+import java.beans.PropertyChangeEvent;
+
+public class @@MODULE_NAME@@ContainerListener implements ContainerListener
+{
+    public void containerCreated(Container c)
     {
-        // prevent external construction with a private default constructor
     }
 
-    public static @@MODULE_NAME@@Manager get()
+    public void containerDeleted(Container c, User user)
     {
-        return _instance;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt)
+    {
     }
 }
