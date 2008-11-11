@@ -62,7 +62,6 @@ public class @@MODULE_NAME@@Module extends DefaultModule
 
     public void startup(ModuleContext moduleContext)
     {
-        super.startup(moduleContext);
         // add a container listener so we'll know when our container is deleted:
         ContainerManager.addContainerListener(new @@MODULE_NAME@@ContainerListener());
     }
