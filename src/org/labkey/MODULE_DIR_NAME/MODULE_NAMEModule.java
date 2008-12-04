@@ -55,22 +55,25 @@ public class @@MODULE_NAME@@Module extends DefaultModule
         addController("@@MODULE_LOWERCASE_NAME@@", @@MODULE_NAME@@Controller.class);
     }
 
-    public Collection<String> getSummary(Container c)
-    {
-        return Collections.emptyList();
-    }
-
     public void startup(ModuleContext moduleContext)
     {
         // add a container listener so we'll know when our container is deleted:
         ContainerManager.addContainerListener(new @@MODULE_NAME@@ContainerListener());
     }
 
+    @Override
+    public Collection<String> getSummary(Container c)
+    {
+        return Collections.emptyList();
+    }
+
+    @Override
     public Set<String> getSchemaNames()
     {
         return Collections.singleton("@@MODULE_LOWERCASE_NAME@@");
     }
 
+    @Override
     public Set<DbSchema> getSchemasToTest()
     {
         return PageFlowUtil.set(@@MODULE_NAME@@Schema.getInstance().getSchema());
