@@ -16,24 +16,25 @@
 
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
-import org.labkey.api.security.ACL;
-import org.labkey.api.security.RequiresPermission;
-import org.labkey.api.view.*;
 import org.labkey.api.action.SimpleViewAction;
 import org.labkey.api.action.SpringActionController;
-import org.springframework.web.servlet.ModelAndView;
+import org.labkey.api.security.RequiresPermissionClass;
+import org.labkey.api.security.permissions.ReadPermission;
+import org.labkey.api.view.JspView;
+import org.labkey.api.view.NavTree;
 import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
 
 public class @@MODULE_NAME@@Controller extends SpringActionController
 {
     private static final DefaultActionResolver _actionResolver = new DefaultActionResolver(@@MODULE_NAME@@Controller.class);
 
-    public @@MODULE_NAME@@Controller() throws Exception
+    public @@MODULE_NAME@@Controller()
     {
         setActionResolver(_actionResolver);
     }
 
-    @RequiresPermission(ACL.PERM_READ)
+    @RequiresPermissionClass(ReadPermission.class)
     public class BeginAction extends SimpleViewAction
     {
         public ModelAndView getView(Object o, BindException errors) throws Exception
