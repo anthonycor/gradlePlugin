@@ -45,7 +45,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
         return true;
     }
 
-    protected Collection<? extends WebPartFactory> createWebPartFactories()
+    protected Collection<WebPartFactory> createWebPartFactories()
     {
         return Collections.emptyList();
     }
