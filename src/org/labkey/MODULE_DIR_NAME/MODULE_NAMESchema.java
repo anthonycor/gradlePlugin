@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 LabKey Corporation
+ * Copyright (c) 2011 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.api.data.DbSchema;
-import org.labkey.api.data.SqlDialect;
+import org.labkey.api.data.dialect.SqlDialect;
 
 public class @@MODULE_NAME@@Schema
 {
@@ -30,7 +30,7 @@ public class @@MODULE_NAME@@Schema
 
     private @@MODULE_NAME@@Schema()
     {
-        // private contructor to prevent instantiation from
+        // private constructor to prevent instantiation from
         // outside this class: this singleton should only be
         // accessed via org.labkey.@@MODULE_LOWERCASE_NAME@@.@@MODULE_NAME@@Schema.getInstance()
     }
