@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.labkey.@@MODULE_LOWERCASE_NAME@@;
+package org.labkey.
+
+@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager.ContainerListener;
@@ -24,15 +26,24 @@ import java.beans.PropertyChangeEvent;
 
 public class @@MODULE_NAME@@ContainerListener implements ContainerListener
 {
+    @Override
     public void containerCreated(Container c, User user)
     {
     }
 
+    @Override
     public void containerDeleted(Container c, User user)
     {
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt)
     {
+    }
+
+    @Override
+    public void containerMoved(Container c, Container oldParent, User user)
+    {
+        throw new UnsupportedOperationException();
     }
 }
