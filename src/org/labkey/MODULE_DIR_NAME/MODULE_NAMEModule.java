@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 LabKey Corporation
+ * Copyright (c) 2012 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
+import org.jetbrains.annotations.NotNull;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager;
 import org.labkey.api.data.DbSchema;
@@ -30,31 +31,37 @@ import java.util.Set;
 
 public class @@MODULE_NAME@@Module extends DefaultModule
 {
+    @Override
     public String getName()
     {
         return "@@MODULE_NAME@@";
     }
 
+    @Override
     public double getVersion()
     {
         return 0.01;
     }
 
+    @Override
     public boolean hasScripts()
     {
         return true;
     }
 
+    @Override
     protected Collection<WebPartFactory> createWebPartFactories()
     {
         return Collections.emptyList();
     }
 
+    @Override
     protected void init()
     {
         addController("@@MODULE_LOWERCASE_NAME@@", @@MODULE_NAME@@Controller.class);
     }
 
+    @Override
     public void startup(ModuleContext moduleContext)
     {
         // add a container listener so we'll know when our container is deleted:
@@ -68,12 +75,14 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     }
 
     @Override
+    @NotNull
     public Set<String> getSchemaNames()
     {
         return Collections.singleton("@@MODULE_LOWERCASE_NAME@@");
     }
 
     @Override
+    @NotNull
     public Set<DbSchema> getSchemasToTest()
     {
         return PageFlowUtil.set(@@MODULE_NAME@@Schema.getInstance().getSchema());
