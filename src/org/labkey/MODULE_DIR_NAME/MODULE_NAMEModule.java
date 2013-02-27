@@ -80,11 +80,4 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     {
         return Collections.singleton("@@MODULE_LOWERCASE_NAME@@");
     }
-
-    @Override
-    @NotNull
-    public Set<DbSchema> getSchemasToTest()
-    {
-        return PageFlowUtil.set(@@MODULE_NAME@@Schema.getInstance().getSchema());
-    }
 }
