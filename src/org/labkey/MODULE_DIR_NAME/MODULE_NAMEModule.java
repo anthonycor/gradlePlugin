@@ -40,7 +40,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     @Override
     public double getVersion()
     {
-        return 0.01;
+        return 13.21;
     }
 
     @Override
@@ -50,6 +50,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     }
 
     @Override
+    @NotNull
     protected Collection<WebPartFactory> createWebPartFactories()
     {
         return Collections.emptyList();
@@ -69,6 +70,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     }
 
     @Override
+    @NotNull
     public Collection<String> getSummary(Container c)
     {
         return Collections.emptyList();
