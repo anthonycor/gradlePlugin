@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class @@MODULE_NAME@@Controller extends SpringActionController
 {
     private static final DefaultActionResolver _actionResolver = new DefaultActionResolver(@@MODULE_NAME@@Controller.class);
+    public static final String NAME = "@@MODULE_LOWERCASE_NAME@@";
 
     public @@MODULE_NAME@@Controller()
     {

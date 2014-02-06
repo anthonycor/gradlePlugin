@@ -31,10 +31,12 @@ import java.util.Set;
 
 public class @@MODULE_NAME@@Module extends DefaultModule
 {
+    public static final String NAME = "@@MODULE_NAME@@";
+
     @Override
     public String getName()
     {
-        return "@@MODULE_NAME@@";
+        return NAME;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     @Override
     protected void init()
     {
-        addController("@@MODULE_LOWERCASE_NAME@@", @@MODULE_NAME@@Controller.class);
+        addController(@@MODULE_NAME@@Controller.NAME, @@MODULE_NAME@@Controller.class);
     }
 
     @Override
@@ -80,6 +82,6 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     @NotNull
     public Set<String> getSchemaNames()
     {
-        return Collections.singleton("@@MODULE_LOWERCASE_NAME@@");
+        return Collections.singleton(@@MODULE_NAME@@Schema.NAME);
     }
 }

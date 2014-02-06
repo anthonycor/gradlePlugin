@@ -22,6 +22,7 @@ import org.labkey.api.data.dialect.SqlDialect;
 public class @@MODULE_NAME@@Schema
 {
     private static final @@MODULE_NAME@@Schema _instance = new @@MODULE_NAME@@Schema();
+    public static final String NAME = "@@MODULE_LOWERCASE_NAME@@";
 
     public static @@MODULE_NAME@@Schema getInstance()
     {
@@ -37,7 +38,7 @@ public class @@MODULE_NAME@@Schema
 
     public DbSchema getSchema()
     {
-        return DbSchema.get("@@MODULE_LOWERCASE_NAME@@");
+        return DbSchema.get(NAME);
     }
 
     public SqlDialect getSqlDialect()
