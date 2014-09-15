@@ -16,9 +16,12 @@
 
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
+import org.jetbrains.annotations.NotNull;
 import org.labkey.api.data.Container;
 import org.labkey.api.data.ContainerManager.ContainerListener;
 import org.labkey.api.security.User;
+import java.util.Collections;
+import java.util.Collection;
 
 import java.beans.PropertyChangeEvent;
 
@@ -42,5 +45,11 @@ public class @@MODULE_NAME@@ContainerListener implements ContainerListener
     @Override
     public void containerMoved(Container c, Container oldParent, User user)
     {
+    }
+
+    @NotNull @Override
+    public Collection<String> canMove(Container c, Container newParent, User user)
+    {
+        return Collections.emptyList();
     }
 }
