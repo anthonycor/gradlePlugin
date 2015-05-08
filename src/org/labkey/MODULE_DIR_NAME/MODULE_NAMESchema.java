@@ -17,6 +17,7 @@
 package org.labkey.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.api.data.DbSchema;
+import org.labkey.api.data.DbSchemaType;
 import org.labkey.api.data.dialect.SqlDialect;
 
 public class @@MODULE_NAME@@Schema
@@ -38,7 +39,7 @@ public class @@MODULE_NAME@@Schema
 
     public DbSchema getSchema()
     {
-        return DbSchema.get(NAME);
+        return DbSchema.get(NAME, DbSchemaType.Module);
     }
 
     public SqlDialect getSqlDialect()
