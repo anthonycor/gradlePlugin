@@ -1,10 +1,10 @@
 package org.labkey.test.pages.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.test.BaseWebDriverTest;
-import org.labkey.test.Locator;
 import org.labkey.test.WebTestHelper;
 import org.labkey.test.components.ComponentElements;
 import org.labkey.test.pages.LabKeyPage;
+import org.openqa.selenium.SearchContext;
 
 public class BeginPage extends LabKeyPage
 {
@@ -40,9 +40,10 @@ public class BeginPage extends LabKeyPage
 
     private class Elements extends ComponentElements
     {
-        private Elements()
+        @Override
+        protected SearchContext getContext()
         {
-            super(_test.getDriver());
+            return getDriver();
         }
     }
 }
