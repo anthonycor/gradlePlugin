@@ -9,9 +9,8 @@ import org.labkey.gradle.task.SchemaCompile
 
 class XmlBeansPluginExtension
 {
-    def String schemasDir = "schemas"
-    def String classDir = "xb"
-    def String srcGenDir = "gensrc/xb"
+    def String schemasDir = "schemas" // the directory containing the schemas to be compiled
+    def String classDir = "xb" // the name of the directory in build or build/gensrc for the source and class files
 }
 
 /**
@@ -21,25 +20,25 @@ class XmlBeansPlugin implements Plugin<Project>
 {
     def void apply(Project project)
     {
-        project.extensions.create("xmlBean", XmlBeansPluginExtension)
+        project.extensions.create("xmlBeans", XmlBeansPluginExtension)
         def Task schemaCompile = project.task('schemaCompile',
-                group: "xml",
+                group: "xmlBeans",
                 type: SchemaCompile,
-                description: "compile XML schemas from $project.xmlBean.schemasDir",
+                description: "compile XML schemas from $project.xmlBeans.schemasDir",
                 {
-                    inputs.dir  project.xmlBean.schemasDir
-                    outputs.dir project.xmlBean.classDir
+                    inputs.dir  project.xmlBeans.schemasDir
+                    outputs.dir "$project.buildDir/$project.xmlBeans.classDir"
                 }
         )
         schemaCompile.onlyIf {
-            project.file(project.xmlBean.schemasDir).exists()
+            project.file(project.xmlBeans.schemasDir).exists()
         }
 
         def Task schemaJar = project.task('schemaJar',
-                group: "xml",
+                group: "xmlBeans",
                 type: Jar,
-                description: "produce schema jar file from $project.xmlBean.classDir", {
-            from project.xmlBean.classDir
+                description: "produce schema jar file from $project.xmlBeans.classDir", {
+            from project.xmlBeans.classDir
             exclude '**/*.java'
             baseName 'schemas'
             //baseName 'schemas'
@@ -48,19 +47,24 @@ class XmlBeansPlugin implements Plugin<Project>
         })
         schemaJar.dependsOn(schemaCompile)
         schemaJar.onlyIf {
-            project.file(project.xmlBean.schemasDir).exists()
+            project.file(project.xmlBeans.schemasDir).exists()
         }
 
-        def Task cleanSchemaJar = project.task('cleanSchemaJar',
-                group: "xml",
-                description: "Clean files generated from compiling .xsd files",
+        project.task("cleanSchemaJar",
+                group: "xmlBeans",
                 type: Delete,
-                {
-                    delete project.xmlBean.classDir, project.xmlBean.srcGenDir
+                description: "remove schema jar file", {
+                    delete "$schemaJar.destinationDir/$schemaJar.archiveName"
                 }
         )
-//       cleanSchemaJar.delete(project.xmlBean.classDir, project.xmlBean.srcGenDir)
 
+        project.task("cleanSchemaCompile",
+            group: "xmlBeans",
+            type: Delete,
+            description: "remove source and class files generated from xsd files", {
+                delete "$project.buildDir/$project.xmlBeans.classDir",
+                        "$project.srcGenDir/$project.xmlBeans.classDir"
+        })
     }
 }
 
