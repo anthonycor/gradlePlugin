@@ -22,9 +22,9 @@ class XmlBeansPlugin implements Plugin<Project>
     {
         project.extensions.create("xmlBeans", XmlBeansPluginExtension)
         def Task schemaCompile = project.task('schemaCompile',
-                group: "xmlBeans",
+                group: "xmlSchema",
                 type: SchemaCompile,
-                description: "compile XML schemas from $project.xmlBeans.schemasDir",
+                description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes",
                 {
                     inputs.dir  project.xmlBeans.schemasDir
                     outputs.dir "$project.buildDir/$project.xmlBeans.classDir"
@@ -35,9 +35,9 @@ class XmlBeansPlugin implements Plugin<Project>
         }
 
         def Task schemaJar = project.task('schemaJar',
-                group: "xmlBeans",
+                group: "xmlSchema",
                 type: Jar,
-                description: "produce schema jar file from $project.xmlBeans.classDir", {
+                description: "produce schema jar file from directory '$project.xmlBeans.classDir'", {
             from project.xmlBeans.classDir
             exclude '**/*.java'
             baseName 'schemas'
@@ -51,7 +51,7 @@ class XmlBeansPlugin implements Plugin<Project>
         }
 
         project.task("cleanSchemaJar",
-                group: "xmlBeans",
+                group: "xmlSchema",
                 type: Delete,
                 description: "remove schema jar file", {
                     delete "$schemaJar.destinationDir/$schemaJar.archiveName"
@@ -59,7 +59,7 @@ class XmlBeansPlugin implements Plugin<Project>
         )
 
         project.task("cleanSchemaCompile",
-            group: "xmlBeans",
+            group: "xmlSchema",
             type: Delete,
             description: "remove source and class files generated from xsd files", {
                 delete "$project.buildDir/$project.xmlBeans.classDir",
