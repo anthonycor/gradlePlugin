@@ -3,11 +3,11 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.SchemaCompile
 
-class XmlBeansPluginExtension
+class XmlBeansExtension
 {
     def String schemasDir = "schemas" // the directory containing the schemas to be compiled
     def String classDir = "xb" // the name of the directory in build or build/gensrc for the source and class files
@@ -16,11 +16,11 @@ class XmlBeansPluginExtension
 /**
  * Class that will convert xsd files into a jar file
  */
-class XmlBeansPlugin implements Plugin<Project>
+class XmlBeans implements Plugin<Project>
 {
     def void apply(Project project)
     {
-        project.extensions.create("xmlBeans", XmlBeansPluginExtension)
+        project.extensions.create("xmlBeans", XmlBeansExtension)
         def Task schemaCompile = project.task('schemaCompile',
                 group: "xmlSchema",
                 type: SchemaCompile,
