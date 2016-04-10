@@ -38,7 +38,7 @@ class XmlBeans implements Plugin<Project>
                 group: "xmlSchema",
                 type: Jar,
                 description: "produce schema jar file from directory '$project.xmlBeans.classDir'", {
-            from project.xmlBeans.classDir
+            from "$project.buildDir/$project.xmlBeans.classDir"
             exclude '**/*.java'
             baseName 'schemas'
             //baseName 'schemas'
