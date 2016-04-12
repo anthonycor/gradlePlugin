@@ -6,20 +6,20 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Created by susanh on 4/5/16.
  */
-class JspCompile extends DefaultTask
+class JspCompile2Java extends DefaultTask
 {
     @TaskAction
     def compile() {
         ant.taskdef(
                 name: 'jasper',
                 classname: 'org.apache.jasper.JspC',
-                classpath: project.configurations.jsp.asPath
+                classpath: project.configurations.jspCompile.asPath
         )
         ant.jasper(
-                uriroot: "$project.configurations.jsp.tempDir/webapp",
-                outputDir: "$project.configurations.jsp.tempDir/classes",
+                uriroot: "${project.buildDir}/${project.jspCompile.tempDir}/webapp",
+                outputDir: "${project.buildDir}/${project.jspCompile.tempDir}/classes",
                 package: "org.labkey.jsp.compiled",
-                compilerTargetVM: project.sourceCompatibility,
+                compilerTargetVM: project.targetCompatibility,
                 compilerSourceVM: project.sourceCompatibility,
                 trimSpaces: false,
                 compile: false,

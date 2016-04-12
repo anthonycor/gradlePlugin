@@ -21,6 +21,12 @@ class XmlBeans implements Plugin<Project>
     def void apply(Project project)
     {
         project.extensions.create("xmlBeans", XmlBeansExtension)
+        project.configurations ({
+            xmlbeans
+        })
+        project.dependencies ({
+            xmlbeans 'org.apache.xmlbeans:xbean:2.5.0'
+        })
         def Task schemaCompile = project.task('schemaCompile',
                 group: "xmlSchema",
                 type: SchemaCompile,

@@ -13,14 +13,14 @@ class SchemaCompile extends DefaultTask {
     ant.taskdef(
             name: 'xmlbean',
             classname: 'org.apache.xmlbeans.impl.tool.XMLBean',
-            classpath: project.rootProject.configurations.xmlbeans.asPath
+            classpath: project.configurations.xmlbeans.asPath
     )
     ant.xmlbean(
             schema: project.file(project.xmlBeans.schemasDir),
             javasource: project.sourceCompatibility,
             srcgendir: "$project.srcGenDir/$project.xmlBeans.classDir",
             classgendir: new File(project.buildDir, project.xmlBeans.classDir),
-            classpath: project.rootProject.configurations.xmlbeans.asPath,
+            classpath: project.configurations.xmlbeans.asPath,
             failonerror: true
     )
   }
