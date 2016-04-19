@@ -106,7 +106,7 @@ class Jsp implements Plugin<Project>
             exclude '**/*.java'
             //baseName "${project.name}_jsp"
             archiveName "${project.name}_jsp.jar" // TODO remove this in favor of a versioned jar file when other items have change
-            destinationDir = project.libDir
+            destinationDir = project.file(project.libDir)
         })
         jspJar.dependsOn(project.tasks.compileJspJava)
 

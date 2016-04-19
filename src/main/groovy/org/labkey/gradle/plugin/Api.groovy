@@ -53,7 +53,7 @@ class Api implements Plugin<Project>
                     from project.sourceSets['api'].output.classesDir
 //                    baseName "${project.name}-api"
                     archiveName "${project.name}-api"
-                    destinationDir = project.libDir
+                    destinationDir = project.file(project.libDir)
                 })
         apiJar.dependsOn(project.apiClasses)
         project.artifacts
