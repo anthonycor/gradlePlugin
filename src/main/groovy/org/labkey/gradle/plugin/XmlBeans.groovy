@@ -21,13 +21,25 @@ class XmlBeans implements Plugin<Project>
     def void apply(Project project)
     {
         project.extensions.create("xmlBeans", XmlBeansExtension)
-        project.configurations ({
-            xmlbeans
-        })
-        project.dependencies ({
-            xmlbeans 'org.apache.xmlbeans:xbean:2.5.0'
-        })
-        def Task schemaCompile = project.task('schemaCompile',
+        addDependencies(project)
+        addTasks(project)
+    }
+
+    private void addDependencies(Project project)
+    {
+        project.configurations
+                {
+                    xmlbeans
+                }
+        project.dependencies
+                {
+                    xmlbeans 'org.apache.xmlbeans:xbean:2.5.0'
+                }
+    }
+
+    private void addTasks(Project project)
+    {
+        def Task schemasCompile = project.task('schemasCompile',
                 group: "xmlSchema",
                 type: SchemaCompile,
                 description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes",
@@ -36,41 +48,47 @@ class XmlBeans implements Plugin<Project>
                     outputs.dir "$project.buildDir/$project.xmlBeans.classDir"
                 }
         )
-        schemaCompile.onlyIf {
+        schemasCompile.onlyIf {
             project.file(project.xmlBeans.schemasDir).exists()
         }
 
-        def Task schemaJar = project.task('schemaJar',
+        def Task schemasJar = project.task('schemasJar',
                 group: "xmlSchema",
                 type: Jar,
-                description: "produce schema jar file from directory '$project.xmlBeans.classDir'", {
-            from "$project.buildDir/$project.xmlBeans.classDir"
-            exclude '**/*.java'
-            baseName 'schemas'
-            //baseName 'schemas'
-            archiveName 'schemas.jar' // TODO remove this in favor of a versioned jar file when other items have change
-            destinationDir = project.libDir
-        })
-        schemaJar.dependsOn(schemaCompile)
-        schemaJar.onlyIf {
-            project.file(project.xmlBeans.schemasDir).exists()
-        }
+                description: "produce schemas jar file from directory '$project.xmlBeans.classDir'",
+                {
+                    from "$project.buildDir/$project.xmlBeans.classDir"
+                    exclude '**/*.java'
+                    baseName 'schemas'
+                    //baseName 'schemas'
+                    archiveName 'schemas.jar' // TODO remove this in favor of a versioned jar file when other items have change
+                    destinationDir = project.libDir
+                }
+        )
+        schemasJar.dependsOn(schemasCompile)
+        schemasJar.onlyIf
+                {
+                    project.file(project.xmlBeans.schemasDir).exists()
+                }
 
-        project.task("cleanSchemaJar",
+        project.task("cleanSchemasJar",
                 group: "xmlSchema",
                 type: Delete,
-                description: "remove schema jar file", {
-                    delete "$schemaJar.destinationDir/$schemaJar.archiveName"
+                description: "remove schema jar file",
+                {
+                    delete "$schemasJar.destinationDir/$schemasJar.archiveName"
                 }
         )
 
-        project.task("cleanSchemaCompile",
-            group: "xmlSchema",
-            type: Delete,
-            description: "remove source and class files generated from xsd files", {
-                delete "$project.buildDir/$project.xmlBeans.classDir",
-                        "$project.srcGenDir/$project.xmlBeans.classDir"
-        })
+        project.task("cleanSchemasCompile",
+                group: "xmlSchema",
+                type: Delete,
+                description: "remove source and class files generated from xsd files",
+                {
+                    delete "$project.buildDir/$project.xmlBeans.classDir",
+                    "$project.srcGenDir/$project.xmlBeans.classDir"
+                }
+        )
     }
 }
 

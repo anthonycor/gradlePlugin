@@ -18,24 +18,12 @@ class Jsp implements Plugin<Project>
         project.apply plugin: 'java-base'
         project.extensions.create("jspCompile", JspCompileExtension)
 
-        manageRepositories(project)
+        addDependencies(project)
         addSourceSet(project)
         addConfiguration(project)
         addDependencies(project)
         addJspTasks(project)
 
-    }
-
-    private void manageRepositories(Project project)
-    {
-        // TODO I doubt this does the right thing, but we definitely need the tomcat version of servlet when compiling
-        project.repositories
-                {
-                    flatDir dirs: "${project.rootProject.tomcatDir}/lib"
-                    flatDir dirs: project.file(project.jspCompile.extraLibDir)
-                    flatDir dirs: project.webappLibDir
-                    flatDir dirs: project.webappJspDir
-                }
     }
 
     private void addSourceSet(Project project)
@@ -64,6 +52,7 @@ class Jsp implements Plugin<Project>
         project.configurations
                 {
                     jspCompile
+                    jsp
                 }
         project.dependencies
                 {
@@ -78,6 +67,9 @@ class Jsp implements Plugin<Project>
                         'org.apache:jasper-el',
                         'org.labkey:api',
                         "org.labkey:${project.name}-api"
+                    jsp     'org.apache.tomcat:jasper',
+                            'org.apaache.tomcat:bootstrap',
+                            'org.apache.tomcat:tomcat-juli'
                 }
     }
 
