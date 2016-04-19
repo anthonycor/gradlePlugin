@@ -17,7 +17,7 @@ class SchemaCompile extends DefaultTask {
     )
     ant.xmlbean(
             schema: project.file(project.xmlBeans.schemasDir),
-            javasource: project.sourceCompatibility,
+            javasource: project.labkey.sourceCompatibility,
             srcgendir: "$project.srcGenDir/$project.xmlBeans.classDir",
             classgendir: new File(project.buildDir, project.xmlBeans.classDir),
             classpath: project.configurations.xmlbeans.asPath,

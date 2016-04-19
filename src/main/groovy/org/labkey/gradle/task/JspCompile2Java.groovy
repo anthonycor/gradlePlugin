@@ -19,8 +19,8 @@ class JspCompile2Java extends DefaultTask
                 uriroot: "${project.buildDir}/${project.jspCompile.tempDir}/webapp",
                 outputDir: "${project.buildDir}/${project.jspCompile.tempDir}/classes",
                 package: "org.labkey.jsp.compiled",
-                compilerTargetVM: project.targetCompatibility,
-                compilerSourceVM: project.sourceCompatibility,
+                compilerTargetVM: project.labkey.targetCompatibility,
+                compilerSourceVM: project.labkey.sourceCompatibility,
                 trimSpaces: false,
                 compile: false,
                 listErrors: true

@@ -11,7 +11,7 @@ import org.gradle.api.Project
  *
  * Created by susanh on 4/5/16.
  */
-class Module implements Plugin<Project>
+class Module extends LabKey
 {
     // Deprecated: instead of creating this file,
     // set the skipBuild property to true in the module's build.gradle file
@@ -39,7 +39,7 @@ class Module implements Plugin<Project>
                 indicators.add(_skipBuildFile + " exists")
             if (!project.file(_modulePropertiesFile).exists())
                 indicators.add(_modulePropertiesFile + " does not exist")
-            if (project.skipBuild)
+            if (project.labkey.skipBuild)
                 indicators.add("skipBuild property set for Gradle project")
 
             if (indicators.size() > 0)
@@ -62,8 +62,6 @@ class Module implements Plugin<Project>
             _moduleProperties = new Properties();
             FileInputStream is = new FileInputStream(_project.file(_modulePropertiesFile))
             _moduleProperties.load(is)
-//            _moduleProperties.setProperty("vcsUrl", project.svnData.url)
-//            _moduleProperties.setProperty("vcsRevision", project.svnData.revisionNumber)
         }
         setVersion();
     }
@@ -96,7 +94,8 @@ class Module implements Plugin<Project>
                     flatDir dirs: "${_project.rootDir}/external/lib/server"
                     flatDir dirs: "${_project.rootDir}/external/lib/tomcat"
                     flatDir dirs: "${_project.rootDir}/external/lib/build"
-                    // where do we need the old version of servlet-api that comes from external/lib/build?
+                    // Where do we need the old version of servlet-api that comes from external/lib/build?
+                    // Put the tomcat lib directory first to find out.
                     flatDir dirs: "${_project.tomcatDir}/lib"
                     flatDir dirs: _project.file("lib")
                     flatDir dirs: "${_project.buildDir}/$_explodedModuleDir/lib"
@@ -112,6 +111,7 @@ class Module implements Plugin<Project>
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
                     compile _project.fileTree(dir: "${_project.explodedModuleDir}/lib", include: '*.jar')
+                    compile _project.fileTree(dir: "${_project.modulesApiDir}", include: '*.jar')
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
