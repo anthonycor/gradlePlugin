@@ -99,13 +99,13 @@ class Module implements Plugin<Project>
                     flatDir dirs: _project.webappLibDir
                     flatDir dirs: _project.webappJspDir
                     flatDir dirs: _project.project(":remoteapi:java").buildDir
+                    flatDir dirs: _project.project(":server:internal").buildDir
                 }
         _project.dependencies
                 {
                     compile _project.project(":server:api")
                     compile _project.project(":server:internal")
-                    compile 'org.labkey:internal'
-                    compile 'org.labkey:labkey-client-api:DevBuild'
+                    compile _project.project(":remoteapi:java")
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
