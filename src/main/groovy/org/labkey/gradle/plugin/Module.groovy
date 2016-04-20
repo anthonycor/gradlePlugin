@@ -89,28 +89,14 @@ class Module extends LabKey
 
     private void addDependencies()
     {
-        _project.repositories
-                {
-                    flatDir dirs: "${_project.rootDir}/external/lib/server"
-                    flatDir dirs: "${_project.rootDir}/external/lib/tomcat"
-                    flatDir dirs: "${_project.rootDir}/external/lib/build"
-                    // Where do we need the old version of servlet-api that comes from external/lib/build?
-                    // Put the tomcat lib directory first to find out.
-                    flatDir dirs: "${_project.tomcatDir}/lib"
-                    flatDir dirs: _project.file("lib")
-                    flatDir dirs: "${_project.buildDir}/$_explodedModuleDir/lib"
-                    flatDir dirs: _project.modulesApiDir
-                    flatDir dirs: _project.webappLibDir
-                    flatDir dirs: _project.webappJspDir
-                    flatDir dirs: "${_project.rootProject.buildDir}/client-api/java/jar/"
-                    flatDir dirs: _project.project(":server:internal").buildDir
-                }
         _project.dependencies
                 {
                     compile _project.project(":server:api")
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
                     compile _project.fileTree(dir: "${_project.explodedModuleDir}/lib", include: '*.jar')
+                    // TODO this adds in all of the api jar files, mimicking what is done in ant.  We should
+                    // replace this in favor of specific versions.
                     compile _project.fileTree(dir: "${_project.modulesApiDir}", include: '*.jar')
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
