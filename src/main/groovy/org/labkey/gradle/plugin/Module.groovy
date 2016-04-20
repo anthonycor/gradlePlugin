@@ -102,7 +102,7 @@ class Module extends LabKey
                     flatDir dirs: _project.modulesApiDir
                     flatDir dirs: _project.webappLibDir
                     flatDir dirs: _project.webappJspDir
-                    flatDir dirs: _project.project(":remoteapi:java").buildDir
+                    flatDir dirs: "${_project.rootProject.buildDir}/client-api/java/jar/"
                     flatDir dirs: _project.project(":server:internal").buildDir
                 }
         _project.dependencies

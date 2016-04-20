@@ -25,11 +25,9 @@ class LabKey implements Plugin<Project>
             buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
         }
         project.ext {
-            webappLibDir = "${project.buildDir}/${STAGING_WEBINF_DIR}/lib"
-
-            modulesApiDir = "${project.buildDir}/modules-api"
-            webappLibDir = "${project.buildDir}/${STAGING_WEBINF_DIR}/lib"
-            webappJspDir = "${project.buildDir}/${STAGING_WEBINF_DIR}/jsp"
+            modulesApiDir = "${project.rootProject.buildDir}/modules-api"
+            webappLibDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/lib"
+            webappJspDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/jsp"
 
             tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : System.properties['tomcat.home']
             explodedModuleDir = "${project.buildDir}/explodedModule"
