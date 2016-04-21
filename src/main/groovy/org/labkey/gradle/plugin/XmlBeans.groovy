@@ -45,7 +45,7 @@ class XmlBeans implements Plugin<Project>
                 description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes",
                 {
                     inputs.dir  project.xmlBeans.schemasDir
-                    outputs.dir "$project.srcGenDir/$project.xmlBeans.classDir"
+                    outputs.dir "$project.labkey.srcGenDir/$project.xmlBeans.classDir"
                 }
         )
         schemasCompile.onlyIf {
@@ -62,7 +62,7 @@ class XmlBeans implements Plugin<Project>
                     baseName 'schemas'
                     //baseName 'schemas'
                     archiveName 'schemas.jar' // TODO remove this in favor of a versioned jar file when other items have change
-                    destinationDir = project.file(project.libDir)
+                    destinationDir = project.file(project.labkey.libDir)
                 }
         )
         schemasJar.dependsOn(schemasCompile)
@@ -86,7 +86,7 @@ class XmlBeans implements Plugin<Project>
                 description: "remove source and class files generated from xsd files",
                 {
                     delete "$project.buildDir/$project.xmlBeans.classDir",
-                    "$project.srcGenDir/$project.xmlBeans.classDir"
+                    "$project.labkey.srcGenDir/$project.xmlBeans.classDir"
                 }
         )
     }

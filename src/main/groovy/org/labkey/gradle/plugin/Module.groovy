@@ -32,6 +32,7 @@ class Module extends LabKey
         _project.apply plugin: 'labKeyDbSchema'
         _project.apply plugin: 'labKeyApi'
         _project.apply plugin: 'labKeyJsp'
+        _project.apply plugin: 'labKeySpringConfig'
 
         _project.build.onlyIf({
             def List<String> indicators = new ArrayList<>();
@@ -54,6 +55,7 @@ class Module extends LabKey
     }
 
 
+
     private void readModuleProperties()
     {
         File propertiesFile = _project.file(_modulePropertiesFile);
@@ -73,20 +75,6 @@ class Module extends LabKey
         _project.version = _project.rootProject.version;
     }
 
-    private void showRepositories(String message)
-    {
-        println "=== ${_project.name} ==="
-        if (message != null)
-            println message
-        _project.repositories.each( {
-            repository ->
-                for (File file : repository.getDirs())
-                {
-                    println(file.getAbsolutePath());
-                }
-        })
-    }
-
     private void addDependencies()
     {
         _project.dependencies
@@ -94,13 +82,14 @@ class Module extends LabKey
                     compile _project.project(":server:api")
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
-                    compile _project.fileTree(dir: "${_project.explodedModuleDir}/lib", include: '*.jar')
-                    // TODO this adds in all of the api jar files, mimicking what is done in ant.  We should
-                    // replace this in favor of specific versions.
-                    compile _project.fileTree(dir: "${_project.modulesApiDir}", include: '*.jar')
+                    compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar')
+//                    // TODO this adds in all of the api jar files, mimicking what is done in ant.  We should
+//                    // replace this in favor of specific versions.
+//                    compile _project.fileTree(dir: "${_project.labkey.modulesApiDir}", include: '*.jar')
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
+        _project.tasks.jsp2Java.dependsOn('apiJar')
     }
 
 }

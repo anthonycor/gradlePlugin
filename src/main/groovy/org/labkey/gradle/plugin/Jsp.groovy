@@ -10,7 +10,7 @@ import org.labkey.gradle.task.JspCompile2Java
 /**
  * Created by susanh on 4/11/16.
  */
-class Jsp implements Plugin<Project>
+class Jsp extends LabKey
 {
     @Override
     void apply(Project project)
@@ -18,10 +18,9 @@ class Jsp implements Plugin<Project>
         project.apply plugin: 'java-base'
         project.extensions.create("jspCompile", JspCompileExtension)
 
-        addDependencies(project)
-        addSourceSet(project)
         addConfiguration(project)
         addDependencies(project)
+        addSourceSet(project)
         addJspTasks(project)
 
     }
@@ -44,16 +43,12 @@ class Jsp implements Plugin<Project>
         project.configurations
                 {
                     jspCompile
+                    jsp
                 }
     }
 
     private void addDependencies(Project project)
     {
-        project.configurations
-                {
-                    jspCompile
-                    jsp
-                }
         project.dependencies
                 {
                     jspCompile  'org.apache.tomcat:jasper', // TODO check for proper group designation
@@ -66,7 +61,7 @@ class Jsp implements Plugin<Project>
                         'org.apache.tomcat:el-api',
                         'org.apache:jasper-el',
                         'org.labkey:api',
-                        "org.labkey:${project.name}-api"
+                        "org.labkey:${project.name}_api"
                     jsp     'org.apache.tomcat:jasper',
                             'org.apaache.tomcat:bootstrap',
                             'org.apache.tomcat:tomcat-juli'
@@ -77,12 +72,6 @@ class Jsp implements Plugin<Project>
     {
         def FileTree jspTree = project.fileTree("src").include('**/*.jsp');
         jspTree += project.fileTree("resources").include("**/*.jsp");
-
-//        project.task("listJsps") << {
-//            jspTree.each({ File file ->
-//                println file
-//            })
-//        }
 
         def Task jspCompileTask = project.task('jsp2Java',
                 group: "jsp",
@@ -106,7 +95,7 @@ class Jsp implements Plugin<Project>
             exclude '**/*.java'
             //baseName "${project.name}_jsp"
             archiveName "${project.name}_jsp.jar" // TODO remove this in favor of a versioned jar file when other items have change
-            destinationDir = project.file(project.libDir)
+            destinationDir = project.file(project.labkey.libDir)
         })
         jspJar.dependsOn(project.tasks.compileJspJava)
 

@@ -38,8 +38,7 @@ class Api implements Plugin<Project>
                 {
                     apiCompile  project.project(":server:api"),
                         project.project(":server:internal"),
-//                        project.project(":remoteapi:java"),
-                        'org.labkey:labkey-client-api:DevBuild' // TODO bad version name
+                        project.project(":remoteapi:java")
                 }
     }
 
@@ -53,7 +52,7 @@ class Api implements Plugin<Project>
                     from project.sourceSets['api'].output.classesDir
 //                    baseName "${project.name}-api"
                     archiveName "${project.name}-api.jar"
-                    destinationDir = project.file(project.libDir)
+                    destinationDir = project.file(project.labkey.libDir)
                 })
         apiJar.dependsOn(project.apiClasses)
         project.artifacts

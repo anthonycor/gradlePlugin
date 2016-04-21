@@ -24,7 +24,7 @@ class DbSchema implements Plugin<Project>
                             srcDirs = ['resources']
                             exclude "schemas/**/obsolete/**"
                         }
-                        output.resourcesDir = project.explodedModuleDir
+                        output.resourcesDir = project.labkey.explodedModuleDir
                     }
                 }
     }

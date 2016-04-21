@@ -10,6 +10,9 @@ class JspCompile2Java extends DefaultTask
 {
     @TaskAction
     def compile() {
+        File uriRoot = new File("${project.buildDir}/${project.jspCompile.tempDir}/webapp")
+        if (!uriRoot.exists())
+            uriRoot.mkdirs();
         ant.taskdef(
                 name: 'jasper',
                 classname: 'org.apache.jasper.JspC',
