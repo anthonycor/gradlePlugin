@@ -34,12 +34,7 @@ class Module extends LabKey
     {
         _project = project;
 
-        _project.apply plugin: 'xmlBeans'
         _project.apply plugin: 'java-base'
-        _project.apply plugin: 'labKeyDbSchema'
-        _project.apply plugin: 'labKeyApi'
-        _project.apply plugin: 'labKeyJsp'
-        _project.apply plugin: 'labKeySpringConfig'
 
         _project.build.onlyIf({
             def List<String> indicators = new ArrayList<>();
@@ -56,9 +51,46 @@ class Module extends LabKey
             }
             return indicators.isEmpty()
         })
+
+        _project.apply plugin: 'xmlBeans'
+        _project.apply plugin: 'labKeyDbSchema'
+        _project.apply plugin: 'labKeyApi'
+        _project.apply plugin: 'labKeyJsp'
+        _project.apply plugin: 'labKeySpringConfig'
+        _project.apply plugin: 'labKeyWebapp'
+        _project.apply plugin: 'labKeyLibResources'
+
+        setJavaBuildProperties()
         setModuleProperties()
         addTasks()
         addDependencies()
+    }
+
+    private void setJavaBuildProperties()
+    {
+        _project.sourceCompatibility = _project.labkey.sourceCompatibility
+        _project.targetCompatibility = _project.labkey.targetCompatibility
+
+        _project.libsDirName = 'explodedModule/lib'
+
+        addSourceSets()
+
+        _project.jar {
+            manifest.attributes provider: 'LabKey'
+            // TODO set other attributes for manifest?
+            archiveName "${project.name}.jar"
+        }
+    }
+
+    private void addSourceSets()
+    {
+        _project.sourceSets {
+            main {
+                java {
+                    srcDirs = ['src', 'gwtsrc']
+                }
+            }
+        }
     }
 
     private void setVcsProperties()
@@ -110,6 +142,7 @@ class Module extends LabKey
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
         _project.tasks.jsp2Java.dependsOn('apiJar')
+
     }
 
     private static void readProperties(File propertiesFile, Properties properties)

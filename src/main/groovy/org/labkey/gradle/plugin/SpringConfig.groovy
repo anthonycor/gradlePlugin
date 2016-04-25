@@ -37,5 +37,6 @@ class SpringConfig extends LabKey
                         output.resourcesDir = _configDir
                     }
                 }
+        _project.tasks.processResources.dependsOn('processSpringResources')
     }
 }

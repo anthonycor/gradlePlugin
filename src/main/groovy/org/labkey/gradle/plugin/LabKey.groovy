@@ -32,7 +32,6 @@ class LabKey implements Plugin<Project>
 
             stagingModulesDir = "${project.rootProject.buildDir}/${STAGING_MODULES_DIR}"
             explodedModuleDir = "${project.buildDir}/explodedModule"
-//            explodedModuleWebDir = "${explodedModuleDir}/web"
             libDir = "${explodedModuleDir}/lib"
             srcGenDir = "${project.buildDir}/gensrc"
         }

@@ -59,5 +59,6 @@ class Api implements Plugin<Project>
                 {
                     apiCompile apiJar
                 }
+        project.tasks.assemble.dependsOn(apiJar)
     }
 }

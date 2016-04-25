@@ -22,7 +22,6 @@ class Jsp extends LabKey
         addDependencies(project)
         addSourceSet(project)
         addJspTasks(project)
-
     }
 
     private void addSourceSet(Project project)
@@ -53,17 +52,17 @@ class Jsp extends LabKey
                 {
                     jspCompile  'org.apache.tomcat:jasper', // TODO check for proper group designation
                         'org.apache.tomcat:jsp-api',
-                        'javax.servlet:servlet-api',
+                        'javax.servlet:servlet-api', // FIXME this needs to be the newer one; how do we specify that?
                         'org.apache.tomcat:tomcat-juli',
                         'org.apache.tomcat:tomcat-api',
                         'org.apache.tomcat:tomcat-util-scan',
                         'org.apache.tomcat:tomcat-util',
                         'org.apache.tomcat:el-api',
                         'org.apache:jasper-el',
-                        'org.labkey:api',
-                        "org.labkey:${project.name}_api"
+                        project.project(":server:api"),
+                        "org.labkey:${project.name}-api"
                     jsp     'org.apache.tomcat:jasper',
-                            'org.apaache.tomcat:bootstrap',
+                            'org.apache.tomcat:bootstrap',
                             'org.apache.tomcat:tomcat-juli'
                 }
     }
@@ -102,12 +101,12 @@ class Jsp extends LabKey
         project.artifacts {
             jspCompile jspJar
         }
+        project.tasks.assemble.dependsOn(jspJar)
     }
 }
 
 class JspCompileExtension
 {
     def String tempDir = "jspTempDir"
-    def String extraLibDir = "lib"
     def String classDir = "$tempDir/classes"
 }
