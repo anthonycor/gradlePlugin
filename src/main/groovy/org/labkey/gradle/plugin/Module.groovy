@@ -95,7 +95,7 @@ class Module extends LabKey
 
     private void setVcsProperties()
     {
-        _moduleProperties.setProperty("VcsURL", "???") // TODO
+        _moduleProperties.setProperty("VcsURL", "???") // TODO: best plugin available assumes old SVN layout that has .svn in each directory
         _moduleProperties.setProperty("VcsRevision", "???")
         _moduleProperties.setProperty("BuildNumber", "???") // TODO where does this come from in TeamCity?
     }
@@ -137,7 +137,7 @@ class Module extends LabKey
                     compile _project.project(":server:api")
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
-                    compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar')
+//                    compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar')
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
@@ -160,7 +160,6 @@ class Module extends LabKey
                 if (is != null)
                     is.close()
             }
-
         }
     }
 

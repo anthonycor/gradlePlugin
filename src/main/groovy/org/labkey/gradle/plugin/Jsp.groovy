@@ -1,6 +1,5 @@
 package org.labkey.gradle.plugin
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileTree
@@ -44,6 +43,11 @@ class Jsp extends LabKey
                     jspCompile
                     jsp
                 }
+        project.configurations.getByName('jspCompile') {
+            resolutionStrategy {
+                force 'javax.servlet:servlet-api:3.1' // the version number here is sort of irrelevant; it just needs to be something other than the old 2.4 veresion in external/libs/build
+            }
+        }
     }
 
     private void addDependencies(Project project)

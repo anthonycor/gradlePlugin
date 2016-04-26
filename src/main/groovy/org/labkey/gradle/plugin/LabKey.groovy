@@ -25,6 +25,10 @@ class LabKey implements Plugin<Project>
         project.subprojects { subproject ->
             buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
         }
+        project.versioning {
+            scm = "svn"
+        }
+//        println "${project.name} - build number ${project.versioning.info.build}"
         project.labkey {
             modulesApiDir = "${project.rootProject.buildDir}/modules-api"
             webappLibDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/lib"
