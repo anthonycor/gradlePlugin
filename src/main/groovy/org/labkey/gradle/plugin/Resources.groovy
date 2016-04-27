@@ -6,7 +6,7 @@ import org.gradle.api.Project
 /**
  * Created by susanh on 4/11/16.
  */
-class DbSchema implements Plugin<Project>
+class Resources implements Plugin<Project>
 {
     @Override
     void apply(Project project)

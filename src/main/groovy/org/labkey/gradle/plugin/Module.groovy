@@ -52,7 +52,7 @@ class Module extends LabKey
         })
 
         _project.apply plugin: 'org.labkey.xmlBeans'
-        _project.apply plugin: 'org.labkey.dbSchema'
+        _project.apply plugin: 'org.labkey.resources'
         _project.apply plugin: 'org.labkey.api'
         _project.apply plugin: 'org.labkey.jsp'
         _project.apply plugin: 'org.labkey.springConfig'
@@ -220,7 +220,7 @@ class Module extends LabKey
                 }
         )
 
-        def Task moduleFile = _project.task("moduleFile",
+        def Task moduleFile = _project.task("module",
                 group: "module",
                 type: Jar,
                 description: "create ",
@@ -235,7 +235,7 @@ class Module extends LabKey
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
-        moduleFile.dependsOn(modulesXmlTask, _project.tasks.assemble) // TODO is this the right dependency?
+        moduleFile.dependsOn(modulesXmlTask, _project.tasks.assemble)
         _project.tasks.build.dependsOn(moduleFile)
     }
 }
