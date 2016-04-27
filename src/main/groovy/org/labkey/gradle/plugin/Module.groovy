@@ -51,13 +51,13 @@ class Module extends LabKey
             return indicators.isEmpty()
         })
 
-        _project.apply plugin: 'xmlBeans'
-        _project.apply plugin: 'labKeyDbSchema'
-        _project.apply plugin: 'labKeyApi'
-        _project.apply plugin: 'labKeyJsp'
-        _project.apply plugin: 'labKeySpringConfig'
-        _project.apply plugin: 'labKeyWebapp'
-        _project.apply plugin: 'labKeyLibResources'
+        _project.apply plugin: 'org.labkey.xmlBeans'
+        _project.apply plugin: 'org.labkey.dbSchema'
+        _project.apply plugin: 'org.labkey.api'
+        _project.apply plugin: 'org.labkey.jsp'
+        _project.apply plugin: 'org.labkey.springConfig'
+        _project.apply plugin: 'org.labkey.webapp'
+        _project.apply plugin: 'org.labkey.libResources'
 
         setJavaBuildProperties()
         setModuleProperties()
