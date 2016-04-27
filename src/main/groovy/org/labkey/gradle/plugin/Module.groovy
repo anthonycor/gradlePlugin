@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
@@ -137,7 +136,7 @@ class Module extends LabKey
                     compile _project.project(":server:api")
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
-//                    compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar')
+                    compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar') // TODO this seems like it should be a project(...) dependency
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
@@ -177,7 +176,6 @@ class Module extends LabKey
 
     private void addTasks()
     {
-
         def Task modulesXmlTask = _project.task('modulesXml',
                 group: "module",
                 type: Copy,
@@ -238,6 +236,7 @@ class Module extends LabKey
                 }
         )
         moduleFile.dependsOn(modulesXmlTask, _project.tasks.assemble) // TODO is this the right dependency?
+        _project.tasks.build.dependsOn(moduleFile)
     }
 }
 

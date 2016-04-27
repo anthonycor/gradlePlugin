@@ -60,7 +60,7 @@ class LabKey implements Plugin<Project>
     {
         project.task("showRepos", {
             doLast {
-                project.showRepositories(project, null);
+                this.showRepositories(project, null);
             }
         })
     }

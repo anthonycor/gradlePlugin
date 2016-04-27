@@ -22,11 +22,12 @@ class Webapp implements Plugin<Project>
                     webapp {
                         resources {
                             srcDirs = ['webapp']
-                            include 'share/**', 'WEB-INF/**'
-                            // we can exclude the spring configuration files when in dev mode because
-                            // the Java code will also look in the source/webapp directory for such files
+                            // The spring configuration files are copied by the SpringConfig plugin
+                            exclude "WEB-INF/${project.name}/**"
+                            // when in dev mode, the webapp files will be picked up from their original locations (???)
                             if (project.labkey.deployMode == LabKey.DeployMode.dev)
-                                exclude "WEB-INF/${project.name}/**"
+                                include 'share/**', 'WEB-INF/**'
+
                         }
                         output.resourcesDir = "${project.labkey.explodedModuleDir}/web"
                     }
