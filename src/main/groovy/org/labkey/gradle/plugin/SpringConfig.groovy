@@ -1,12 +1,6 @@
 package org.labkey.gradle.plugin
 
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.bundling.Jar
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 /**
  * Created by susanh on 4/20/16.
