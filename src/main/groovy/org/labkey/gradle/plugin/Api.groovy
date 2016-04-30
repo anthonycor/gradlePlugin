@@ -27,7 +27,7 @@ class Api implements Plugin<Project>
                         java {
                             srcDirs = ['api-src', 'intenral/gwtsrc']
                         }
-                        output.classesDir = 'api-classes'
+                        output.classesDir = "${project.buildDir}/api-classes"
                     }
                 }
     }
