@@ -19,7 +19,9 @@ class Resources implements Plugin<Project>
     {
         project.sourceSets
                 {
-                    schemas {
+                    // N.B. putting this resources section in the main sourceSet in Module.groovy
+                    // causes an infinite recursion when creating the jar file.
+                    base {
                         resources {
                             srcDirs = ['resources']
                             exclude "schemas/**/obsolete/**"
@@ -27,6 +29,6 @@ class Resources implements Plugin<Project>
                         output.resourcesDir = project.labkey.explodedModuleDir
                     }
                 }
-        project.tasks.processResources.dependsOn('processSchemasResources')
+        project.tasks.processResources.dependsOn('processBaseResources')
     }
 }
