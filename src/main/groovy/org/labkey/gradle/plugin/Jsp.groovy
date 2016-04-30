@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.JspCompile2Java
 
@@ -62,9 +63,7 @@ class Jsp extends LabKey
                         'org.apache.tomcat:tomcat-util-scan',
                         'org.apache.tomcat:tomcat-util',
                         'org.apache.tomcat:el-api',
-                        'org.apache:jasper-el',
-                        project.project(":server:api"),
-                        "org.labkey:${project.name}-api"
+                        'org.apache:jasper-el'
                     jsp     'org.apache.tomcat:jasper',
                             'org.apache.tomcat:bootstrap',
                             'org.apache.tomcat:tomcat-juli'
@@ -76,12 +75,41 @@ class Jsp extends LabKey
         def FileTree jspTree = project.fileTree("src").include('**/*.jsp');
         jspTree += project.fileTree("resources").include("**/*.jsp");
 
+        def Task listJsps = project.task('listJsps', group: "jsp")
+        listJsps.doLast {
+                    jspTree.each ({
+                        println it.absolutePath
+                    })
+                }
+
+        def Task copyJsps = project.task('copyJsp', group: "jsp", type: Copy, description: "Copy jsp files to jsp compile directory",
+                {
+                    from 'src'
+                    into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
+                    include '**/*.jsp'
+
+                    from 'resources'
+                    into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/org/labkey/${project.name}"
+                    include '**/*.jsp'
+
+                })
+
+        def Task copyTags = project.task('copyTagLibs', group: "jsp", type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
+                {
+                    from project.labkey.stagingWebInfDir
+                    into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
+                    include 'web.xml'
+                    include '*.tld'
+                    include 'tags/**'
+                })
+
         def Task jspCompileTask = project.task('jsp2Java',
                 group: "jsp",
                 type: JspCompile2Java,
                 description: "compile jsp files into Java classes",
                 {
-                    inputs.files jspTree
+                    inputs.file copyJsps
+                    inputs.file copyTags
                     outputs.dir "${project.buildDir}/${project.jspCompile.classDir}"
                 }
         )
@@ -95,11 +123,11 @@ class Jsp extends LabKey
                 type: Jar,
                 description: "produce jar file of jsps", {
             from "${project.buildDir}/${project.jspCompile.classDir}"
-            exclude '**/*.java'
             //baseName "${project.name}_jsp"
             archiveName "${project.name}_jsp.jar" // TODO remove this in favor of a versioned jar file when other items have change
             destinationDir = project.file(project.labkey.libDir)
         })
+
         jspJar.dependsOn(project.tasks.compileJspJava)
 
         project.artifacts {

@@ -137,11 +137,19 @@ class Module extends LabKey
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
                     compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar') // TODO this seems like it should be a project(...) dependency
+                    jspCompile _project.project(":server:api")
+                    jspCompile _project.project(":server:internal")
+                    jspCompile _project.files("${_project.labkey.explodedModuleDir}/lib/${_project.name}.jar") {
+                        builtBy 'jar'
+                    }
+                    jspCompile _project.files("${_project.labkey.explodedModuleDir}/lib/${_project.name}_api.jar") {
+                        builtBy 'apiJar'
+                    }
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
         _project.tasks.jsp2Java.dependsOn('apiJar')
-
+        _project.tasks.jsp2Java.dependsOn('jar')
     }
 
     private static void readProperties(File propertiesFile, Properties properties)
@@ -223,7 +231,7 @@ class Module extends LabKey
         def Task moduleFile = _project.task("module",
                 group: "module",
                 type: Jar,
-                description: "create ",
+                description: "create the module file for this project",
                 {
                     from _project.labkey.explodedModuleDir
                     exclude '**/*.uptodate'

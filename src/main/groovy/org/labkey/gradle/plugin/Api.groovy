@@ -50,10 +50,14 @@ class Api implements Plugin<Project>
                 description: "produce jar file for api",
                 {
                     from project.sourceSets['api'].output.classesDir
-//                    baseName "${project.name}-api"
-                    archiveName "${project.name}-api.jar"
+//                    baseName "${project.name}_api"
+                    archiveName "${project.name}_api.jar"
                     destinationDir = project.file(project.labkey.libDir)
                 })
+        apiJar.onlyIf
+                {
+                    project.file(project.file('api-src')).exists()
+                }
         apiJar.dependsOn(project.apiClasses)
         project.artifacts
                 {

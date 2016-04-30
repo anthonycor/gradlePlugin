@@ -6,7 +6,7 @@ import org.gradle.api.Project
 /**
  * Created by susanh on 4/11/16.
  * This is meant to copy external jar files in a module's lib directory to the webapp lib directory.
- * FIXME: will the "application" plugin do a better job here?
+ * CONSIDER: will the "application" plugin do a better job here?
  */
 class LibResources implements Plugin<Project>
 {

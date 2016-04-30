@@ -11,8 +11,10 @@ import org.gradle.api.Project
  */
 class LabKey implements Plugin<Project>
 {
-    private static final String STAGING_MODULES_DIR = "staging/modules/"
-    private static final String STAGING_WEBINF_DIR = "staging/labkeyWebapp/WEB-INF/"
+    private static final String STAGING_DIR = "staging"
+    private static final String STAGING_MODULES_DIR = "${STAGING_DIR}/modules/"
+    private static final String STAGING_WEBAPP_DIR = "${STAGING_DIR}/labkeyWebapp"
+    private static final String STAGING_WEBINF_DIR = "${STAGING_WEBAPP_DIR}/WEB-INF/"
     public static final String LABKEY_GROUP = "org.labkey"
 
     public enum DeployMode { dev, test, prod }
@@ -25,15 +27,18 @@ class LabKey implements Plugin<Project>
         project.subprojects { subproject ->
             buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
         }
-        project.versioning {
+        project.versioning { // TODO
             scm = "svn"
         }
 //        println "${project.name} - build number ${project.versioning.info.build}"
         project.labkey {
             modulesApiDir = "${project.rootProject.buildDir}/modules-api"
+
             webappLibDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/lib"
             webappJspDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/jsp"
 
+            stagingWebInfDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}"
+            stagingWebappDir = "${project.rootProject.buildDir}/${STAGING_WEBAPP_DIR}"
             stagingModulesDir = "${project.rootProject.buildDir}/${STAGING_MODULES_DIR}"
             explodedModuleDir = "${project.buildDir}/explodedModule"
             libDir = "${explodedModuleDir}/lib"
@@ -78,7 +83,9 @@ class LabKeyExtension
     def String webappJspDir
     def String explodedModuleDir
     def String explodedModuleWebDir
+    def String stagingWebInfDir
     def String stagingModulesDir
+    def String stagingWebappDir
     def String libDir
     def String srcGenDir
 }
