@@ -34,6 +34,7 @@ class Module extends LabKey
         _project = project;
 
         _project.apply plugin: 'java-base'
+        setJavaBuildProperties()
 
         _project.build.onlyIf({
             def List<String> indicators = new ArrayList<>();
@@ -59,7 +60,10 @@ class Module extends LabKey
         _project.apply plugin: 'org.labkey.webapp'
         _project.apply plugin: 'org.labkey.libResources'
 
-        setJavaBuildProperties()
+        File gwtSrc = _project.file('gwtsrc')
+        if (gwtSrc.exists())
+            _project.apply plugin: 'org.labkey.gwt'
+
         setModuleProperties()
         addTasks()
         addDependencies()
@@ -86,7 +90,7 @@ class Module extends LabKey
         _project.sourceSets {
             main {
                 java {
-                    srcDirs = ['src', 'gwtsrc']
+                    srcDirs = ['src']
                 }
             }
         }
