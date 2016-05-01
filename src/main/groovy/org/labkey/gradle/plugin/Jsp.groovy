@@ -58,12 +58,15 @@ class Jsp extends LabKey
                     jspCompile  'org.apache.tomcat:jasper',
                         'org.apache.tomcat:jsp-api',
                         'javax.servlet:servlet-api:3.1',
-                        'org.apache.tomcat:tomcat-juli',
-                        'org.apache.tomcat:tomcat-api',
-                        'org.apache.tomcat:tomcat-util-scan',
-                        'org.apache.tomcat:tomcat-util',
-                        'org.apache.tomcat:el-api',
-                        'org.apache:jasper-el'
+                        'org.apache.tomcat:tomcat-juli'
+//                        'org.apache.tomcat:tomcat-api',
+//                        'org.apache.tomcat:tomcat-util-scan',
+//                        'org.apache.tomcat:tomcat-util',
+//                        'org.apache.tomcat:el-api',
+//                        'org.apache:jasper-el'
+                    jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar'])
+
+
                     jsp     'org.apache.tomcat:jasper',
                             'org.apache.tomcat:bootstrap',
                             'org.apache.tomcat:tomcat-juli'
