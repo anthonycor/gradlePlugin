@@ -1,10 +1,12 @@
 package org.labkey.test.pages.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.test.BaseWebDriverTest;
+import org.labkey.test.Locator;
 import org.labkey.test.WebTestHelper;
-import org.labkey.test.components.ComponentElements;
 import org.labkey.test.pages.LabKeyPage;
-import org.openqa.selenium.SearchContext;
+import org.labkey.test.selenium.LazyWebElement;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class BeginPage extends LabKeyPage
 {
@@ -15,19 +17,9 @@ public class BeginPage extends LabKeyPage
         super(test);
     }
 
-    protected static String getController()
-    {
-        return "@@MODULE_LOWERCASE_NAME@@";
-    }
-
-    protected static String getAction()
-    {
-        return "begin";
-    }
-
     public static BeginPage beginAt(BaseWebDriverTest test, String containerPath)
     {
-        test.beginAt(WebTestHelper.buildURL(getController(), containerPath, getAction()));
+        test.beginAt(WebTestHelper.buildURL("@@MODULE_LOWERCASE_NAME@@", containerPath, "begin"));
         return new BeginPage(test);
     }
 
@@ -38,12 +30,8 @@ public class BeginPage extends LabKeyPage
         return _elements;
     }
 
-    private class Elements extends ComponentElements
+    private class Elements extends LabKeyPage.ElementCache
     {
-        @Override
-        protected SearchContext getContext()
-        {
-            return getDriver();
-        }
+        WebElement example = new LazyWebElement(Locator.css("button"), this);
     }
 }
