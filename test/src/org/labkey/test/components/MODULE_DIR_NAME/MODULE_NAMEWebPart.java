@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 LabKey Corporation
+ * Copyright (c) 2016 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,38 @@
  * limitations under the License.
  */
 
-package org.labkey.test.pages.@@MODULE_LOWERCASE_NAME@@;
+package org.labkey.test.components.@@MODULE_LOWERCASE_NAME@@;
 
-import org.labkey.test.BaseWebDriverTest;
 import org.labkey.test.Locator;
-import org.labkey.test.WebTestHelper;
-import org.labkey.test.pages.LabKeyPage;
+import org.labkey.test.components.BodyWebPart;
+import org.labkey.test.components.WebPart;
 import org.labkey.test.selenium.LazyWebElement;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class BeginPage extends LabKeyPage
+public class @@MODULE_NAME@@WebPart extends BodyWebPart
 {
-    Elements _elements;
+    private Elements _elements;
 
-    public BeginPage(BaseWebDriverTest test)
+    public @@MODULE_NAME@@WebPart(WebDriver driver)
     {
-        super(test);
+        this(driver, 0);
     }
 
-    public static BeginPage beginAt(BaseWebDriverTest test, String containerPath)
+    public @@MODULE_NAME@@WebPart(WebDriver driver, int index)
     {
-        test.beginAt(WebTestHelper.buildURL("@@MODULE_LOWERCASE_NAME@@", containerPath, "begin"));
-        return new BeginPage(test);
+        super(driver, "@@MODULE_NAME@@", index); // Assuming your modules has a WebPart named @@MODULE_NAME@@
     }
 
-    public Elements elements()
+    protected Elements elements()
     {
-        if (_elements == null)
+        if (null == _elements)
             _elements = new Elements();
         return _elements;
     }
 
-    private class Elements extends LabKeyPage.ElementCache
+    protected class Elements extends WebPart.Elements
     {
-        WebElement example = new LazyWebElement(Locator.css("button"), this);
+        protected WebElement example = new LazyWebElement(Locator.css("button"), this);
     }
 }
