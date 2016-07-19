@@ -40,7 +40,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     @Override
     public double getVersion()
     {
-        return 15.31;
+        return 16.21;
     }
 
     @Override
