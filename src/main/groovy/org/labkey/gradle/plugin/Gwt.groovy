@@ -50,7 +50,8 @@ class Gwt implements Plugin<Project>
                     "com.google.gwt:gwt-dev:${GWT_VERSION}",
                     "com.sencha.gxt:gxt:${GXT_VERSION}",
                     "com.allen-sauer.gwt.dnd:gwt-dnd:${GWT_DND_VERSION}",
-                    "jcp.org:validation-api-${VALIDATION_VERSION}.GA:${VALIDATION_VERSION}"
+                    "jcp.org:validation-api-${VALIDATION_VERSION}.GA:${VALIDATION_VERSION}",
+                    "jcp.org:validation-api-${VALIDATION_VERSION}.GA:${VALIDATION_VERSION}@zip"
         }
 
     }
