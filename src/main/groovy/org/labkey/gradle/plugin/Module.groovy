@@ -248,6 +248,7 @@ class Module extends LabKey
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
+//        moduleFile.outputs.each{ println (it.getFiles().getFiles()) };
         moduleFile.dependsOn(modulesXmlTask, _project.tasks.assemble)
         _project.tasks.build.dependsOn(moduleFile)
     }

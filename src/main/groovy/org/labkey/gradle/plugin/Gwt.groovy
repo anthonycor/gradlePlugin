@@ -63,6 +63,11 @@ class Gwt implements Plugin<Project>
                     srcDir project.gwt.srcDir
                 }
             }
+            main {
+                java {
+                    srcDir project.gwt.srcDir
+                }
+            }
         }
     }
 
