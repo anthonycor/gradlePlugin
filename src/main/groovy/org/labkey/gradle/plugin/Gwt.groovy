@@ -78,7 +78,11 @@ class Gwt implements Plugin<Project>
         gwtModuleClasses.entrySet().each {
             def gwtModuleClass ->
 
-                def compileTask = project.task('compileGwt' + gwtModuleClass.getKey(), group: "gwt", type: JavaExec, description: "compile GWT source files for " + gwtModuleClass.getKey()  + " into JS",
+                def compileTask = project.task(
+                        'compileGwt' + gwtModuleClass.getKey(),
+                        group: "gwt",
+                        type: JavaExec,
+                        description: "compile GWT source files for " + gwtModuleClass.getKey()  + " into JS",
                         {
                             def extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
                             def outputDir = "${project.labkey.explodedModuleDir}/web"
