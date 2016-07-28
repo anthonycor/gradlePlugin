@@ -198,6 +198,7 @@ class Module extends LabKey
                     include 'module.template.xml'
                     rename {"module.xml"}
                     filter( { String line ->
+                        //Todo: migrate to ParsingUtils
                         def Matcher matcher = PROPERTY_PATTERN.matcher(line);
                         def String newLine = line;
                         while (matcher.find())

@@ -43,6 +43,10 @@ class LabKey implements Plugin<Project>
             explodedModuleDir = "${project.buildDir}/explodedModule"
             libDir = "${explodedModuleDir}/lib"
             srcGenDir = "${project.buildDir}/gensrc"
+
+            externalLib = "${project.rootProject}${File.separator}external${File.separator}lib"
+            deployDir = "${project.rootProject.buildDir}${File.separator}deploy"
+            deployWebappDir = "${deployDir}${File.separator}labkeyWebapp"
         }
         addTasks(project)
     }
@@ -88,4 +92,7 @@ class LabKeyExtension
     def String stagingWebappDir
     def String libDir
     def String srcGenDir
+    def String deployDir
+    def String deployWebappDir
+    def String externalLib
 }
