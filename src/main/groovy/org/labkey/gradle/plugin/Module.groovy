@@ -59,6 +59,7 @@ class Module extends LabKey
         _project.apply plugin: 'org.labkey.springConfig'
         _project.apply plugin: 'org.labkey.webapp'
         _project.apply plugin: 'org.labkey.libResources'
+        _project.apply plugin: 'org.labkey.clientLibraries'
 
         File gwtSrc = _project.file('gwtsrc')
         if (gwtSrc.exists())
