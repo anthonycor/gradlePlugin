@@ -38,7 +38,7 @@ class SqlUtils
         }
         catch (Exception e)
         {
-            println(e.toString());
+            project.logger.error(e.toString());
         }
 
     }
@@ -49,11 +49,11 @@ class SqlUtils
         {
             if (!project.ext.has("jdbcDatabase") || project.ext.jdbcDatabase.equals("labkey") || project.ext.jdbcDatabase.equals("cpas"))
             {
-                println("Must specify a database that is not 'labkey' or 'cpas'");
+                project.logger.error("Must specify a database that is not 'labkey' or 'cpas'");
             }
             else
             {
-                println("Attempting to drop database ${project.ext.jdbcDatabase}");
+                project.logger.info("Attempting to drop database ${project.ext.jdbcDatabase}");
                 Properties params = new Properties();
                 params.setProperty("tomcatHome", "${project.tomcatDir}");
                 params.setProperty("jdbcDatabase", "${project.ext.databaseMaster}");

@@ -154,11 +154,12 @@ class Gwt implements Plugin<Project>
         File gwtSrc = project.file(project.gwt.srcDir)
         FileTree tree = project.fileTree(dir: gwtSrc, includes: ["**/*${GWT_EXTENSION}"]);
         Map<String, String> nameToClass = new HashMap<>();
+        String separator = System.getProperty("file.separator").equals("\\") ? "\\\\" : System.getProperty("file.separator");
         for (File file : tree.getFiles())
         {
             String className = file.getPath()
             className = className.substring(gwtSrc.getPath().length() + 1); // lop off the part of the path before the package structure
-            className = className.replaceAll(System.getProperty("file.separator"), "."); // convert from path to class package
+            className = className.replaceAll(separator, "."); // convert from path to class package
             className = className.substring(0, className.indexOf(GWT_EXTENSION)); // remove suffix
             nameToClass.put(file.getName().substring(0, file.getName().indexOf(GWT_EXTENSION)),className);
         }

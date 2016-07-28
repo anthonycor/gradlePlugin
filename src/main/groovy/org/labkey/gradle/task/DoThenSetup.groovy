@@ -22,8 +22,8 @@ class DoThenSetup extends DefaultTask
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
         Properties configProperties = ParsingUtils.readConfigProperties(project);
-        project.ext.appDocBase = "${project.labkey.deployWebappDir}"
         configProperties.putAll(project.ext.properties);
+        configProperties.setProperty("appDocBase", "${project.labkey.deployWebappDir.replace("/", "\\")}");
         def boolean isNextLineComment = false;
         project.copy({
             from "${project.rootProject.projectDir}${File.separator}webapps"
@@ -54,14 +54,14 @@ class DoThenSetup extends DefaultTask
         })
 
         project.copy({
-            from "${project.labkey.externalLibDir}${File.separator}tomcat"
+            from "${project.labkey.externalLibDir}/tomcat"
             into "${project.tomcatDir}/lib"
             include "*.jar"
         })
 
         project.copy({
             from "${project.rootProject.buildDir}"
-            into "${project.labkey.externalLibDir}${File.separator}tomcat"
+            into "${project.labkey.externalLibDir}/tomcat"
             include "labkeyBootstrap.jar"
         })
     }
