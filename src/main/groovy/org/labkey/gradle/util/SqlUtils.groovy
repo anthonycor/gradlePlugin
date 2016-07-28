@@ -1,10 +1,7 @@
 package org.labkey.gradle.util
 
-import org.gradle.api.Project
-
-import org.labkey.gradle.util.ParsingUtils
-
 import groovy.sql.Sql
+import org.gradle.api.Project
 
 import java.sql.Driver
 import java.sql.DriverManager
@@ -31,7 +28,7 @@ class SqlUtils
         }
         Class driverClass = loader.loadClass(driverClassName)
 
-        Driver driverInstance = driverClass.newInstance()
+        Driver driverInstance = (Driver) driverClass.newInstance()
         DriverManager.registerDriver(driverInstance)
 
         try

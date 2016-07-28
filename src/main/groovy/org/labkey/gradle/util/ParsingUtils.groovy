@@ -1,11 +1,9 @@
 package org.labkey.gradle.util
 
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtraPropertiesExtension
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 
 class ParsingUtils
 {
@@ -57,10 +55,5 @@ class ParsingUtils
             }
         }
         return line;
-    }
-
-    public static String replaceProps(String line, ExtraPropertiesExtension props)
-    {
-        return replaceProps(line, (Properties)props.properties);
     }
 }

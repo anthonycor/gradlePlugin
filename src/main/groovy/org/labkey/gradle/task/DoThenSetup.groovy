@@ -54,14 +54,14 @@ class DoThenSetup extends DefaultTask
         })
 
         project.copy({
-            from "${project.labkey.externalLib}${File.separator}tomcat"
+            from "${project.labkey.externalLibDir}${File.separator}tomcat"
             into "${project.tomcatDir}/lib"
             include "*.jar"
         })
 
         project.copy({
             from "${project.rootProject.buildDir}"
-            into "${project.labkey.externalLib}${File.separator}tomcat"
+            into "${project.labkey.externalLibDir}${File.separator}tomcat"
             include "labkeyBootstrap.jar"
         })
     }
