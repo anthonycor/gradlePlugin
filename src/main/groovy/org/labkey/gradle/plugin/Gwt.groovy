@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileTree
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
@@ -75,6 +76,7 @@ class Gwt implements Plugin<Project>
     private void addTasks(Project project)
     {
         def Map<String, String> gwtModuleClasses = getGwtModuleClasses(project)
+        List<Task> gwtTasks = new ArrayList<>(gwtModuleClasses.size());
         gwtModuleClasses.entrySet().each {
             def gwtModuleClass ->
 
@@ -145,8 +147,14 @@ class Gwt implements Plugin<Project>
                             maxHeapSize = '512m'
                         }
                 )
-                project.tasks.classes.dependsOn(compileTask)
+                gwtTasks.add(compileTask)
         }
+        def compileGwt = project.task("compileGwt",
+                dependsOn: gwtTasks,
+                description: 'compile all GWT source files into JS',
+                group: 'gwt'
+        )
+        project.tasks.classes.dependsOn(compileGwt)
     }
 
     private static Map<String, String> getGwtModuleClasses(Project project)

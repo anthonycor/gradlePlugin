@@ -2,6 +2,8 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.file.FileTree
 import org.labkey.gradle.task.ClientLibsCompress
 
 class ClientLibraries implements Plugin<Project>
@@ -15,7 +17,8 @@ class ClientLibraries implements Plugin<Project>
 
     private void addTasks(Project project)
     {
-        def libXmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"])
+        def FileTree libXmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"])
+        def List<Task> libXmlTasks = new ArrayList<>(libXmlFiles.size());
         libXmlFiles.files.each() {
             def file ->
 
@@ -24,13 +27,20 @@ class ClientLibraries implements Plugin<Project>
                         'compress' + name.capitalize().substring(0, name.indexOf(LIB_XML_EXTENSION)) + "ClientLibs",
                         group: "Client Libraries",
                         type: ClientLibsCompress,
-                        description: "create minified, compressed javascript file using .lib.xml sources",
+                        description: "create minified, compressed javascript file from ${file.getName()}",
                         {
                             libXmlFile = file
                         }
                 )
-                task.dependsOn(project.tasks.processResources)
+                libXmlTasks.add(task)
         }
+        def compressLibsTask = project.task("compressClientLibs",
+                group: 'Client Libraries',
+                description: 'create minified, compressed javascript file use .lib.xml sources',
+                dependsOn: libXmlTasks
+        )
+        compressLibsTask.dependsOn(project.tasks.processResources);
+        project.tasks.assemble.dependsOn(compressLibsTask)
     }
 }
 
