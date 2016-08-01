@@ -119,7 +119,7 @@ class Jsp extends LabKey
                     outputs.dir "${project.buildDir}/${project.jspCompile.classDir}"
                 }
         )
-        if (project.hasProperty('apiJar"'))
+        if (project.hasProperty('apiJar'))
             jspCompileTask.dependsOn('apiJar')
         jspCompileTask.dependsOn('jar')
 
