@@ -5,9 +5,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Created by susanh on 7/27/16.
- */
+
 class ClientLibsCompress extends DefaultTask
 {
     @Input
@@ -22,8 +20,9 @@ class ClientLibsCompress extends DefaultTask
     @TaskAction
     def compress()
     {
-        def libXml
-        def sourceFile = new File(this.sourceDir, libXmlFile.getName())
+        def inputDirPrefix = project.file(project.clientLibs.libXmlParentDirectory)
+        def pathSuffix = libXmlFile.getPath().substring(inputDirPrefix.getPath().length())
+        def sourceFile = new File(this.sourceDir, pathSuffix)
         // TODO get rid of this in favor of porting the ClientLibraryBuilder class to Gradle/groovy
         ant.taskdef(
             name: "clientLibraryBuilder",
