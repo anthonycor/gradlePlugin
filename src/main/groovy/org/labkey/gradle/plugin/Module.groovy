@@ -8,7 +8,6 @@ import org.gradle.api.tasks.bundling.Jar
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
@@ -55,7 +54,7 @@ class Module extends LabKey
         _project.apply plugin: 'org.labkey.xmlBeans'
         _project.apply plugin: 'org.labkey.resources'
         _project.apply plugin: 'org.labkey.api'
-        _project.apply plugin: 'org.labkey.jsp'
+
         _project.apply plugin: 'org.labkey.springConfig'
         _project.apply plugin: 'org.labkey.webapp'
         _project.apply plugin: 'org.labkey.libResources'
@@ -68,6 +67,8 @@ class Module extends LabKey
         setModuleProperties()
         addTasks()
         addDependencies()
+
+        _project.apply plugin: 'org.labkey.jsp'
     }
 
     private void setJavaBuildProperties()
@@ -143,19 +144,9 @@ class Module extends LabKey
                     compile _project.project(":server:internal")
                     compile _project.project(":remoteapi:java")
                     compile _project.fileTree(dir: "${_project.labkey.explodedModuleDir}/lib", include: '*.jar') // TODO this seems like it should be a project(...) dependency
-                    jspCompile _project.project(":server:api")
-                    jspCompile _project.project(":server:internal")
-                    jspCompile _project.files("${_project.labkey.explodedModuleDir}/lib/${_project.name}.jar") {
-                        builtBy 'jar'
-                    }
-                    jspCompile _project.files("${_project.labkey.explodedModuleDir}/lib/${_project.name}_api.jar") {
-                        builtBy 'apiJar'
-                    }
                 }
         _project.tasks.compileJava.dependsOn('schemasJar')
         _project.tasks.compileJava.dependsOn('apiJar')
-        _project.tasks.jsp2Java.dependsOn('apiJar')
-        _project.tasks.jsp2Java.dependsOn('jar')
     }
 
     private static void readProperties(File propertiesFile, Properties properties)
@@ -250,7 +241,6 @@ class Module extends LabKey
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
-//        moduleFile.outputs.each{ println (it.getFiles().getFiles()) };
         moduleFile.dependsOn(modulesXmlTask, _project.tasks.assemble)
         _project.tasks.build.dependsOn(moduleFile)
     }

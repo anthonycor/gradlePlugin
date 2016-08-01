@@ -60,8 +60,15 @@ class Jsp extends LabKey
                         'javax.servlet:servlet-api:3.1',
                         'org.apache.tomcat:tomcat-juli'
                     jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar'])
-                    jspCompile project.configurations.compile.dependencies
-
+                    jspCompile project.project(":server:api")
+                    jspCompile project.project(":server:internal")
+                    jspCompile project.files("${project.labkey.explodedModuleDir}/lib/${project.name}.jar") {
+                        builtBy 'jar'
+                    }
+                    if (project.hasProperty('apiJar'))
+                        jspCompile project.files("${project.labkey.explodedModuleDir}/lib/${project.name}_api.jar") {
+                            builtBy 'apiJar'
+                        }
 
                     jsp     'org.apache.tomcat:jasper',
                             'org.apache.tomcat:bootstrap',
@@ -112,6 +119,9 @@ class Jsp extends LabKey
                     outputs.dir "${project.buildDir}/${project.jspCompile.classDir}"
                 }
         )
+        if (project.hasProperty('apiJar"'))
+            jspCompileTask.dependsOn('apiJar')
+        jspCompileTask.dependsOn('jar')
 
         project.tasks.compileJspJava {
             dependsOn jspCompileTask
