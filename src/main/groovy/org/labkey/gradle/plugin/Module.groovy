@@ -59,10 +59,12 @@ class Module extends LabKey
         _project.apply plugin: 'org.labkey.webapp'
         _project.apply plugin: 'org.labkey.libResources'
         _project.apply plugin: 'org.labkey.clientLibraries'
+        _project.apply plugin: 'org.labkey.gzip'
+
+        _project.gzipSettings.dirToZip = "${project.labkey.explodedModuleWebDir}"
 
         project.clientLibs.libXmlParentDirectory = new File("${project.labkey.explodedModuleDir}/web")
         project.clientLibs.outputDir = new File("${project.labkey.explodedModuleDir}/web")
-
 
         File gwtSrc = _project.file('gwtsrc')
         if (gwtSrc.exists())

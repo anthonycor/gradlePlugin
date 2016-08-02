@@ -41,6 +41,7 @@ class LabKey implements Plugin<Project>
             stagingWebappDir = "${project.rootProject.buildDir}/${STAGING_WEBAPP_DIR}"
             stagingModulesDir = "${project.rootProject.buildDir}/${STAGING_MODULES_DIR}"
             explodedModuleDir = "${project.buildDir}/explodedModule"
+            explodedModuleWebDir = "${explodedModuleDir}/web"
             libDir = "${explodedModuleDir}/lib"
             srcGenDir = "${project.buildDir}/gensrc"
             externalDir = "${project.rootProject.rootDir}/external"
