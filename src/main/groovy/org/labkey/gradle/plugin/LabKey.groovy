@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 
 /**
  * Defines a set of extension properties for ease of reference. This also and adds a labkey extension
@@ -34,6 +35,7 @@ class LabKey implements Plugin<Project>
         project.labkey {
             modulesApiDir = "${project.rootProject.buildDir}/modules-api"
 
+            webappClassesDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/classes"
             webappLibDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/lib"
             webappJspDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/jsp"
 
@@ -49,8 +51,28 @@ class LabKey implements Plugin<Project>
             webappDir = "${project.projectDir}/webapp"
             deployDir = "${project.rootProject.buildDir}/deploy"
             deployWebappDir = "${deployDir}/labkeyWebapp"
+            rootWebappsDir = "${project.rootProject.projectDir}/webapps"
         }
         addTasks(project)
+    }
+
+    protected static File getJavaRtDir()
+    {
+        File rtDir = new File(System.getenv('JAVA_HOME'), "/lib/java8");
+        if (!rtDir.exists())
+        {
+            rtDir = new File(System.getenv('JAVA_HOME'), "/lib")
+        }
+        return rtDir;
+    }
+
+    protected static FileTree getJavaBootClasspath(Project project)
+    {
+        File rtDir = getJavaRtDir();
+        if (rtDir.exists())
+        {
+            FileTree tree = project.fileTree(dir: rtDir.getPath(), include: ["*.jar"])
+        }
     }
 
     protected void showRepositories(Project project, String message)
@@ -85,6 +107,7 @@ class LabKeyExtension
     def String targetCompatibility = '1.8'
     def Boolean skipBuild = false // set this to true in an individual module's build.gradle file to skip building
     def String modulesApiDir
+    def String webappClassesDir
     def String webappLibDir
     def String webappJspDir
     def String explodedModuleDir
@@ -99,4 +122,5 @@ class LabKeyExtension
     def String webappDir
     def String deployDir
     def String deployWebappDir
+    def String rootWebappsDir
 }
