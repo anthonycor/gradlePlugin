@@ -55,7 +55,7 @@ class Jsp extends LabKey
     {
         project.dependencies
                 {
-                        jspCompile  'org.apache.tomcat:jasper',
+                    jspCompile  'org.apache.tomcat:jasper',
                         'org.apache.tomcat:jsp-api',
                         'javax.servlet:servlet-api:3.1',
                         'org.apache.tomcat:tomcat-juli'
