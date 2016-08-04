@@ -55,19 +55,12 @@ class Jsp extends LabKey
     {
         project.dependencies
                 {
-                    // TODO there may be a need to add other items to the classpath here to get rid of these warnings:
-//                    The XML schema [web-app_3_1.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
-//                    The XML schema [web-fragment_3_1.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
-//                    The XML schema [web-common_3_1.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
-//                    The XML schema [javaee_7.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
-//                    The XML schema [jsp_2_3.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
-//                    The XML schema [javaee_web_services_1_4.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
-//                    The XML schema [javaee_web_services_client_1_4.xsd] could not be found. This is very likely to break XML validation if XML validation is enabled.
                         jspCompile  'org.apache.tomcat:jasper',
                         'org.apache.tomcat:jsp-api',
                         'javax.servlet:servlet-api:3.1',
                         'org.apache.tomcat:tomcat-juli'
                     jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar'])
+                    jspCompile project.fileTree(dir: System.getenv('JAVA_HOME'), includes: ['tools.jar'])
                     jspCompile project.project(":server:api")
                     jspCompile project.project(":server:internal")
                     jspCompile project.files("${project.labkey.explodedModuleDir}/lib/${project.name}.jar") {
