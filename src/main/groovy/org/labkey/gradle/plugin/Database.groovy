@@ -27,6 +27,7 @@ class Database implements Plugin<Project>
         project.task("pickPg",
             group: 'Database',
             type: PickDb,
+            description: "Switch to PostgreSQL configuration",
             {
                 dbType = "pg"
             }
@@ -37,6 +38,7 @@ class Database implements Plugin<Project>
         project.task("pickMSSQL",
             group: 'Database',
             type: PickDb,
+            description: "Switch to SQL Server configuration",
             {
                 dbType = "mssql"
             }
@@ -47,7 +49,8 @@ class Database implements Plugin<Project>
     {
         project.task("bootstrap",
             group: 'Database',
-            type: Bootstrap
+            type: Bootstrap,
+            description: "Switch to bootstrap database properties as defined in current db.config file"
         )
     }
 }
