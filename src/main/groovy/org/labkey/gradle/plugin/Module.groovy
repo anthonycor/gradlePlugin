@@ -60,6 +60,9 @@ class Module extends LabKey
         _project.apply plugin: 'org.labkey.libResources'
         _project.apply plugin: 'org.labkey.clientLibraries'
         _project.apply plugin: 'org.labkey.gzip'
+        _project.apply plugin: 'maven'
+        _project.apply plugin: 'maven-publish'
+        _project.apply plugin: "com.jfrog.artifactory"
 
         _project.gzipSettings.dirToZip = "${project.labkey.explodedModuleWebDir}"
 
@@ -70,11 +73,21 @@ class Module extends LabKey
         if (gwtSrc.exists())
             _project.apply plugin: 'org.labkey.gwt'
 
+        addConfiguration()
         setModuleProperties()
         addTasks()
         addDependencies()
+        addArtifacts()
 
         _project.apply plugin: 'org.labkey.jsp'
+    }
+
+    private void addConfiguration()
+    {
+        _project.configurations
+                {
+                    published
+                }
     }
 
     private void setJavaBuildProperties()
@@ -179,7 +192,8 @@ class Module extends LabKey
         _moduleProperties = new Properties()
         readProperties(propertiesFile, _moduleProperties)
 
-        _moduleProperties.setProperty("Version", _project.version.toString())
+        // remove -SNAPSHOT because the module loader does not expect or handle decorated version numbers
+        _moduleProperties.setProperty("Version", _project.version.toString().replace("-SNAPSHOT", ""))
         setBuildInfoProperties()
         setVcsProperties()
         setEnlistmentId()
@@ -241,14 +255,29 @@ class Module extends LabKey
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"
                     exclude 'gwt-unitCache/**'
-                    //baseName "${_project.name}"
-                    //extension 'module'
-                    archiveName "${_project.name}.module" // TODO remove this in favor of a versioned jar file when other items have change
+                    baseName "${_project.name}"
+                    extension 'module'
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
-        moduleFile.dependsOn(modulesXmlTask, _project.tasks.assemble)
+        moduleFile.dependsOn(modulesXmlTask, _project.tasks.jar)
+        if (_project.hasProperty('apiJar'))
+            moduleFile.dependsOn(_project.tasks.apiJar)
+        if (_project.hasProperty('jspJar'))
+            moduleFile.dependsOn(_project.asks.jspJar)
         _project.tasks.build.dependsOn(moduleFile)
+        _project.tasks.clean.dependsOn(_project.tasks.cleanModule)
+        _project.artifacts {
+            published moduleFile
+        }
+    }
+
+    private void addArtifacts()
+    {
+        _project.artifactoryPublish {
+            dependsOn _project.tasks.module
+            publishConfigs('published')
+        }
     }
 }
 
