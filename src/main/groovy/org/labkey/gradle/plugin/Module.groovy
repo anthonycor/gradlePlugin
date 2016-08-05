@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 
@@ -274,9 +275,18 @@ class Module extends LabKey
 
     private void addArtifacts()
     {
+        _project.publishing {
+            publications {
+                moduleFile(MavenPublication) {
+                    artifact _project.tasks.module
+                }
+            }
+        }
+
         _project.artifactoryPublish {
             dependsOn _project.tasks.module
-            publishConfigs('published')
+            publications('moduleFile')
+//            publishConfigs('published')
         }
     }
 }
