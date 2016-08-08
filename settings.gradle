@@ -1,0 +1,2 @@
+include 'customPlugins'
+include 'versioning'

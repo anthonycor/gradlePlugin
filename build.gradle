@@ -1,0 +1,12 @@
+apply plugin: "java"
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    runtime subprojects.collect {
+        owner.project(it.path)
+    }
+}
