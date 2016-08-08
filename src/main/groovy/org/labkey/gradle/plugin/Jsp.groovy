@@ -60,7 +60,8 @@ class Jsp extends LabKey
                         'javax.servlet:servlet-api:3.1',
                         'org.apache.tomcat:tomcat-juli'
                     jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar'])
-                    jspCompile project.fileTree(dir: System.getenv('JAVA_HOME'), includes: ['tools.jar'])
+//                  TODO this wasn't the answer to get rid of the warnings about missing xsds
+//                    jspCompile project.fileTree(dir: System.getenv('JAVA_HOME'), includes: ['tools.jar'])
                     jspCompile project.project(":server:api")
                     jspCompile project.project(":server:internal")
                     jspCompile project.files("${project.labkey.explodedModuleDir}/lib/${project.name}.jar") {
