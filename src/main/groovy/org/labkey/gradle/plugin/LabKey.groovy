@@ -31,7 +31,6 @@ class LabKey implements Plugin<Project>
         project.versioning { // TODO
             scm = "svn"
         }
-//        println "${project.name} - build number ${project.versioning.info.build}"
         project.labkey {
             modulesApiDir = "${project.rootProject.buildDir}/modules-api"
 
@@ -47,18 +46,10 @@ class LabKey implements Plugin<Project>
             libDir = "${explodedModuleDir}/lib"
             srcGenDir = "${project.buildDir}/gensrc"
 
-            externalDir = "${project.rootProject.rootDir}/external"
+            externalDir = "${project.rootDir}/external"
             externalLibDir = "${externalDir}/lib"
 
             webappDir = "${project.projectDir}/webapp"
-
-            rootWebappsDir = "${project.rootProject.projectDir}/webapps"
-
-            deployDir = "${project.rootProject.buildDir}/deploy"
-            deployModulesDir = "${deployDir}/modules"
-            deployWebappDir = "${deployDir}/labkeyWebapp"
-            deployBinDir = "${deployDir}/bin"
-
         }
         addTasks(project)
     }
@@ -107,9 +98,17 @@ class LabKey implements Plugin<Project>
 
 }
 
+class StagingExtension
+{
+    def String stagingWebInfDir
+    def String stagingModulesDir
+    def String stagingWebappDir
+}
+
 // TODO split this into separate extensions for deploy, staging, et al.
 class LabKeyExtension
 {
+    // TODO this should be based on a property (read from a .properties file or command line)
     def LabKey.DeployMode deployMode = LabKey.DeployMode.dev
     def String sourceCompatibility = '1.8'
     def String targetCompatibility = '1.8'
@@ -128,10 +127,4 @@ class LabKeyExtension
     def String externalDir
     def String externalLibDir
     def String webappDir
-
-    def String deployDir
-    def String deployModulesDir
-    def String deployWebappDir
-    def String deployBinDir
-    def String rootWebappsDir
 }

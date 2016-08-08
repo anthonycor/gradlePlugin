@@ -24,7 +24,7 @@ class ConfigureLog4J extends DefaultTask
 
         )
         {
-            fileset(file: "${project.labkey.rootWebappsDir}/log4j.xml")
+            fileset(file: "${project.serverDeploy.rootWebappsDir}/log4j.xml")
             filterset(beginToken: "@@", endToken: "@@")
                     {
                         filter (token: "consoleAppender",

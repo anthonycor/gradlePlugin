@@ -61,6 +61,7 @@ class Module extends LabKey
         _project.apply plugin: 'org.labkey.libResources'
         _project.apply plugin: 'org.labkey.clientLibraries'
         _project.apply plugin: 'org.labkey.gzip'
+
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
         _project.apply plugin: "com.jfrog.artifactory"
@@ -73,6 +74,10 @@ class Module extends LabKey
         File gwtSrc = _project.file('gwtsrc')
         if (gwtSrc.exists())
             _project.apply plugin: 'org.labkey.gwt'
+
+        File distributionsDir = _project.file(Distribution.DIRECTORY)
+        if (distributionsDir.exists())
+            _project.apply plugin: 'org.labkey.distribution'
 
         addConfiguration()
         setModuleProperties()
@@ -256,9 +261,9 @@ class Module extends LabKey
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"
                     exclude 'gwt-unitCache/**'
-//                    baseName "${_project.name}"
-//                    extension 'module'
-                    archiveName "${_project.name}.module"
+                    baseName "${_project.name}"
+                    extension 'module'
+//                    archiveName "${_project.name}.module"
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )

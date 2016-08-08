@@ -8,12 +8,7 @@ import org.gradle.api.tasks.TaskAction
  */
 class PackageDistribution extends DefaultTask
 {
-    public static final String DIST_PROPERTY_NAME = "dist"
     public static final String ALL_DISTRIBUTIONS = "all"
-
-    def String distNames;
-
-    private Set<File> distFiles;
 
     @TaskAction
     public void action()

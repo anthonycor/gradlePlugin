@@ -1,6 +1,6 @@
 package org.labkey.gradle.task
 
-import org.apache.commons.lang.SystemUtils
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
@@ -18,10 +18,10 @@ class DeployApp extends DefaultTask
     File stagingWebappDir = new File((String) project.labkey.stagingWebappDir)
 
     @OutputDirectory
-    File deployModulesDir = new File((String) project.labkey.deployModulesDir)
+    File deployModulesDir = new File((String) project.serverDeploy.modulesDir)
 
     @OutputDirectory
-    File deployWebappDir = new File((String) project.labkey.deployWebappDir)
+    File deployWebappDir = new File((String) project.serverDeploy.webappDir)
 
     CopyOption[] options = [StandardCopyOption.COPY_ATTRIBUTES,
                             StandardCopyOption.ATOMIC_MOVE,
@@ -76,11 +76,11 @@ class DeployApp extends DefaultTask
 
     private void deployPlatformBinaries()
     {
-        File deployBinDir = new File((String) project.labkey.deployBinDir)
+        File deployBinDir = new File((String) project.serverDeploy.binDir)
         deployBinDir.mkdirs()
 
         ant.copy(
-                todir: project.labkey.deployBinDir,
+                todir: project.serverDeploy.binDir,
                 preserveLastModified: true
         )
                 {
@@ -106,7 +106,7 @@ class DeployApp extends DefaultTask
                 executable: "cp",
                 verbose: true,
                 type: "both",
-                dest: project.labkey.deployBinDir
+                dest: project.serverDeploy.binDir
         )
                 {
                     arg(value: "-Rn")
@@ -120,7 +120,7 @@ class DeployApp extends DefaultTask
     private void deployBinariesViaAndCopy(String osDirectory)
     {
         ant.copy(
-                todir: project.labkey.deployBinDir,
+                todir: project.serverDeploy.binDir,
                 preserveLastModified: true
         )
                 {
@@ -139,7 +139,7 @@ class DeployApp extends DefaultTask
         File nlpSource = new File((String) project.labkey.externalDir, "nlp")
         if (nlpSource.exists())
         {
-            File nlpDir = new File((String) project.labkey.deployBinDir, "nlp")
+            File nlpDir = new File((String) project.serverDeploy.binDir, "nlp")
             nlpDir.mkdirs();
             ant.copy(
                     toDir: nlpDir,
