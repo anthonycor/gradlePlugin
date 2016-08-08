@@ -46,12 +46,19 @@ class LabKey implements Plugin<Project>
             explodedModuleWebDir = "${explodedModuleDir}/web"
             libDir = "${explodedModuleDir}/lib"
             srcGenDir = "${project.buildDir}/gensrc"
+
             externalDir = "${project.rootProject.rootDir}/external"
             externalLibDir = "${externalDir}/lib"
+
             webappDir = "${project.projectDir}/webapp"
-            deployDir = "${project.rootProject.buildDir}/deploy"
-            deployWebappDir = "${deployDir}/labkeyWebapp"
+
             rootWebappsDir = "${project.rootProject.projectDir}/webapps"
+
+            deployDir = "${project.rootProject.buildDir}/deploy"
+            deployModulesDir = "${deployDir}/modules"
+            deployWebappDir = "${deployDir}/labkeyWebapp"
+            deployBinDir = "${deployDir}/bin"
+
         }
         addTasks(project)
     }
@@ -100,6 +107,7 @@ class LabKey implements Plugin<Project>
 
 }
 
+// TODO split this into separate extensions for deploy, staging, et al.
 class LabKeyExtension
 {
     def LabKey.DeployMode deployMode = LabKey.DeployMode.dev
@@ -120,7 +128,10 @@ class LabKeyExtension
     def String externalDir
     def String externalLibDir
     def String webappDir
+
     def String deployDir
+    def String deployModulesDir
     def String deployWebappDir
+    def String deployBinDir
     def String rootWebappsDir
 }

@@ -256,8 +256,9 @@ class Module extends LabKey
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"
                     exclude 'gwt-unitCache/**'
-                    baseName "${_project.name}"
-                    extension 'module'
+//                    baseName "${_project.name}"
+//                    extension 'module'
+                    archiveName "${_project.name}.module"
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
