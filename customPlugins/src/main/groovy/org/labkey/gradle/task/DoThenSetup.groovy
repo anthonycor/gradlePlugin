@@ -54,17 +54,29 @@ class DoThenSetup extends DefaultTask
             include "labkey.xml"
         })
 
-        project.copy({
-            from "${project.labkey.externalLibDir}/tomcat"
-            into "${project.tomcatDir}/lib"
-            include "*.jar"
-        })
+        ant.copy(
+                todir: "${project.tomcatDir}/lib",
+                overwrite: true,
+                preservelastmodified: true
+        )
+        {
+                fileset(dir:"${project.labkey.externalLibDir}/tomcat")
+                        {
+                            include(name:"*.jar")
+                        }
+        }
 
-        project.copy({
-            from "${project.rootProject.buildDir}"
-            into "${project.labkey.externalLibDir}/tomcat"
-            include "labkeyBootstrap.jar"
-        })
+        ant.copy(
+                todir: "${project.labkey.externalLibDir}/tomcat",
+                overwrite: true,
+                preservelastmodified: true
+        )
+        {
+                fileset(dir: project.rootProject.buildDir)
+                        {
+                            include(name: "labkeyBootstrap.jar")
+                        }
+        }
     }
 
     public static void initDatabaseProperties(Project project)
