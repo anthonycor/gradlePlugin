@@ -3,7 +3,6 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
-
 /**
  * Defines a set of extension properties for ease of reference. This also and adds a labkey extension
  * for some basic properties.  Other plugins can derive from this class to trigger the creation of the

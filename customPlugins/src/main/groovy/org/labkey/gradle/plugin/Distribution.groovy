@@ -36,11 +36,12 @@ class Distribution implements Plugin<Project>
         def Task dist = project.task(
                 "distribution",
                 group: GROUP_NAME,
-                description: "Make distributions",
+                description: "Make LabKey distribution for a single module",
                 type: PackageDistribution
         )
         dist.dependsOn(project.configurations.distribution)
-
+        if (project.rootProject.hasProperty("distAll"))
+            project.rootProject.tasks.distAll.dependsOn(dist)
     }
 
     public static void inheritDependencies(Project project, String inheritedProjectPath)
