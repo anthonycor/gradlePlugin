@@ -124,9 +124,9 @@ class SimpleModule extends LabKey
 
     private void setVcsProperties()
     {
-        _moduleProperties.setProperty("VcsURL", "http://some/url") // TODO: best plugin available assumes old SVN layout that has .svn in each directory
-        _moduleProperties.setProperty("VcsRevision", "123") // TODO
-        _moduleProperties.setProperty("BuildNumber", "123") // TODO where does this come from in TeamCity?
+        _moduleProperties.setProperty("VcsURL", _project.versioning.info.url)
+        _moduleProperties.setProperty("VcsRevision", _project.versioning.info.commit)
+        _moduleProperties.setProperty("BuildNumber", _project.versioning.info.build)
     }
 
     private setEnlistmentId()
