@@ -15,13 +15,22 @@ class DeployApp extends DefaultTask
     File stagingModulesDir = new File((String) project.labkey.stagingModulesDir)
 
     @InputDirectory
+    File externalLibDir = new File("${project.labkey.externalLibDir}/server")
+
+    @InputDirectory
     File stagingWebappDir = new File((String) project.labkey.stagingWebappDir)
+
+    @InputDirectory
+    File internalModuleLibDir = new File("${project.project(":server:internal").buildDir}/libs")
 
     @OutputDirectory
     File deployModulesDir = new File((String) project.serverDeploy.modulesDir)
 
     @OutputDirectory
     File deployWebappDir = new File((String) project.serverDeploy.webappDir)
+
+    @OutputDirectory
+    File deployServerLibDir = new File((String) project.labkey.webappLibDir)
 
     CopyOption[] options = [StandardCopyOption.COPY_ATTRIBUTES,
                             StandardCopyOption.ATOMIC_MOVE,
@@ -31,11 +40,28 @@ class DeployApp extends DefaultTask
     public void action()
     {
         deployWebappDir()
+        deployServerLibs()
         deployModules()
         deployNlpEngine()
         deployPlatformBinaries()
     }
 
+    // TODO what does this look like when the libraries are not on disk?
+    private void deployServerLibs()
+    {
+        project.copy({
+            from internalModuleLibDir
+            into deployServerLibDir
+            include "*.jar"
+        })
+        project.copy({
+            from externalLibDir
+            into deployServerLibDir
+            include "*.jar"
+        }
+        )
+
+    }
     private void deployWebappDir()
     {
         ant.copy(
