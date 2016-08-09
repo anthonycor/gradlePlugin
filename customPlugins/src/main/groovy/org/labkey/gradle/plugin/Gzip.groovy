@@ -11,6 +11,7 @@ class Gzip implements Plugin<Project>
     void apply(Project project)
     {
         project.extensions.create("gzipSettings", GzipPluginExtension)
+        project.gzipSettings.dirToZip = "${project.labkey.explodedModuleWebDir}"
         addGzipTask(project);
     }
 

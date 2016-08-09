@@ -10,6 +10,8 @@ import org.gradle.api.tasks.bundling.Jar
  */
 class Api implements Plugin<Project>
 {
+    public static final String SOURCE_DIR = "api-src"
+
     @Override
     void apply(Project project)
     {
@@ -25,7 +27,7 @@ class Api implements Plugin<Project>
                 {
                     api {
                         java {
-                            srcDirs = ['api-src', 'intenral/gwtsrc']
+                            srcDirs = [SOURCE_DIR, 'intenral/gwtsrc']
                         }
                         output.classesDir = "${project.buildDir}/api-classes"
                     }
@@ -59,6 +61,8 @@ class Api implements Plugin<Project>
                     project.file(project.file('api-src')).exists()
                 }
         apiJar.dependsOn(project.apiClasses)
+        if (project.hasProperty('jsp2Java'))
+            project.tasks.jsp2Java.dependsOn(apiJar)
         project.artifacts
                 {
                     apiCompile apiJar

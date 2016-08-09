@@ -10,6 +10,8 @@ class ClientLibraries implements Plugin<Project>
     void apply(Project project)
     {
         project.extensions.create("clientLibs", ClientLibrariesExtension)
+        project.clientLibs.libXmlParentDirectory = new File("${project.labkey.explodedModuleDir}/web")
+        project.clientLibs.outputDir = new File("${project.labkey.explodedModuleDir}/web")
         addTasks(project)
     }
 
