@@ -1,6 +1,8 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.LabKey
 
@@ -9,6 +11,11 @@ import org.labkey.gradle.plugin.LabKey
  */
 class ConfigureLog4J extends DefaultTask
 {
+    @InputFile
+    File log4jXML = new File("${project.serverDeploy.rootWebappsDir}/log4j.xml")
+
+    @OutputDirectory
+    File outputDir = new File(project.labkey.webappClassesDir)
     @TaskAction
     def compress()
     {
@@ -18,13 +25,12 @@ class ConfigureLog4J extends DefaultTask
             consoleAppender = '<appender-ref ref="CONSOLE">"'
         }
         ant.copy(
-                todir: project.labkey.webappClassesDir,
+                todir: outputDir,
                 overwrite: true,
-                preserveLastModified: true,
-
+                preserveLastModified: true
         )
         {
-            fileset(file: "${project.serverDeploy.rootWebappsDir}/log4j.xml")
+            fileset(file: log4jXML)
             filterset(beginToken: "@@", endToken: "@@")
                     {
                         filter (token: "consoleAppender",
