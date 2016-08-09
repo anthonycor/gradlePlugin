@@ -102,19 +102,7 @@ class DeployApp extends DefaultTask
 
     private void deployBinariesViaCp(String osDirectory)
     {
-        ant.apply(
-                executable: "cp",
-                verbose: true,
-                type: "both",
-                dest: project.serverDeploy.binDir
-        )
-                {
-                    arg(value: "-Rn")
-                    srcfile()
-                    targetfile()
-                    fileset(dir: "${project.labkey.externalDir}/${osDirectory}", includes: "*/*")
-                    ant.cutdirsMapper(dirs: 1)
-                }
+        "cp -Rn ${project.labkey.externalDir}/${osDirectory}/* ${project.serverDeploy.binDir}".execute()
     }
 
     private void deployBinariesViaAndCopy(String osDirectory)
