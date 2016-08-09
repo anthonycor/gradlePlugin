@@ -128,4 +128,6 @@ class LabKeyExtension
     def String externalDir
     def String externalLibDir
     def String webappDir
+    def String ext3Dir = "ext-3.4.1"
+    def String ext4Dir = "ext-4.2.1"
 }
