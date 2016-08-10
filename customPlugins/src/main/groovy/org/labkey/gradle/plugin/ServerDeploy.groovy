@@ -3,15 +3,17 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.ConfigureLog4J
 import org.labkey.gradle.task.DeployApp
+import org.labkey.gradle.task.DoThenSetup
 
 /**
  * Created by susanh on 8/8/16.
  */
 class ServerDeploy implements Plugin<Project>
 {
-    private static final String GROUP_NAME = "Deploy"
+    public static final String GROUP_NAME = "Deploy"
 
     @Override
     void apply(Project project)
@@ -37,6 +39,14 @@ class ServerDeploy implements Plugin<Project>
                 description: "Deploy the application locally into ${project.serverDeploy.dir}"
         )
 
+        def Task setup = project.task(
+                "setup",
+                group: GROUP_NAME,
+                type: DoThenSetup,
+                description: "Installs labkey.xml and various jar files into the tomcat directory.  Sets default database properties."
+        )
+        deployAppTask.dependsOn(setup)
+
         def Task log4jTask = project.task(
                 'configureLog4j',
                 group: GROUP_NAME,
@@ -44,6 +54,17 @@ class ServerDeploy implements Plugin<Project>
                 description: "Edit and copy log4j.xml file",
         )
         deployAppTask.dependsOn(log4jTask)
+
+        project.task(
+                'clean',
+                group: GROUP_NAME,
+                type: Delete,
+                description: "Remove the deploy directory (${project.serverDeploy.dir})",
+                {
+                    delete project.serverDeploy.dir
+                }
+        )
+
     }
 }
 

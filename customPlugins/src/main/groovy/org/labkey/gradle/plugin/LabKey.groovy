@@ -27,10 +27,7 @@ class LabKey implements Plugin<Project>
         project.subprojects { subproject ->
             buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
         }
-        project.versioning { // TODO
-            user = "${project.svn_user}"
-            password = "${project.svn_password}"
-        }
+
         project.labkey {
             modulesApiDir = "${project.rootProject.buildDir}/modules-api"
 

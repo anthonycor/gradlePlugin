@@ -118,15 +118,29 @@ class SimpleModule extends LabKey
                 java {
                     srcDirs = ['src']
                 }
+                resources {
+                    srcDirs = ['src']
+                    exclude '**/*.java'
+                    exclude '**/*.jsp'
+                }
             }
         }
     }
 
     private void setVcsProperties()
     {
-        _moduleProperties.setProperty("VcsURL", _project.versioning.info.url)
-        _moduleProperties.setProperty("VcsRevision", _project.versioning.info.commit)
-        _moduleProperties.setProperty("BuildNumber", _project.versioning.info.build)
+        if (_project.plugins.hasPlugin("org.labkey.versioning"))
+        {
+            _moduleProperties.setProperty("VcsURL", _project.versioning.info.url)
+            _moduleProperties.setProperty("VcsRevision", _project.versioning.info.commit)
+            _moduleProperties.setProperty("BuildNumber", _project.versioning.info.build)
+        }
+        else
+        {
+            _moduleProperties.setProperty("VcsURL", "Not built from a source control working copy")
+            _moduleProperties.setProperty("VcsRevision", "Not built from a source control working copy")
+            _moduleProperties.setProperty("BuildNumber", "Not built from a source control working copy")
+        }
     }
 
     private setEnlistmentId()
@@ -149,15 +163,26 @@ class SimpleModule extends LabKey
     private void setBuildInfoProperties()
     {
         _moduleProperties.setProperty("RequiredServerVersion", "0.0")
-        _moduleProperties.setProperty("BuildType", _project.labkey.deployMode.toString())
+        if (_moduleProperties.getProperty("BuildType") == null)
+            _moduleProperties.setProperty("BuildType", _project.labkey.deployMode.toString())
         _moduleProperties.setProperty("BuildUser", System.getProperty("user.name"))
         _moduleProperties.setProperty("BuildOS", System.getProperty("os.name"))
         _moduleProperties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
         _moduleProperties.setProperty("BuildPath", _project.buildDir.getAbsolutePath() )
         _moduleProperties.setProperty("SourcePath", _project.projectDir.getAbsolutePath() )
         _moduleProperties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
-        _moduleProperties.setProperty("ConsolidateScripts", "")
-        _moduleProperties.setProperty("ManageVersion", "")
+        if (_moduleProperties.getProperty("ConsolidateScripts") == null)
+            _moduleProperties.setProperty("ConsolidateScripts", "")
+        if (_moduleProperties.getProperty("ManageVersion") == null)
+            _moduleProperties.setProperty("ManageVersion", "")
+    }
+
+    private void setModuleInfoProperties()
+    {
+        if (_moduleProperties.getProperty("Name") == null)
+            _moduleProperties.setProperty("Name", _project.name)
+        if (_moduleProperties.getProperty("ModuleClass") == null)
+            _moduleProperties.setProperty("ModuleClass", "org.labkey.api.module.SimpleModule")
     }
 
     private static void readProperties(File propertiesFile, Properties properties)
@@ -187,6 +212,7 @@ class SimpleModule extends LabKey
         // remove -SNAPSHOT because the module loader does not expect or handle decorated version numbers
         _moduleProperties.setProperty("Version", _project.version.toString().replace("-SNAPSHOT", ""))
         setBuildInfoProperties()
+        setModuleInfoProperties()
         setVcsProperties()
         setEnlistmentId()
     }
