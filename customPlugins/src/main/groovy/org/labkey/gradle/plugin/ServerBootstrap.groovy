@@ -25,6 +25,10 @@ class ServerBootstrap implements Plugin<Project>
                 group: ServerDeploy.GROUP_NAME,
                 description: "Build the LabKey bootstrap jar file",
                 {
+                    ant.setProperty('tomcat.home', project.tomcatDir)
+                    ant.setProperty('build.dir', project.rootProject.buildDir )
+                    ant.setProperty('java.source.and.target', project.labkey.sourceCompatibility)
+                    ant.setProperty('basedir', project.project(":server").projectDir)
                     ant.ant(dir: "${project.rootDir}/server", target: 'build_bootstrap_jar')
                 }
         )
