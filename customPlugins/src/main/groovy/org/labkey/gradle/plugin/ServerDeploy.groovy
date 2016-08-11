@@ -65,6 +65,17 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
+        def Task cleanDeploy = project.task(
+                "cleanAndDeploy",
+                group: GROUP_NAME,
+                type: DeployApp,
+                description: "Deploy the application locally into ${project.serverDeploy.dir}",
+        )
+        cleanDeploy.doFirst{
+            project.delete(project.serverDeploy.dir)
+        }
+
+
     }
 }
 
