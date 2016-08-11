@@ -9,6 +9,7 @@ import org.gradle.api.tasks.JavaExec
 
 class Gwt implements Plugin<Project>
 {
+    public static final String SOURCE_DIR = "gwtsrc"
     private static final String GWT_VERSION = "2.4.0"
     private static final String GXT_VERSION = "2.2.5"
     private static final String GWT_DND_VERSION = "3.2.0"
@@ -178,7 +179,7 @@ class Gwt implements Plugin<Project>
 
 class GwtExtension
 {
-    def String srcDir = "gwtSrc"
+    def String srcDir = Gwt.SOURCE_DIR
     def String style = "OBF"
     def String logLevel = "INFO"
     def String extrasDir = "gwtExtras"
