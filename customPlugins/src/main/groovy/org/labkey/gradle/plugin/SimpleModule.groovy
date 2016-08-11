@@ -79,7 +79,7 @@ class SimpleModule extends LabKey
         _project.apply plugin: 'org.labkey.jsp'
 
         File gwtSrc = _project.file('gwtsrc')
-        if (gwtSrc.exists())
+        if (gwtSrc.canRead()) // Why doesn't exists work here???
             _project.apply plugin: 'org.labkey.gwt'
 
         File distributionsDir = _project.file(Distribution.DIRECTORY)
