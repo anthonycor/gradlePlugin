@@ -74,7 +74,7 @@ class SimpleModule extends LabKey
 
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
-        _project.apply plugin: "com.jfrog.artifactory"
+//        _project.apply plugin: "com.jfrog.artifactory"
 
         _project.apply plugin: 'org.labkey.jsp'
 
@@ -301,11 +301,11 @@ class SimpleModule extends LabKey
             }
         }
 
-        _project.artifactoryPublish {
-            dependsOn _project.tasks.module
-            publications('moduleFile')
-//            publishConfigs('published')
-        }
+//        _project.artifactoryPublish {
+//            dependsOn _project.tasks.module
+//            publications('moduleFile')
+////            publishConfigs('published')
+//        }
     }
 }
 
