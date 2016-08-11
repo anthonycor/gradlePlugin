@@ -56,8 +56,14 @@ class Distribution implements Plugin<Project>
 class DistributionExtension
 {
     def String distModulesDir
+    def String type = "modules"
 
     // properties used in the installer/build.xml file
     def String subDirName
     def String extraFileIdentifier
+    def Boolean skipWindowsInstaller
+    def Boolean skipZipDistribution
+    def Boolean skipTarGZDistribution
+    def Boolean versionPrefix
+
 }
