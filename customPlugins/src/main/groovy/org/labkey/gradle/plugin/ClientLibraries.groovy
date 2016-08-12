@@ -18,7 +18,7 @@ class ClientLibraries implements Plugin<Project>
     private void addTasks(Project project)
     {
         def compressLibsTask = project.task("compressClientLibs",
-                group: 'Client Libraries',
+                group: 'Client libraries',
                 type: ClientLibsCompress,
                 description: 'create minified, compressed javascript file use .lib.xml sources',
                 dependsOn: project.tasks.processResources,
