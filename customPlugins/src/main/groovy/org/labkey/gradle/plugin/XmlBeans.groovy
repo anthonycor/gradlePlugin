@@ -59,9 +59,9 @@ class XmlBeans implements Plugin<Project>
                 {
                     from "$project.buildDir/$project.xmlBeans.classDir"
                     exclude '**/*.java'
-                    baseName 'schemas'
-                    //baseName 'schemas'
-                    archiveName 'schemas.jar' // TODO remove this in favor of a versioned jar file when other items have change
+                    baseName project.name.equals("schemas") ? "schemas": "${project.name}_schemas"
+                    version project.version
+                    group project.group
                     destinationDir = project.file(project.labkey.libDir)
                 }
         )
