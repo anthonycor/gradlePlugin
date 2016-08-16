@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 
 /**
@@ -16,9 +17,12 @@ class Api implements Plugin<Project>
     void apply(Project project)
     {
         project.apply plugin: 'java-base'
+        project.apply plugin: 'maven'
+        project.apply plugin: 'maven-publish'
         addSourceSet(project)
         addDependencies(project)
         addApiJarTask(project)
+        addArtifacts(project)
     }
 
     private void addSourceSet(Project project)
@@ -52,8 +56,7 @@ class Api implements Plugin<Project>
                 description: "produce jar file for api",
                 {
                     from project.sourceSets['api'].output.classesDir
-//                    baseName "${project.name}_api"
-                    archiveName "${project.name}_api.jar"
+                    baseName "${project.name}_api"
                     destinationDir = project.file(project.labkey.libDir)
                 })
         apiJar.onlyIf
@@ -63,10 +66,23 @@ class Api implements Plugin<Project>
         apiJar.dependsOn(project.apiClasses)
         if (project.hasProperty('jsp2Java'))
             project.tasks.jsp2Java.dependsOn(apiJar)
+
+        project.tasks.assemble.dependsOn(apiJar)
+
+    }
+
+    private void addArtifacts(Project project)
+    {
         project.artifacts
                 {
-                    apiCompile apiJar
+                    apiCompile project.tasks.apiJar
                 }
-        project.tasks.assemble.dependsOn(apiJar)
+        project.publishing {
+            publications {
+                api(MavenPublication) {
+                    artifact project.tasks.apiJar
+                }
+            }
+        }
     }
 }
