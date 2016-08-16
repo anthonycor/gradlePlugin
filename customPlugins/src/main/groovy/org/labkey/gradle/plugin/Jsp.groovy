@@ -12,6 +12,8 @@ import org.labkey.gradle.task.JspCompile2Java
  */
 class Jsp extends LabKey
 {
+    public static final String BASE_NAME_EXTENSION = "_jsp"
+
     @Override
     void apply(Project project)
     {
@@ -57,20 +59,13 @@ class Jsp extends LabKey
                 {
                     jspCompile  'org.apache.tomcat:jasper',
                         'org.apache.tomcat:jsp-api',
-                        'javax.servlet:servlet-api:3.1',
                         'org.apache.tomcat:tomcat-juli'
-                    jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar'])
-//                  TODO this wasn't the answer to get rid of the warnings about missing xsds
-//                    jspCompile project.fileTree(dir: System.getenv('JAVA_HOME'), includes: ['tools.jar'])
+                    jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'])
                     jspCompile project.project(":server:api")
                     jspCompile project.project(":server:internal")
-                    jspCompile project.files("${project.labkey.explodedModuleDir}/lib/${project.name}.jar") {
-                        builtBy 'jar'
-                    }
+                    jspCompile project.files(project.tasks.jar)
                     if (project.hasProperty('apiJar'))
-                        jspCompile project.files("${project.labkey.explodedModuleDir}/lib/${project.name}_api.jar") {
-                            builtBy 'apiJar'
-                        }
+                        jspCompile project.files(project.tasks.apiJar)
 
                     jsp     'org.apache.tomcat:jasper',
                             'org.apache.tomcat:bootstrap',
@@ -134,8 +129,7 @@ class Jsp extends LabKey
                 type: Jar,
                 description: "produce jar file of jsps", {
             from "${project.buildDir}/${project.jspCompile.classDir}"
-            //baseName "${project.name}_jsp"
-            archiveName "${project.name}_jsp.jar" // TODO remove this in favor of a versioned jar file when other items have change
+            baseName "${project.name}${BASE_NAME_EXTENSION}"
             destinationDir = project.file(project.labkey.libDir)
         })
 
