@@ -21,7 +21,16 @@ class DeployApp extends DefaultTask
     File stagingWebappDir = new File((String) project.labkey.stagingWebappDir)
 
     @InputDirectory
-    File internalModuleLibDir = new File("${project.project(":server:internal").buildDir}/libs")
+    File internalModuleLibDir = new File((String) project.project(":server:internal").labkey.libDir)
+
+    @InputDirectory
+    File apiModuleLibDir = new File((String) project.project(":server:api").labkey.libDir)
+
+    @InputDirectory
+    File clientApiLibDir = new File("${project.rootProject.buildDir}/client-api/java/jar")
+
+    @InputDirectory
+    File schemasLibDir = new File((String) project.project(':schemas').labkey.libDir)
 
     @OutputDirectory
     File deployModulesDir = new File((String) project.serverDeploy.modulesDir)
@@ -30,7 +39,10 @@ class DeployApp extends DefaultTask
     File deployWebappDir = new File((String) project.serverDeploy.webappDir)
 
     @OutputDirectory
-    File deployServerLibDir = new File((String) project.labkey.webappLibDir)
+    File stagingServerLibDir = new File((String) project.labkey.webappLibDir)
+
+    @OutputDirectory
+    File stagingServerJspLibDir = new File((String) project.labkey.webappJspDir)
 
     CopyOption[] options = [StandardCopyOption.COPY_ATTRIBUTES,
                             StandardCopyOption.ATOMIC_MOVE,
@@ -39,29 +51,62 @@ class DeployApp extends DefaultTask
     @TaskAction
     public void action()
     {
+        stageServerLibs()
+        stageJspLibs()
         deployWebappDir()
-        deployServerLibs()
         deployModules()
         deployNlpEngine()
         deployPlatformBinaries()
     }
 
     // TODO what does this look like when the libraries are not on disk?
-    private void deployServerLibs()
+    private void stageServerLibs()
     {
         project.copy({
-            from internalModuleLibDir
-            into deployServerLibDir
+            from clientApiLibDir
+            into stagingServerLibDir
             include "*.jar"
         })
         project.copy({
+            from internalModuleLibDir
+            into stagingServerLibDir
+            include "*.jar"
+            exclude "*_jsp*.jar"
+        })
+        project.copy({
             from externalLibDir
-            into deployServerLibDir
+            into stagingServerLibDir
             include "*.jar"
         }
         )
+        project.copy({
+            from apiModuleLibDir
+            into stagingServerLibDir
+            include "*.jar"
+            exclude "*_jsp*.jar"
+        })
+        project.copy({
+            from schemasLibDir
+            into stagingServerLibDir
+            include "*.jar"
+        })
 
     }
+
+    private void stageJspLibs()
+    {
+        project.copy({
+            from internalModuleLibDir
+            into stagingServerJspLibDir
+            include "*_jsp*.jar"
+        })
+        project.copy({
+            from apiModuleLibDir
+            into stagingServerJspLibDir
+            include "*_jsp*.jar"
+        })
+    }
+
     private void deployWebappDir()
     {
         ant.copy(
