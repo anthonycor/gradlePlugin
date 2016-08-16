@@ -24,6 +24,10 @@ class PackageDistribution extends DefaultTask
         {
             packagePipelineConfigs()
         }
+        else if ("client-apis".equalsIgnoreCase(project.dist.type))
+        {
+            packageClientApis()
+        }
     }
 
     private void gatherModules()
@@ -73,6 +77,12 @@ class PackageDistribution extends DefaultTask
     {
         setAntPropertiesForInstaller()
         ant.ant(dir: "${project.project(':server').projectDir}/installer", antFile: "${project.project(':server').projectDir}/installer/build.xml", target: "pipeline-configs")
+    }
+
+    private void packageClientApis()
+    {
+        setAntPropertiesForInstaller()
+        ant.ant(dir: "${project.project(':server').projectDir}/installer", antFile: "${project.project(':server').projectDir}/installer/build.xml", target: "client-apis")
     }
 
     // TODO this is called only by the teamcity targets
