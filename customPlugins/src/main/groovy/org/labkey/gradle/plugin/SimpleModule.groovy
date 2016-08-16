@@ -71,6 +71,7 @@ class SimpleModule extends LabKey
         _project.apply plugin: 'org.labkey.libResources'
         _project.apply plugin: 'org.labkey.clientLibraries'
         _project.apply plugin: 'org.labkey.gzip'
+//        _project.apply plugin: "com.jfrog.artifactory"
 
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
@@ -106,7 +107,7 @@ class SimpleModule extends LabKey
         _project.jar {
             manifest.attributes provider: 'LabKey'
             // TODO set other attributes for manifest?
-            archiveName "${project.name}.jar"
+            baseName project.name
         }
     }
 
@@ -272,9 +273,8 @@ class SimpleModule extends LabKey
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"
                     exclude 'gwt-unitCache/**'
-                    baseName "${_project.name}"
+                    baseName _project.name
                     extension 'module'
-//                    archiveName "${_project.name}.module"
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
@@ -285,9 +285,10 @@ class SimpleModule extends LabKey
             moduleFile.dependsOn(_project.tasks.jspJar)
         _project.tasks.build.dependsOn(moduleFile)
         _project.tasks.clean.dependsOn(_project.tasks.cleanModule)
-        _project.artifacts {
-            published moduleFile
-        }
+        _project.artifacts
+                {
+                    published moduleFile
+                }
     }
 
     protected void addArtifacts()
@@ -297,18 +298,21 @@ class SimpleModule extends LabKey
                 moduleFile(MavenPublication) {
                     artifact _project.tasks.module
                 }
-            }
-        }
-        if (_project.hasProperty('apiJar'))
-        {
-            _project.publishing {
-                publications {
-                    apiJar(MavenPublication) {
+                if (_project.hasProperty('apiJar'))
+                {
+                    api(MavenPublication) {
                         artifact _project.tasks.apiJar
                     }
                 }
             }
         }
+//
+//        _project.artifactoryPublish {
+//            dependsOn _project.tasks.module
+//            publications('moduleFile')
+//            if (_project.hasProperty('apiJar'))
+//                publications('api')
+//        }
     }
 }
 
