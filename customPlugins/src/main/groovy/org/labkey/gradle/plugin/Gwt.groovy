@@ -88,7 +88,7 @@ class Gwt implements Plugin<Project>
                         description: "compile GWT source files for " + gwtModuleClass.getKey()  + " into JS",
                         {
                             def extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
-                            def outputDir = "${project.labkey.explodedModuleDir}/web"
+                            def outputDir = project.labkey.explodedModuleWebDir
 
                             inputs.source project.sourceSets.gwt.java.srcDirs
 

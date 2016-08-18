@@ -45,7 +45,7 @@ class Webapp implements Plugin<Project>
                                 include 'WEB-INF/**'
                             }
                         }
-                        output.resourcesDir = "${project.labkey.explodedModuleDir}/web"
+                        output.resourcesDir = project.labkey.explodedModuleWebDir
                     }
                 }
         project.tasks.processResources.dependsOn('processWebappResources')
