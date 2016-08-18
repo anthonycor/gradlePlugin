@@ -78,13 +78,18 @@ class SimpleModule extends LabKey
 
         _project.apply plugin: 'org.labkey.jsp'
 
-        File gwtSrc = _project.file(Gwt.SOURCE_DIR)
-        if (gwtSrc.exists()) // Why doesn't exists work here???
+        if (_project.file(Gwt.SOURCE_DIR).exists())
             _project.apply plugin: 'org.labkey.gwt'
 
-        File distributionsDir = _project.file(Distribution.DIRECTORY)
-        if (distributionsDir.exists())
+        if (_project.file(Distribution.DIRECTORY).exists())
             _project.apply plugin: 'org.labkey.distribution'
+
+        if (_project.file(NpmRun.NPM_PROJECT_FILE).exists())
+        {
+            // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
+            _project.apply plugin: 'com.moowork.node'
+            _project.apply plugin: 'org.labkey.npmRun'
+        }
     }
 
     private void addConfiguration()
