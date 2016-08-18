@@ -2,11 +2,16 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 // borrowed heavily from https://plugins.gradle.org/plugin/com.palantir.npm-run
 class NpmRun implements Plugin<Project>
 {
     public static final String NPM_PROJECT_FILE = "package.json"
+    public static final String TYPESCRIPT_CONFIG_FILE = "tsconfig.json"
+    public static final String TYPINGS_FILE = "typings.json"
+    public static final String WEBPACK_DIR = "webpack"
+
     private static final String EXTENSION_NAME = "npmRun"
     private static final String GROUP_NAME = "NPM Run"
 
@@ -49,21 +54,35 @@ class NpmRun implements Plugin<Project>
                     dependsOn "npm_run_${project.npmRun.buildProd}"
                     mustRunAfter "npmSetup"
                 }
+        addTaskInputOutput(project.tasks.npmRunBuildProd)
+        addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildProd}"))
 
 
         project.task("npmRunBuild")
                 {
                     group = GROUP_NAME
-                    description ="Runs 'npm run ${project.npmRun.build}'"
+                    description ="Runs 'npm run ${project.npmRun.buildDev}'"
                     dependsOn "npmSetup"
-                    dependsOn "npm_run_${project.npmRun.build}"
+                    dependsOn "npm_run_${project.npmRun.buildDev}"
                     mustRunAfter "npmSetup"
                 }
+        addTaskInputOutput(project.tasks.npmRunBuild)
+        addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
 
         if (project.hasProperty('npmDevMode'))
             project.tasks.build.dependsOn("npmRunBuild")
         else
             project.tasks.build.dependsOn("npmRunBuildProd")
+    }
+
+    private void addTaskInputOutput(Task task)
+    {
+        task.inputs.file task.project.file(NPM_PROJECT_FILE)
+        task.inputs.file task.project.file(TYPESCRIPT_CONFIG_FILE)
+        task.inputs.file task.project.file(TYPINGS_FILE)
+        task.inputs.dir task.project.file(WEBPACK_DIR)
+        task.inputs.files task.project.fileTree(dir: "src", includes: ["client/**/*", "theme/**/*"])
+        task.outputs.dir  task.project.file("resources/**/gen")
     }
 }
 
@@ -72,6 +91,6 @@ class NpmRunExtension
     String clean = "clean"
     String setup = "setup"
     String buildProd = "build-prod"
-    String build = "build"
+    String buildDev = "build"
 
 }
