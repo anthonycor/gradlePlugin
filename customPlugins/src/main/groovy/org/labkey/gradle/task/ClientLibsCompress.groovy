@@ -3,6 +3,7 @@ package org.labkey.gradle.task
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ClientLibsCompress extends DefaultTask
@@ -12,6 +13,9 @@ class ClientLibsCompress extends DefaultTask
     private static final String YUI_COMPRESSOR = "yuicompressor-2.4.8a.jar"
 
     File workingDir = project.clientLibs.workingDir
+
+    @OutputFile
+    File upToDateFile = new File(workingDir, ".clientlibrary.uptodate")
 
     public ClientLibsCompress()
     {
@@ -44,7 +48,7 @@ class ClientLibsCompress extends DefaultTask
         }
 
         // this file is used by the ClientLibraryBuilder to determine if things are up to date
-        FileUtils.touch(new File(workingDir, ".clientlibrary.uptodate"))
+        FileUtils.touch(upToDateFile)
     }
 
 }
