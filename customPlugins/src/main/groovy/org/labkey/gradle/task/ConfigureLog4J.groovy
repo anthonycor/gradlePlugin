@@ -4,9 +4,11 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.labkey.gradle.plugin.LabKey
+import org.labkey.gradle.plugin.LabKeyExtension
+
 /**
- * Created by susanh on 8/2/16.
+ * Used to copy over the log4j.xml template file and replace the consoleAppender value
+ * as appropriate for the current deployMode.
  */
 class ConfigureLog4J extends DefaultTask
 {
@@ -23,7 +25,7 @@ class ConfigureLog4J extends DefaultTask
     def compress()
     {
         def String consoleAppender = "" // this is the setting for production mode
-        if (project.labkey.deployMode == LabKey.DeployMode.dev)
+        if (LabKeyExtension.isDevMode(project))
         {
             consoleAppender = '<appender-ref ref="CONSOLE"/>'
         }

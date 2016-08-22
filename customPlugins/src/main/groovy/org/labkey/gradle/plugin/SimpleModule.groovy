@@ -70,7 +70,7 @@ class SimpleModule extends LabKey
         _project.apply plugin: 'org.labkey.webapp'
         _project.apply plugin: 'org.labkey.libResources'
         _project.apply plugin: 'org.labkey.clientLibraries'
-        _project.apply plugin: 'org.labkey.gzip'
+
 //        _project.apply plugin: "com.jfrog.artifactory"
 
         _project.apply plugin: 'maven'
@@ -169,7 +169,7 @@ class SimpleModule extends LabKey
     {
         _moduleProperties.setProperty("RequiredServerVersion", "0.0")
         if (_moduleProperties.getProperty("BuildType") == null)
-            _moduleProperties.setProperty("BuildType", _project.labkey.deployMode.toString())
+            _moduleProperties.setProperty("BuildType", _project.labkey.getDeployModeName(_project))
         _moduleProperties.setProperty("BuildUser", System.getProperty("user.name"))
         _moduleProperties.setProperty("BuildOS", System.getProperty("os.name"))
         _moduleProperties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
@@ -224,7 +224,7 @@ class SimpleModule extends LabKey
 
     protected void addTasks()
     {
-        def Task modulesXmlTask = _project.task('modulesXml',
+        def Task moduleXmlTask = _project.task('moduleXml',
                 group: "module",
                 type: Copy,
                 description: "create the module.xml file using module.properties",
@@ -253,7 +253,7 @@ class SimpleModule extends LabKey
                     destinationDir = new File((String) _project.sourceSets.spring.output.resourcesDir)
                 }
         )
-        modulesXmlTask.outputs.upToDateWhen(
+        moduleXmlTask.outputs.upToDateWhen(
                 {
                     Task task ->
                         File moduleXmlFile = new File((String) _project.sourceSets.spring.output.resourcesDir, "/module.xml")
@@ -283,7 +283,7 @@ class SimpleModule extends LabKey
                     destinationDir = new File((String) _project.labkey.stagingModulesDir)
                 }
         )
-        moduleFile.dependsOn(modulesXmlTask, _project.tasks.jar)
+        moduleFile.dependsOn(moduleXmlTask, _project.tasks.jar)
         if (_project.hasProperty('apiJar'))
             moduleFile.dependsOn(_project.tasks.apiJar)
         if (_project.hasProperty('jspJar'))

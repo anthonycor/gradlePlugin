@@ -2,7 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-
+import org.labkey.gradle.task.GzipAction
 /**
  * Created by susanh on 4/11/16.
  */
@@ -28,7 +28,7 @@ class Webapp implements Plugin<Project>
                             // The spring configuration files are copied by the SpringConfig plugin
                             exclude "WEB-INF/${project.name}/**"
                             // when in dev mode, the webapp files will be picked up from their original locations
-                            if (project.labkey.deployMode != LabKey.DeployMode.dev)
+                            if (!LabKeyExtension.isDevMode(project))
                             {
                                 // We should only redistribute the ExtJS resource files, not the full dev kit
                                 exclude "${EXTJS_DIRNAME}/src/**"
@@ -48,6 +48,8 @@ class Webapp implements Plugin<Project>
                         output.resourcesDir = project.labkey.explodedModuleWebDir
                     }
                 }
+        if (!LabKeyExtension.isDevMode(project))
+            project.tasks.processWebappResources.doLast(new GzipAction())
         project.tasks.processResources.dependsOn('processWebappResources')
     }
 }

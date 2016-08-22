@@ -6,6 +6,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.FileTree
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
+import org.labkey.gradle.task.GzipAction
 
 class Gwt implements Plugin<Project>
 {
@@ -22,7 +23,7 @@ class Gwt implements Plugin<Project>
     {
         project.apply plugin: 'java-base'
         project.extensions.create("gwt", GwtExtension)
-        if (project.labkey.deployMode == LabKey.DeployMode.dev)
+        if (LabKeyExtension.isDevMode(project))
         {
             project.gwt.style = "PRETTY"
             project.gwt.draftCompile = true
@@ -100,6 +101,11 @@ class Gwt implements Plugin<Project>
                             doFirst {
                                 project.file(extrasDir).mkdirs()
                                 project.file(outputDir).mkdirs()
+                            }
+
+                            if (LabKeyExtension.isDevMode(project))
+                            {
+                                doLast new GzipAction()
                             }
 
                             main = 'com.google.gwt.dev.Compiler'

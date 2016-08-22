@@ -2,7 +2,6 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileTree
 /**
  * Defines a set of extension properties for ease of reference. This also and adds a labkey extension
  * for some basic properties.  Other plugins can derive from this class to trigger the creation of the
@@ -17,8 +16,6 @@ class LabKey implements Plugin<Project>
     private static final String STAGING_WEBINF_DIR = "${STAGING_WEBAPP_DIR}/WEB-INF/"
     public static final String LABKEY_GROUP = "org.labkey"
 
-    public enum DeployMode { dev, test, prod }
-
     @Override
     void apply(Project project)
     {
@@ -29,8 +26,6 @@ class LabKey implements Plugin<Project>
         }
 
         project.labkey {
-            modulesApiDir = "${project.rootProject.buildDir}/modules-api"
-
             webappClassesDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/classes"
             webappLibDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/lib"
             webappJspDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/jsp"
@@ -61,15 +56,6 @@ class LabKey implements Plugin<Project>
         return rtDir;
     }
 
-    protected static FileTree getJavaBootClasspath(Project project)
-    {
-        File rtDir = getJavaRtDir();
-        if (rtDir.exists())
-        {
-            FileTree tree = project.fileTree(dir: rtDir.getPath(), include: ["*.jar"])
-        }
-    }
-
     protected void showRepositories(Project project, String message)
     {
         println "=== ${project.name} ==="
@@ -97,20 +83,40 @@ class LabKey implements Plugin<Project>
 
 class StagingExtension
 {
-    def String stagingWebInfDir
-    def String stagingModulesDir
-    def String stagingWebappDir
+    def String webappClassesDir
+    def String libDir
+    def String jspDir
+    def String webInfDir
+    def String webappDir
+    def String modulesDir
 }
 
 // TODO split this into separate extensions for deploy, staging, et al.
 class LabKeyExtension
 {
-    // TODO this should be based on a property (read from a .properties file or command line)
-    def LabKey.DeployMode deployMode = LabKey.DeployMode.dev
+    private static final String DEPLOY_MODE_PROPERTY = "deployMode"
+    private static enum  DeployMode {
+
+        dev("Development"),
+        prod("Production"),
+        test("Test")
+
+        private String _displayName;
+
+        private DeployMode(String displayName)
+        {
+            _displayName = displayName;
+        }
+
+        String getDisplayName()
+        {
+            return _displayName
+        }
+    }
+
     def String sourceCompatibility = '1.8'
     def String targetCompatibility = '1.8'
     def Boolean skipBuild = false // set this to true in an individual module's build.gradle file to skip building
-    def String modulesApiDir
     def String webappClassesDir
     def String webappLibDir
     def String webappJspDir
@@ -126,4 +132,19 @@ class LabKeyExtension
     def String webappDir
     def String ext3Dir = "ext-3.4.1"
     def String ext4Dir = "ext-4.2.1"
+
+
+    public static String getDeployModeName(Project project)
+    {
+        if (!project.hasProperty(DEPLOY_MODE_PROPERTY))
+            return DeployMode.dev.getDisplayName()
+        else
+            return DeployMode.valueOf(project.property(DEPLOY_MODE_PROPERTY).toString().toLowerCase()).getDisplayName()
+    }
+
+    public static boolean isDevMode(Project project)
+    {
+        return project.hasProperty(DEPLOY_MODE_PROPERTY) && DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY));
+    }
 }
+
