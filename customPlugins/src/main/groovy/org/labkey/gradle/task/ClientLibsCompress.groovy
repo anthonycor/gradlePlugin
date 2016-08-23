@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 
 class ClientLibsCompress extends DefaultTask
 {
-    private static final String LIB_XML_EXTENSION = ".lib.xml"
+    public static final String LIB_XML_EXTENSION = ".lib.xml"
 
     private static final String YUI_COMPRESSOR = "yuicompressor-2.4.8a.jar"
 

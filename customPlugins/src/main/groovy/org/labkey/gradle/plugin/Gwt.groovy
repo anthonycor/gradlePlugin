@@ -18,6 +18,11 @@ class Gwt implements Plugin<Project>
 
     private static final String GWT_EXTENSION = ".gwt.xml"
 
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(SOURCE_DIR).exists()
+    }
+
     @Override
     void apply(Project project)
     {

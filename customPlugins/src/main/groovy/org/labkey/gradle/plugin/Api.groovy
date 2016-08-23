@@ -13,6 +13,11 @@ class Api implements Plugin<Project>
 {
     public static final String SOURCE_DIR = "api-src"
 
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(SOURCE_DIR).exists()
+    }
+
     @Override
     void apply(Project project)
     {
@@ -59,10 +64,7 @@ class Api implements Plugin<Project>
                     baseName "${project.name}_api"
                     destinationDir = project.file(project.labkey.libDir)
                 })
-        apiJar.onlyIf
-                {
-                    project.file(project.file('api-src')).exists()
-                }
+        project.tasks.processApiResources.enabled = false
         apiJar.dependsOn(project.apiClasses)
         if (project.hasProperty('jsp2Java'))
             project.tasks.jsp2Java.dependsOn(apiJar)

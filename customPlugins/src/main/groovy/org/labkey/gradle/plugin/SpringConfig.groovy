@@ -3,32 +3,38 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Project
 
 /**
- * Created by susanh on 4/20/16.
+ * Used for copying the Spring config files to the module's build directory.
  */
 class SpringConfig extends LabKey
 {
+    private static final DIR_PREFIX = "webapp/WEB-INF"
     def Project _project;
-    def String _configDir;
+    def String _dirName;
+
+    public static boolean isApplicable(Project project)
+    {
+        return project.file("${DIR_PREFIX}/${project.name}").exists()
+    }
 
     @Override
     void apply(Project project)
     {
         _project = project;
-        _configDir = "${_project.labkey.explodedModuleDir}/config"
+        _dirName = "${DIR_PREFIX}/${_project.name}"
         project.apply plugin: 'java-base'
 
-        addSourceSet()
+        addSourceSet(project)
     }
 
-    private void addSourceSet()
+    private void addSourceSet(Project project)
     {
         _project.sourceSets
                 {
                     spring {
                         resources {
-                            srcDirs = ["webapp/WEB-INF/${_project.name}"]
+                            srcDirs = [_dirName]
                         }
-                        output.resourcesDir = _configDir
+                        output.resourcesDir = project.labkey.explodedModuleConfigDir
                     }
                 }
         _project.tasks.processResources.dependsOn('processSpringResources')

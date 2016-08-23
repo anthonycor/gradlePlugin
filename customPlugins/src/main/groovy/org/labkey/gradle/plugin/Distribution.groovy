@@ -10,6 +10,11 @@ class Distribution implements Plugin<Project>
     public static final String DIRECTORY = "distributions"
     public static final String GROUP_NAME = "Distribution"
 
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(DIRECTORY).exists()
+    }
+
     @Override
     void apply(Project project)
     {

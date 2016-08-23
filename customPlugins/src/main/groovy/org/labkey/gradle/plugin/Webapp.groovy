@@ -8,8 +8,14 @@ import org.labkey.gradle.task.GzipAction
  */
 class Webapp implements Plugin<Project>
 {
+    private static final String DIR_NAME = "webapp"
     private static final String EXTJS_DIRNAME = "ext-3.4.1"
     private static final String EXTJS42_DIRNAME = "ext-4.2.1"
+
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(DIR_NAME).exists()
+    }
 
     @Override
     void apply(Project project)
@@ -24,7 +30,7 @@ class Webapp implements Plugin<Project>
                 {
                     webapp {
                         resources {
-                            srcDirs = ['webapp']
+                            srcDirs = [DIR_NAME]
                             // The spring configuration files are copied by the SpringConfig plugin
                             exclude "WEB-INF/${project.name}/**"
                             // when in dev mode, the webapp files will be picked up from their original locations

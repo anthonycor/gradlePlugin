@@ -14,6 +14,24 @@ class Jsp extends LabKey
 {
     public static final String BASE_NAME_EXTENSION = "_jsp"
 
+    public static boolean isApplicable(Project project)
+    {
+        return !getJspFileTree(project).isEmpty()
+    }
+
+    private static FileTree getJspFileTree(Project project)
+    {
+        def FileTree jspTree = project.fileTree("src").matching
+                {
+                    include('**/*.jsp')
+                }
+        jspTree += project.fileTree("resources").matching
+                {
+                    include("**/*.jsp")
+                }
+        return jspTree;
+    }
+
     @Override
     void apply(Project project)
     {
@@ -75,12 +93,9 @@ class Jsp extends LabKey
 
     private void addJspTasks(Project project)
     {
-        def FileTree jspTree = project.fileTree("src").include('**/*.jsp');
-        jspTree += project.fileTree("resources").include("**/*.jsp");
-
         def Task listJsps = project.task('listJsps', group: "jsp")
         listJsps.doLast {
-                    jspTree.each ({
+                    getJspFileTree(project).each ({
                         println it.absolutePath
                     })
                 }

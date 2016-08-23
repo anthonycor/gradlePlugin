@@ -4,12 +4,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Delete
-import org.labkey.gradle.task.ConfigureLog4J
-import org.labkey.gradle.task.DeployApp
-import org.labkey.gradle.task.DoThenSetup
+import org.labkey.gradle.task.*
 
 /**
- * Created by susanh on 8/8/16.
+ * First stages then deploys the application locally to the tomcat directory
  */
 class ServerDeploy implements Plugin<Project>
 {
@@ -39,6 +37,14 @@ class ServerDeploy implements Plugin<Project>
                 description: "Deploy the application locally into ${project.serverDeploy.dir}"
         )
 
+        def Task stageAppTask = project.task(
+                "stageApp",
+                group: GROUP_NAME,
+                type: StageApp,
+                description: "Stage the modules for the application into ${project.labkey.stagingDir}"
+        )
+        deployAppTask.dependsOn(stageAppTask)
+
         def Task setup = project.task(
                 "setup",
                 group: GROUP_NAME,
@@ -54,6 +60,13 @@ class ServerDeploy implements Plugin<Project>
                 description: "Edit and copy log4j.xml file",
         )
         deployAppTask.dependsOn(log4jTask)
+
+        project.task(
+                'undeployModules',
+                group: GROUP_NAME,
+                description: "Moves the module files out of the deploy directory and back to staging",
+                type: UndeployModules
+        )
 
         project.task(
                 'clean',

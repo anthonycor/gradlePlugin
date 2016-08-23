@@ -30,11 +30,14 @@ class LabKey implements Plugin<Project>
             webappLibDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/lib"
             webappJspDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/jsp"
 
+
+            stagingDir = "${project.rootProject.buildDir}/${STAGING_DIR}"
             stagingWebInfDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}"
             stagingWebappDir = "${project.rootProject.buildDir}/${STAGING_WEBAPP_DIR}"
             stagingModulesDir = "${project.rootProject.buildDir}/${STAGING_MODULES_DIR}"
             explodedModuleDir = "${project.buildDir}/explodedModule"
             explodedModuleWebDir = "${explodedModuleDir}/web"
+            explodedModuleConfigDir = "${explodedModuleDir}/config"
             libDir = "${explodedModuleDir}/lib"
             srcGenDir = "${project.buildDir}/gensrc"
 
@@ -83,6 +86,7 @@ class LabKey implements Plugin<Project>
 
 class StagingExtension
 {
+    def String dir
     def String webappClassesDir
     def String libDir
     def String jspDir
@@ -122,6 +126,8 @@ class LabKeyExtension
     def String webappJspDir
     def String explodedModuleDir
     def String explodedModuleWebDir
+    def String explodedModuleConfigDir
+    def String stagingDir
     def String stagingWebInfDir
     def String stagingModulesDir
     def String stagingWebappDir

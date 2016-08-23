@@ -61,30 +61,44 @@ class SimpleModule extends LabKey
 
     protected void applyPlugins()
     {
+        // we don't have an isApplicable method here because the directory we need to check is set in the extension
+        // created by this plugin.  We could separate extension creation from plugin application, but it would be
+        // different from the pattern used elsewhere.  schema tasks will be skipped if there are no xsd files in
+        // the designated directory
         _project.apply plugin: 'org.labkey.xmlBeans'
-        _project.apply plugin: 'org.labkey.resources'
-        if (_project.file(Api.SOURCE_DIR).exists())
+
+        if (Resources.isApplicable(_project))
+            _project.apply plugin: 'org.labkey.resources'
+        if (Api.isApplicable(_project))
             _project.apply plugin: 'org.labkey.api'
 
-        _project.apply plugin: 'org.labkey.springConfig'
-        _project.apply plugin: 'org.labkey.webapp'
-        _project.apply plugin: 'org.labkey.libResources'
-        _project.apply plugin: 'org.labkey.clientLibraries'
+        if (SpringConfig.isApplicable(_project))
+            _project.apply plugin: 'org.labkey.springConfig'
+        if (Webapp.isApplicable(_project))
+            _project.apply plugin: 'org.labkey.webapp'
+
+        if (LibResources.isApplicable(_project))
+            _project.apply plugin: 'org.labkey.libResources'
+
+        if (ClientLibraries.isApplicable(_project))
+            _project.apply plugin: 'org.labkey.clientLibraries'
 
 //        _project.apply plugin: "com.jfrog.artifactory"
 
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
+        // TODO disable various tasks these plugins bring in
 
-        _project.apply plugin: 'org.labkey.jsp'
+        if (Jsp.isApplicable(_project))
+            _project.apply plugin: 'org.labkey.jsp'
 
-        if (_project.file(Gwt.SOURCE_DIR).exists())
+        if (Gwt.isApplicable(_project))
             _project.apply plugin: 'org.labkey.gwt'
 
-        if (_project.file(Distribution.DIRECTORY).exists())
+        if (Distribution.isApplicable(_project))
             _project.apply plugin: 'org.labkey.distribution'
 
-        if (_project.file(NpmRun.NPM_PROJECT_FILE).exists())
+        if (NpmRun.isApplicable(_project))
         {
             // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
             _project.apply plugin: 'com.moowork.node'
@@ -250,13 +264,13 @@ class SimpleModule extends LabKey
                         return newLine;
 
                     })
-                    destinationDir = new File((String) _project.sourceSets.spring.output.resourcesDir)
+                    destinationDir = new File((String) _project.labkey.explodedModuleConfigDir)
                 }
         )
         moduleXmlTask.outputs.upToDateWhen(
                 {
                     Task task ->
-                        File moduleXmlFile = new File((String) _project.sourceSets.spring.output.resourcesDir, "/module.xml")
+                        File moduleXmlFile = new File((String) _project.labkey.explodedModuleConfigDir, "/module.xml")
                         if (!moduleXmlFile.exists())
                             return false
                         else

@@ -2,10 +2,19 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.labkey.gradle.task.ClientLibsCompress
 
 class ClientLibraries implements Plugin<Project>
 {
+    public static boolean isApplicable(Project project)
+    {
+        def FileTree libXmlFiles = project.fileTree(dir: project.projectDir,
+                includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"]
+        )
+        return !libXmlFiles.isEmpty()
+    }
+
     @Override
     void apply(Project project)
     {

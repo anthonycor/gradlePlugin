@@ -15,6 +15,11 @@ class NpmRun implements Plugin<Project>
     private static final String EXTENSION_NAME = "npmRun"
     private static final String GROUP_NAME = "NPM Run"
 
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(NPM_PROJECT_FILE).exists()
+    }
+
     @Override
     void apply(Project project)
     {

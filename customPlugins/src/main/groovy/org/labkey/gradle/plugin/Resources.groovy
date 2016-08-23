@@ -8,6 +8,13 @@ import org.gradle.api.Project
  */
 class Resources implements Plugin<Project>
 {
+    private static final String DIR_NAME = "resources"
+
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(DIR_NAME).exists()
+    }
+
     @Override
     void apply(Project project)
     {
@@ -23,7 +30,7 @@ class Resources implements Plugin<Project>
                     // causes an infinite recursion when creating the jar file.
                     base {
                         resources {
-                            srcDirs = ['resources']
+                            srcDirs = [DIR_NAME]
                             exclude "schemas/**/obsolete/**"
                         }
                         output.resourcesDir = project.labkey.explodedModuleDir
