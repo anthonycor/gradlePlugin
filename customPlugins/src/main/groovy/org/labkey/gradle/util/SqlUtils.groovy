@@ -1,7 +1,9 @@
 package org.labkey.gradle.util
 
 import groovy.sql.Sql
+import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 import java.sql.Driver
 import java.sql.DriverManager
@@ -43,26 +45,24 @@ class SqlUtils
 
     }
 
-    public static void dropDatabase(Project project, boolean drop)
+    public static void dropDatabase(Task task)
     {
-        if (drop)
+        Project project = task.project
+        if (!project.ext.has("jdbcDatabase") || project.ext.jdbcDatabase.equals("labkey"))
         {
-            if (!project.ext.has("jdbcDatabase") || project.ext.jdbcDatabase.equals("labkey") || project.ext.jdbcDatabase.equals("cpas"))
-            {
-                project.logger.error("Must specify a database that is not 'labkey' or 'cpas'");
-            }
-            else
-            {
-                project.logger.info("Attempting to drop database ${project.ext.jdbcDatabase}");
-                Properties params = new Properties();
-                params.setProperty("tomcatHome", "${project.tomcatDir}");
-                params.setProperty("jdbcDatabase", "${project.ext.databaseMaster}");
-                params.setProperty("jdbcURLParameters", "");
-                params.setProperty("jdbcHost", "${project.ext.jdbcHost}");
-                params.setProperty("jdbcPort", "${project.ext.jdbcPort}");
+            throw new GradleException("Must specify a database that is not 'labkey'")
+        }
+        else
+        {
+            project.logger.info("Attempting to drop database ${project.ext.jdbcDatabase}");
+            Properties params = new Properties();
+            params.setProperty("tomcatHome", "${project.tomcatDir}");
+            params.setProperty("jdbcDatabase", "${project.ext.databaseMaster}");
+            params.setProperty("jdbcURLParameters", "");
+            params.setProperty("jdbcHost", "${project.ext.jdbcHost}");
+            params.setProperty("jdbcPort", "${project.ext.jdbcPort}");
 
-                execSql(project, params, "DROP DATABASE \"${project.ext.jdbcDatabase}\";");
-            }
+            execSql(project, params, "DROP DATABASE \"${project.ext.jdbcDatabase}\";");
         }
     }
 }
