@@ -46,7 +46,6 @@ class LabKey implements Plugin<Project>
 
             webappDir = "${project.projectDir}/webapp"
         }
-        addTasks(project)
     }
 
     protected static File getJavaRtDir()
@@ -58,30 +57,6 @@ class LabKey implements Plugin<Project>
         }
         return rtDir;
     }
-
-    protected void showRepositories(Project project, String message)
-    {
-        println "=== ${project.name} ==="
-        if (message != null)
-            println message
-        project.repositories.each( {
-            repository ->
-                for (File file : repository.getDirs())
-                {
-                    println(file.getAbsolutePath());
-                }
-        })
-    }
-
-    private void addTasks(Project project)
-    {
-        project.task("showRepos", {
-            doLast {
-                this.showRepositories(project, null);
-            }
-        })
-    }
-
 }
 
 class StagingExtension
