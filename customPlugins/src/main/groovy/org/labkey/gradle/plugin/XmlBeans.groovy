@@ -23,6 +23,7 @@ class XmlBeans implements Plugin<Project>
         project.extensions.create("xmlBeans", XmlBeansExtension)
         addDependencies(project)
         addTasks(project)
+        addArtifacts(project)
     }
 
     private void addDependencies(Project project)
@@ -30,11 +31,19 @@ class XmlBeans implements Plugin<Project>
         project.configurations
                 {
                     xmlbeans
+                    xmlSchema // N.B.  This cannot be called xmlBeans or it won't be found
                 }
         project.dependencies
                 {
                     xmlbeans 'org.apache.xmlbeans:xbean:2.5.0'
                 }
+    }
+
+    private void addArtifacts(Project project)
+    {
+        project.artifacts {
+            xmlSchema project.tasks.schemasJar
+        }
     }
 
     private void addTasks(Project project)

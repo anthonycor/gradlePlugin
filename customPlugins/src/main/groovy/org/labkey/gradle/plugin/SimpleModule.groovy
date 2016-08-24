@@ -22,8 +22,8 @@ class SimpleModule extends LabKey
     // Deprecated: instead of creating this file,
     // set the skipBuild property to true in the module's build.gradle file
     //   ext.skipBuild = true
-    def String _skipBuildFile = "skipBuild.txt"
-    def String _modulePropertiesFile = "module.properties"
+    private static final String SKIP_BUILD_FILE = "skipBuild.txt"
+    private static final String MODULE_PROPERTIES_FILE = "module.properties"
     private static final String ENLISTMENT_PROPERTIES = "enlistment.properties"
     def Properties _moduleProperties;
     def Project _project;
@@ -38,19 +38,7 @@ class SimpleModule extends LabKey
         setJavaBuildProperties()
 
         _project.build.onlyIf({
-            def List<String> indicators = new ArrayList<>();
-            if (project.file(_skipBuildFile).exists())
-                indicators.add(_skipBuildFile + " exists")
-            if (!project.file(_modulePropertiesFile).exists())
-                indicators.add(_modulePropertiesFile + " does not exist")
-            if (project.labkey.skipBuild)
-                indicators.add("skipBuild property set for Gradle project")
-
-            if (indicators.size() > 0)
-            {
-                project.logger.info("$project.name build skipped because: " + indicators.join("; "))
-            }
-            return indicators.isEmpty()
+            return shouldDoBuild(project)
         })
 
         applyPlugins()
@@ -58,6 +46,23 @@ class SimpleModule extends LabKey
         setModuleProperties()
         addTasks()
         addArtifacts()
+    }
+
+    public static boolean shouldDoBuild(Project project)
+    {
+        def List<String> indicators = new ArrayList<>();
+        if (project.file(SKIP_BUILD_FILE).exists())
+            indicators.add(SKIP_BUILD_FILE + " exists")
+        if (!project.file(MODULE_PROPERTIES_FILE).exists())
+            indicators.add(MODULE_PROPERTIES_FILE + " does not exist")
+        if (project.labkey.skipBuild)
+            indicators.add("skipBuild property set for Gradle project")
+
+        if (indicators.size() > 0)
+        {
+            project.logger.info("$project.name build skipped because: " + indicators.join("; "))
+        }
+        return indicators.isEmpty()
     }
 
     protected void applyPlugins()
@@ -69,7 +74,8 @@ class SimpleModule extends LabKey
 
         if (AntBuild.isApplicable(_project))
         {
-            _project.apply plugin: 'org.labkey.antBuild'
+            if (shouldDoBuild(_project))
+                _project.apply plugin: 'org.labkey.antBuild'
         }
         else
         {
@@ -231,7 +237,7 @@ class SimpleModule extends LabKey
 
     protected void setModuleProperties()
     {
-        File propertiesFile = _project.file(_modulePropertiesFile)
+        File propertiesFile = _project.file(MODULE_PROPERTIES_FILE)
         _moduleProperties = new Properties()
         readProperties(propertiesFile, _moduleProperties)
 
@@ -282,7 +288,7 @@ class SimpleModule extends LabKey
                             return false
                         else
                         {
-                            if (_project.file(_modulePropertiesFile).lastModified() > moduleXmlFile.lastModified() ||
+                            if (_project.file(MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified() ||
                                 _project.project(":server").file('module.template.xml').lastModified() > moduleXmlFile.lastModified())
                                 return false
                         }

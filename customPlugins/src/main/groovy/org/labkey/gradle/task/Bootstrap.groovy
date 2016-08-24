@@ -3,9 +3,6 @@ package org.labkey.gradle.task
 import org.labkey.gradle.util.ParsingUtils
 import org.labkey.gradle.util.SqlUtils
 
-/**
- * Created by susanh on 8/11/16.
- */
 class Bootstrap extends DoThenSetup
 {
     def Closure<Void> fn = {
