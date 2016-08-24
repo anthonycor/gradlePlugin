@@ -9,6 +9,7 @@ import org.gradle.api.tasks.bundling.Jar
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
@@ -61,48 +62,54 @@ class SimpleModule extends LabKey
 
     protected void applyPlugins()
     {
-        // we don't have an isApplicable method here because the directory we need to check is set in the extension
-        // created by this plugin.  We could separate extension creation from plugin application, but it would be
-        // different from the pattern used elsewhere.  schema tasks will be skipped if there are no xsd files in
-        // the designated directory
-        _project.apply plugin: 'org.labkey.xmlBeans'
-
-        if (Resources.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.resources'
-        if (Api.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.api'
-
-        if (SpringConfig.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.springConfig'
-        if (Webapp.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.webapp'
-
-        if (LibResources.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.libResources'
-
-        if (ClientLibraries.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.clientLibraries'
-
-//        _project.apply plugin: "com.jfrog.artifactory"
-
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
         // TODO disable various tasks these plugins bring in
+        //        _project.apply plugin: "com.jfrog.artifactory"
 
-        if (Jsp.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.jsp'
-
-        if (Gwt.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.gwt'
-
-        if (Distribution.isApplicable(_project))
-            _project.apply plugin: 'org.labkey.distribution'
-
-        if (NpmRun.isApplicable(_project))
+        if (AntBuild.isApplicable(_project))
         {
-            // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
-            _project.apply plugin: 'com.moowork.node'
-            _project.apply plugin: 'org.labkey.npmRun'
+            _project.apply plugin: 'org.labkey.antBuild'
+        }
+        else
+        {
+            // we don't have an isApplicable method here because the directory we need to check is set in the extension
+            // created by this plugin.  We could separate extension creation from plugin application, but it would be
+            // different from the pattern used elsewhere.  schema tasks will be skipped if there are no xsd files in
+            // the designated directory
+            _project.apply plugin: 'org.labkey.xmlBeans'
+
+            if (Resources.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.resources'
+            if (Api.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.api'
+
+            if (SpringConfig.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.springConfig'
+            if (Webapp.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.webapp'
+
+            if (LibResources.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.libResources'
+
+            if (ClientLibraries.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.clientLibraries'
+
+            if (Jsp.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.jsp'
+
+            if (Gwt.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.gwt'
+
+            if (Distribution.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.distribution'
+
+            if (NpmRun.isApplicable(_project))
+            {
+                // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
+                _project.apply plugin: 'com.moowork.node'
+                _project.apply plugin: 'org.labkey.npmRun'
+            }
         }
     }
 
