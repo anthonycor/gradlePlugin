@@ -65,7 +65,6 @@ class StagingExtension
     }
 }
 
-// TODO split this into separate extensions for deploy, staging, et al.
 class LabKeyExtension
 {
     private static final String DEPLOY_MODE_PROPERTY = "deployMode"
