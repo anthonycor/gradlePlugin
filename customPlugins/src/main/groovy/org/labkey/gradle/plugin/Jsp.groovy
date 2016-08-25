@@ -1,5 +1,6 @@
 package org.labkey.gradle.plugin
 
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileTree
@@ -10,7 +11,7 @@ import org.labkey.gradle.task.JspCompile2Java
 /**
  * Created by susanh on 4/11/16.
  */
-class Jsp extends LabKey
+class Jsp implements Plugin<Project>
 {
     public static final String BASE_NAME_EXTENSION = "_jsp"
 
@@ -114,7 +115,7 @@ class Jsp extends LabKey
 
         def Task copyTags = project.task('copyTagLibs', group: "jsp", type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
                 {
-                    from project.labkey.stagingWebInfDir
+                    from project.staging.webInfDir
                     into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
                     include 'web.xml'
                     include '*.tld'
@@ -145,7 +146,7 @@ class Jsp extends LabKey
                 description: "produce jar file of jsps", {
             from "${project.buildDir}/${project.jspCompile.classDir}"
             baseName "${project.name}${BASE_NAME_EXTENSION}"
-            destinationDir = project.file(project.labkey.libDir)
+            destinationDir = project.file(project.labkey.explodedModuleLibDir)
         })
 
         jspJar.dependsOn(project.tasks.compileJspJava)

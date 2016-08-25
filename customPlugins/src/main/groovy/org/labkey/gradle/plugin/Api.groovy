@@ -62,7 +62,7 @@ class Api implements Plugin<Project>
                 {
                     from project.sourceSets['api'].output.classesDir
                     baseName "${project.name}_api"
-                    destinationDir = project.file(project.labkey.libDir)
+                    destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 })
         project.tasks.processApiResources.enabled = false
         apiJar.dependsOn(project.apiClasses)

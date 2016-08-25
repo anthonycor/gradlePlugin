@@ -53,7 +53,7 @@ class ServerBootstrap implements Plugin<Project>
                 type: JavaExec,
                 {
                     main = "org.labkey.bootstrap.DirectoryFileListWriter"
-                    workingDir = project.labkey.stagingWebappDir
+                    workingDir = project.staging.webappDir
                     classpath {
                         [
                                 project.file("${project.rootProject.buildDir}/bootstrap")

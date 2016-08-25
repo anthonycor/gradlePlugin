@@ -9,13 +9,13 @@ import org.gradle.api.tasks.TaskAction
 class DeployApp extends DefaultTask
 {
     @InputDirectory
-    File stagingModulesDir = new File((String) project.labkey.stagingModulesDir)
+    File stagingModulesDir = new File((String) project.staging.modulesDir)
 
     @InputDirectory
     File externalLibDir = new File("${project.labkey.externalLibDir}/server")
 
     @InputDirectory
-    File stagingWebappDir = new File((String) project.labkey.stagingWebappDir)
+    File stagingWebappDir = new File((String) project.staging.webappDir)
 
     @OutputDirectory
     File deployModulesDir = new File((String) project.serverDeploy.modulesDir)

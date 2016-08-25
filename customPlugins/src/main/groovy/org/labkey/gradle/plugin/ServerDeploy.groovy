@@ -41,7 +41,7 @@ class ServerDeploy implements Plugin<Project>
                 "stageApp",
                 group: GROUP_NAME,
                 type: StageApp,
-                description: "Stage the modules for the application into ${project.labkey.stagingDir}"
+                description: "Stage the modules for the application into ${project.staging.dir}"
         )
         deployAppTask.dependsOn(stageAppTask)
 

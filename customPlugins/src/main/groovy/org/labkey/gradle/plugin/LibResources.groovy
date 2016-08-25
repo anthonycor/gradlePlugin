@@ -32,7 +32,7 @@ class LibResources implements Plugin<Project>
                             srcDirs = [DIR_NAME]
                             include '*.jar'
                         }
-                        output.resourcesDir = project.labkey.webappLibDir
+                        output.resourcesDir = project.staging.libDir
                     }
                 }
         project.tasks.processResources.dependsOn('processLibsResources')

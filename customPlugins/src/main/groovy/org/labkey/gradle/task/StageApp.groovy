@@ -14,22 +14,22 @@ class StageApp extends DefaultTask
     File externalLibDir = new File("${project.labkey.externalLibDir}/server")
 
     @InputDirectory
-    File internalModuleLibDir = new File((String) project.project(":server:internal").labkey.libDir)
+    File internalModuleLibDir = new File((String) project.project(":server:internal").labkey.explodedModuleLibDir)
 
     @InputDirectory
-    File apiModuleLibDir = new File((String) project.project(":server:api").labkey.libDir)
+    File apiModuleLibDir = new File((String) project.project(":server:api").labkey.explodedModuleLibDir)
 
     @InputDirectory
     File clientApiLibDir = new File("${project.rootProject.buildDir}/client-api/java/jar")
 
     @InputDirectory
-    File schemasLibDir = new File((String) project.project(':schemas').labkey.libDir)
+    File schemasLibDir = new File((String) project.project(':schemas').labkey.explodedModuleLibDir)
 
     @OutputDirectory
-    File stagingServerLibDir = new File((String) project.labkey.webappLibDir)
+    File stagingServerLibDir = new File((String) project.staging.libDir)
 
     @OutputDirectory
-    File stagingServerJspLibDir = new File((String) project.labkey.webappJspDir)
+    File stagingServerJspLibDir = new File((String) project.staging.jspDir)
 
     @TaskAction
     public void action()

@@ -1,11 +1,12 @@
 package org.labkey.gradle.plugin
 
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
  * Used for copying the Spring config files to the module's build directory.
  */
-class SpringConfig extends LabKey
+class SpringConfig implements Plugin<Project>
 {
     private static final DIR_PREFIX = "webapp/WEB-INF"
     def Project _project;

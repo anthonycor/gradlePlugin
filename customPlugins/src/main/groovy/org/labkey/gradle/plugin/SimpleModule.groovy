@@ -1,5 +1,6 @@
 package org.labkey.gradle.plugin
 
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
@@ -15,9 +16,8 @@ import java.util.regex.Pattern
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
  * as well as tasks for copying resources to the build directory.
  *
- * Created by susanh on 4/5/16.
  */
-class SimpleModule extends LabKey
+class SimpleModule implements Plugin<Project>
 {
     // Deprecated: instead of creating this file,
     // set the skipBuild property to true in the module's build.gradle file
@@ -307,7 +307,7 @@ class SimpleModule extends LabKey
                     exclude 'gwt-unitCache/**'
                     baseName _project.name
                     extension 'module'
-                    destinationDir = new File((String) _project.labkey.stagingModulesDir)
+                    destinationDir = new File((String) _project.staging.modulesDir)
                 }
         )
         moduleFile.dependsOn(moduleXmlTask, _project.tasks.jar)

@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 class UndeployModules extends DefaultTask
 {
     @OutputDirectory
-    File stagingModulesDir = new File((String) project.labkey.stagingModulesDir)
+    File stagingModulesDir = new File((String) project.staging.modulesDir)
 
     @InputDirectory
     File deployModulesDir = new File((String) project.serverDeploy.modulesDir)
