@@ -49,6 +49,12 @@ class Distribution implements Plugin<Project>
             project.rootProject.tasks.distAll.dependsOn(dist)
     }
 
+    /**
+     * This method is used within the distribution build.gradle files to allow distributions
+     * to easily build upon one another.
+     * @param project the project that is to inherit dependencies
+     * @param inheritedProjectPath the project whose dependencies are inherited
+     */
     public static void inheritDependencies(Project project, String inheritedProjectPath)
     {
         project.project(inheritedProjectPath).configurations.distribution.dependencies.each {

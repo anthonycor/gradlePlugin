@@ -5,6 +5,9 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 import org.labkey.gradle.task.ClientLibsCompress
 
+/**
+ * Creates minified, compressed javascript files using the script declarations in a modules .lib.xml file(s).
+ */
 class ClientLibraries implements Plugin<Project>
 {
     public static boolean isApplicable(Project project)

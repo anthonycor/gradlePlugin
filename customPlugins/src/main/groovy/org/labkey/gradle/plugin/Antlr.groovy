@@ -8,7 +8,7 @@ import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
 
 /**
- * Created by susanh on 7/29/16.
+ * Used to compile antlr grammars into Java classes using the antlr executable.
  */
 class Antlr implements Plugin<Project>
 {

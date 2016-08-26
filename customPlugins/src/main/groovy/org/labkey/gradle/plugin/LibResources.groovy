@@ -5,6 +5,7 @@ import org.gradle.api.Project
 
 /**
  * This is meant to copy external jar files in a module's lib directory to the webapp lib directory.
+ * TODO: what does this look like when we are not using libraries from the file system?
  * CONSIDER: will the "application" plugin do a better job here?
  */
 class LibResources implements Plugin<Project>

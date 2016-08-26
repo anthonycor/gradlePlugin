@@ -5,6 +5,9 @@ import org.gradle.api.Project
 import org.labkey.gradle.task.Bootstrap
 import org.labkey.gradle.task.PickDb
 
+/**
+ * Adds stand-alone tasks for setting database properties to be used by the server
+ */
 class Database implements Plugin<Project>
 {
     @Override

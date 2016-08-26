@@ -9,7 +9,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.JspCompile2Java
 
 /**
- * Created by susanh on 4/11/16.
+ * Used to generate the jsp jar file for a module.
  */
 class Jsp implements Plugin<Project>
 {

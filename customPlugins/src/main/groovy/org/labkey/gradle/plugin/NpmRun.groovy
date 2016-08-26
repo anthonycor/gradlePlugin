@@ -4,7 +4,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-// borrowed heavily from https://plugins.gradle.org/plugin/com.palantir.npm-run
+/**
+ * Used to add tasks for running npm commands for a module.
+ *
+ * Borrowed heavily from https://plugins.gradle.org/plugin/com.palantir.npm-run
+ */
 class NpmRun implements Plugin<Project>
 {
     public static final String NPM_PROJECT_FILE = "package.json"

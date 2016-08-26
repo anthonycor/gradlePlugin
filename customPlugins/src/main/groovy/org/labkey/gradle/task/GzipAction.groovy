@@ -13,7 +13,6 @@ class GzipAction implements Action<Task>
     @Override
     void execute(Task task)
     {
-        println("${task.project.name}: GzipAction outputDir is ${task.outputs.files.files}")
         FileTree tree = task.outputs.files.getAsFileTree().matching {
             include("**/*.css")
             include("**/*.js");

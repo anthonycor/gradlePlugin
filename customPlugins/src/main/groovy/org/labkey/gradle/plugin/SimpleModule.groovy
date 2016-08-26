@@ -69,7 +69,7 @@ class SimpleModule implements Plugin<Project>
     {
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
-        // TODO disable various tasks these plugins bring in
+        // TODO disable various tasks these maven plugins bring in
         //        _project.apply plugin: "com.jfrog.artifactory"
 
         if (AntBuild.isApplicable(_project))
@@ -151,7 +151,7 @@ class SimpleModule implements Plugin<Project>
                     srcDirs = ['src']
                 }
                 resources {
-                    srcDirs = ['src']
+                    srcDirs = ['src'] // src is included because it contains some sql scripts
                     exclude '**/*.java'
                     exclude '**/*.jsp'
                 }

@@ -7,7 +7,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 
 /**
- * Created by susanh on 4/11/16.
+ * Add a sourceSet to create a module's api jar file
  */
 class Api implements Plugin<Project>
 {

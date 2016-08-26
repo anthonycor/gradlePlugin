@@ -8,6 +8,9 @@ import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.task.GzipAction
 
+/**
+ * Used to compile GWT source files into Javascript
+ */
 class Gwt implements Plugin<Project>
 {
     public static final String SOURCE_DIR = "gwtsrc"

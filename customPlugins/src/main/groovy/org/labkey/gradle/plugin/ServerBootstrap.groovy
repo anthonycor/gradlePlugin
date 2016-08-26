@@ -7,7 +7,10 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
 
 /**
- * Created by susanh on 8/10/16.
+ * Adds tasks for building the bootstrap jar file, copying it to the tomcat directory and creating the api file list
+ * used during startup to remove unused jar files from the deployment.
+ *
+ * CONSIDER: Convert to a Sync type task from Gradle to do the removal of unused jar files
  */
 class ServerBootstrap implements Plugin<Project>
 {

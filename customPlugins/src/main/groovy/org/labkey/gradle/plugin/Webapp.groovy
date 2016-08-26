@@ -3,14 +3,14 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.labkey.gradle.task.GzipAction
+
 /**
- * Created by susanh on 4/11/16.
+ * Declares a webapp sourceSet to capture the resource files that are copied into the webapp directory.
+ * When in production mode, these static resource files are gzipped as well.
  */
 class Webapp implements Plugin<Project>
 {
     private static final String DIR_NAME = "webapp"
-    private static final String EXTJS_DIRNAME = "ext-3.4.1"
-    private static final String EXTJS42_DIRNAME = "ext-4.2.1"
 
     public static boolean isApplicable(Project project)
     {
@@ -37,11 +37,11 @@ class Webapp implements Plugin<Project>
                             if (!LabKeyExtension.isDevMode(project))
                             {
                                 // We should only redistribute the ExtJS resource files, not the full dev kit
-                                exclude "${EXTJS_DIRNAME}/src/**"
-                                exclude "${EXTJS42_DIRNAME}/builds/**"
-                                exclude "${EXTJS42_DIRNAME}/cmd/**"
-                                exclude "${EXTJS42_DIRNAME}/locale/**"
-                                exclude "${EXTJS42_DIRNAME}/src/**"
+                                exclude "${project.labkey.ext3Dir}/src/**"
+                                exclude "${project.labkey.ext4Dir}/builds/**"
+                                exclude "${project.labkey.ext4Dir}/cmd/**"
+                                exclude "${project.labkey.ext4Dir}/locale/**"
+                                exclude "${project.labkey.ext4Dir}/src/**"
                                 exclude "d3/examples/**"
                                 exclude "d3/test/**"
                             }

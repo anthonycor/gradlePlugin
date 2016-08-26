@@ -1,12 +1,13 @@
 package org.labkey.gradle.plugin
 
 import org.gradle.api.Project
+
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
- * as well as tasks for copying resources to the build directory.
- *
- * Created by susanh on 4/5/16.
+ * as well as tasks for copying resources to the module's build directory.  This differs from simple module
+ * in that it allows for a separate api jar and a schemas jar that the compileJava tasks depend on. (So "Simple"
+ * means fewer dependencies.)
  */
 class Module extends SimpleModule
 {
