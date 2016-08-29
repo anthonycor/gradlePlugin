@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
-
 /**
  * Adds tasks for building the bootstrap jar file, copying it to the tomcat directory and creating the api file list
  * used during startup to remove unused jar files from the deployment.
@@ -14,27 +13,50 @@ import org.gradle.api.tasks.JavaExec
  */
 class ServerBootstrap implements Plugin<Project>
 {
+    private static final String BOOTSTRAP_MAIN_CLASS = "org.labkey.bootstrap.ModuleExtractor"
+
     @Override
     void apply(Project project)
     {
+        project.apply plugin: 'java-base'
+        addSourceSets(project)
+        addDependencies(project)
         addTasks(project)
+    }
+
+    private void addSourceSets(Project project)
+    {
+        project.sourceSets {
+            main {
+                java {
+                    srcDirs = ['src']
+                }
+                output.classesDir = "${project.buildDir}/classes"
+            }
+        }
+
+    }
+
+    private void addDependencies(Project project)
+    {
+        project.dependencies
+                {
+                    compile 'org.apache.tomcat:tomcat-api',
+                            'org.apache.tomcat:catalina',
+                            'org.apache.tomcat:tomcat-juli'
+                }
     }
 
     private void addTasks(Project project)
     {
-        // TODO convert this to Gradle
-        def Task buildBootstrapJar = project.task(
-                'buildBootstrapJar',
-                group: ServerDeploy.GROUP_NAME,
-                description: "Build the LabKey bootstrap jar file",
-                {
-                    ant.setProperty('tomcat.home', project.tomcatDir)
-                    ant.setProperty('build.dir', project.rootProject.buildDir )
-                    ant.setProperty('java.source.and.target', project.labkey.sourceCompatibility)
-                    ant.setProperty('basedir', project.project(":server").projectDir)
-                    ant.ant(dir: "${project.rootDir}/server", target: 'build_bootstrap_jar')
-                }
-        )
+        project.jar {
+            baseName "labkeyBootstrap"
+        }
+        project.processResources.enabled = false
+        project.jar.manifest {
+            attributes provider: 'LabKey'
+            attributes 'Main-Class': BOOTSTRAP_MAIN_CLASS
+        }
 
         def Task copyBootstrapJar = project.task(
                 'copyBootstrapJar',
@@ -42,11 +64,11 @@ class ServerBootstrap implements Plugin<Project>
                 type: Copy,
                 description: "Copy LabKey bootstrap jar to Tomcat",
                 {
-                    from "${project.rootProject.buildDir}/labkeyBootstrap.jar"
+                    from project.jar
                     into "${project.tomcatDir}/lib"
                 }
         )
-        copyBootstrapJar.dependsOn(buildBootstrapJar)
+        copyBootstrapJar.dependsOn(project.jar)
         project.project(":server").tasks.deployApp.dependsOn(copyBootstrapJar)
 
         def Task createApiFilesList = project.task(
@@ -64,7 +86,7 @@ class ServerBootstrap implements Plugin<Project>
                     }
                 }
         )
-        createApiFilesList.dependsOn(buildBootstrapJar)
+        createApiFilesList.dependsOn(project.jar)
         project.project(":server").tasks.deployApp.dependsOn(createApiFilesList)
     }
 }
