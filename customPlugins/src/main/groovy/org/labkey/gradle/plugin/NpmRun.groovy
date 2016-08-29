@@ -91,7 +91,7 @@ class NpmRun implements Plugin<Project>
         task.inputs.file task.project.file(TYPINGS_FILE)
         task.inputs.dir task.project.file(WEBPACK_DIR)
         task.inputs.files task.project.fileTree(dir: "src", includes: ["client/**/*", "theme/**/*"])
-        task.outputs.dir  task.project.file("resources/**/gen")
+        task.outputs.dir  task.project.fileTree(dir: "resources", includes: ["**/gen"])
     }
 }
 
