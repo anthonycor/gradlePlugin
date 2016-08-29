@@ -6,7 +6,7 @@ import org.gradle.api.Project
 /**
  * Created by susanh on 4/11/16.
  */
-class Resources implements Plugin<Project>
+class ModuleResources implements Plugin<Project>
 {
     private static final String DIR_NAME = "resources"
 
@@ -26,9 +26,7 @@ class Resources implements Plugin<Project>
     {
         project.sourceSets
                 {
-                    // N.B. putting this resources section in the main sourceSet in Module.groovy
-                    // causes an infinite recursion when creating the jar file.
-                    base {
+                    module {
                         resources {
                             srcDirs = [DIR_NAME]
                             exclude "schemas/**/obsolete/**"
@@ -36,6 +34,6 @@ class Resources implements Plugin<Project>
                         output.resourcesDir = project.labkey.explodedModuleDir
                     }
                 }
-        project.tasks.processResources.dependsOn('processBaseResources')
+        project.tasks.processResources.dependsOn('processModuleResources')
     }
 }

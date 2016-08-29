@@ -85,8 +85,8 @@ class SimpleModule implements Plugin<Project>
             // the designated directory
             _project.apply plugin: 'org.labkey.xmlBeans'
 
-            if (Resources.isApplicable(_project))
-                _project.apply plugin: 'org.labkey.resources'
+            if (ModuleResources.isApplicable(_project))
+                _project.apply plugin: 'org.labkey.moduleResources'
             if (Api.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.api'
 
