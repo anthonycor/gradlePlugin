@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.labkey.gradle.task.ServerSideJS
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Creates javascript files for use on the server side.
@@ -21,7 +22,7 @@ class CoreScripts implements Plugin<Project>
     private void addTasks(Project project)
     {
         def Task task = project.task("serverSideJS",
-                group: "Code generation",
+                group: GroupNames.CODE_GENERATION,
                 description: "Concatenate javascript files for use on the server side",
                 type: ServerSideJS
         )

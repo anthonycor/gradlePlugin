@@ -6,6 +6,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.FileTree
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Used to compile antlr grammars into Java classes using the antlr executable.
@@ -46,7 +47,7 @@ class Antlr implements Plugin<Project>
                 def file ->
                     def Task antlrTask = project.task("antlr" + file.getName().substring(0, file.getName().indexOf(EXTENSION)),
                             type: JavaExec,
-                            group: "Code generation",
+                            group: GroupNames.CODE_GENERATION,
                             description: "Generate Java classes from " + file.getName(),
                             {
                                 inputs.source file
@@ -73,7 +74,7 @@ class Antlr implements Plugin<Project>
                     antlrTasks.add(antlrTask);
             }
             def antlrTask = project.task("antlr",
-                    group: 'Code generation',
+                    group: GroupNames.CODE_GENERATION,
                     description: "generate Java classes from all ${EXTENSION} files",
                     dependsOn: antlrTasks
             )

@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Add a sourceSet to create a module's api jar file
@@ -56,7 +57,7 @@ class Api implements Plugin<Project>
     private void addApiJarTask(Project project)
     {
         def Task apiJar = project.task("apiJar",
-                group: "api",
+                group: GroupNames.API,
                 type: Jar,
                 description: "produce jar file for api",
                 {

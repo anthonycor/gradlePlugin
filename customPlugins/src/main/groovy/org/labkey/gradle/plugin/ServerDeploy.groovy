@@ -5,13 +5,13 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.*
+import org.labkey.gradle.util.GroupNames
 
 /**
  * First stages then deploys the application locally to the tomcat directory
  */
 class ServerDeploy implements Plugin<Project>
 {
-    public static final String GROUP_NAME = "Deploy"
 
     @Override
     void apply(Project project)
@@ -32,14 +32,14 @@ class ServerDeploy implements Plugin<Project>
     {
         def Task deployAppTask = project.task(
                 "deployApp",
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: DeployApp,
                 description: "Deploy the application locally into ${project.serverDeploy.dir}"
         )
 
         def Task stageAppTask = project.task(
                 "stageApp",
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: StageApp,
                 description: "Stage the modules for the application into ${project.staging.dir}"
         )
@@ -47,7 +47,7 @@ class ServerDeploy implements Plugin<Project>
 
         def Task setup = project.task(
                 "setup",
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: DoThenSetup,
                 description: "Installs labkey.xml and various jar files into the tomcat directory.  Sets default database properties."
         )
@@ -55,7 +55,7 @@ class ServerDeploy implements Plugin<Project>
 
         def Task log4jTask = project.task(
                 'configureLog4j',
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: ConfigureLog4J,
                 description: "Edit and copy log4j.xml file",
         )
@@ -63,14 +63,14 @@ class ServerDeploy implements Plugin<Project>
 
         project.task(
                 'undeployModules',
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 description: "Moves the module files out of the deploy directory and back to staging",
                 type: UndeployModules
         )
 
         project.task(
                 'clean',
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: Delete,
                 description: "Remove the deploy directory (${project.serverDeploy.dir})",
                 {
@@ -80,7 +80,7 @@ class ServerDeploy implements Plugin<Project>
 
         def Task cleanDeploy = project.task(
                 "cleanAndDeploy",
-                group: GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: DeployApp,
                 description: "Deploy the application locally into ${project.serverDeploy.dir}",
         )

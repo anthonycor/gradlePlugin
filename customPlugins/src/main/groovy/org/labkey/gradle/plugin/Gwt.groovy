@@ -7,6 +7,7 @@ import org.gradle.api.file.FileTree
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.task.GzipAction
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Used to compile GWT source files into Javascript
@@ -92,7 +93,7 @@ class Gwt implements Plugin<Project>
 
                 def compileTask = project.task(
                         'compileGwt' + gwtModuleClass.getKey(),
-                        group: "gwt",
+                        group: GroupNames.GWT,
                         type: JavaExec,
                         description: "compile GWT source files for " + gwtModuleClass.getKey()  + " into JS",
                         {
@@ -167,7 +168,7 @@ class Gwt implements Plugin<Project>
         def compileGwt = project.task("compileGwt",
                 dependsOn: gwtTasks,
                 description: 'compile all GWT source files into JS',
-                group: 'gwt'
+                group: GroupNames.GWT
         )
         project.tasks.classes.dependsOn(compileGwt)
     }

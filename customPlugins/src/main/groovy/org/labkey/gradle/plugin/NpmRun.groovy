@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Used to add tasks for running npm commands for a module.
@@ -17,7 +18,6 @@ class NpmRun implements Plugin<Project>
     public static final String WEBPACK_DIR = "webpack"
 
     private static final String EXTENSION_NAME = "npmRun"
-    private static final String GROUP_NAME = "NPM Run"
 
     public static boolean isApplicable(Project project)
     {
@@ -38,7 +38,7 @@ class NpmRun implements Plugin<Project>
     {
         project.task("npmRunClean")
                 {
-                    group = GROUP_NAME
+                    group = GroupNames.NPM_RUN
                     description = "Runs 'npm run ${project.npmRun.clean}'"
                     dependsOn "npmInstall"
                     dependsOn "npm_run_${project.npmRun.clean}"
@@ -48,7 +48,7 @@ class NpmRun implements Plugin<Project>
 
         project.task("npmRunSetup")
                 {
-                    group = GROUP_NAME
+                    group = GroupNames.NPM_RUN
                     description = "Runs 'npm run ${project.npmRun.setup}'"
                     dependsOn "npmInstall"
                     dependsOn "npm_run_${project.npmRun.setup}"
@@ -57,7 +57,7 @@ class NpmRun implements Plugin<Project>
 
         project.task("npmRunBuildProd")
                 {
-                    group = GROUP_NAME
+                    group = GroupNames.NPM_RUN
                     description = "Runs 'npm run ${project.npmRun.buildProd}'"
                     dependsOn "npmSetup"
                     dependsOn "npm_run_${project.npmRun.buildProd}"
@@ -69,7 +69,7 @@ class NpmRun implements Plugin<Project>
 
         project.task("npmRunBuild")
                 {
-                    group = GROUP_NAME
+                    group = GroupNames.NPM_RUN
                     description ="Runs 'npm run ${project.npmRun.buildDev}'"
                     dependsOn "npmSetup"
                     dependsOn "npm_run_${project.npmRun.buildDev}"

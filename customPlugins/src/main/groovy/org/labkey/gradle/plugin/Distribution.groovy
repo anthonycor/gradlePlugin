@@ -4,11 +4,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.labkey.gradle.task.PackageDistribution
+import org.labkey.gradle.util.GroupNames
 
 class Distribution implements Plugin<Project>
 {
     public static final String DIRECTORY = "distributions"
-    public static final String GROUP_NAME = "Distribution"
 
     public static boolean isApplicable(Project project)
     {
@@ -40,7 +40,7 @@ class Distribution implements Plugin<Project>
     {
         def Task dist = project.task(
                 "distribution",
-                group: GROUP_NAME,
+                group: GroupNames.DISTRIBUTION,
                 description: "Make LabKey distribution for a single module",
                 type: PackageDistribution
         )

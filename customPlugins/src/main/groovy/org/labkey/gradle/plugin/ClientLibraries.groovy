@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 import org.labkey.gradle.task.ClientLibsCompress
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Creates minified, compressed javascript files using the script declarations in a modules .lib.xml file(s).
@@ -29,7 +30,7 @@ class ClientLibraries implements Plugin<Project>
     private void addTasks(Project project)
     {
         def compressLibsTask = project.task("compressClientLibs",
-                group: 'Client libraries',
+                group: GroupNames.CLIENT_LIBRARIES,
                 type: ClientLibsCompress,
                 description: 'create minified, compressed javascript file using .lib.xml sources',
                 dependsOn: project.tasks.processResources,

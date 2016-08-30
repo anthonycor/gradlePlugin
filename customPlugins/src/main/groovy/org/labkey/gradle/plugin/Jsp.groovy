@@ -7,6 +7,7 @@ import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.JspCompile2Java
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Used to generate the jsp jar file for a module.
@@ -94,14 +95,14 @@ class Jsp implements Plugin<Project>
 
     private void addJspTasks(Project project)
     {
-        def Task listJsps = project.task('listJsps', group: "jsp")
+        def Task listJsps = project.task('listJsps', group: GroupNames.JSP)
         listJsps.doLast {
                     getJspFileTree(project).each ({
                         println it.absolutePath
                     })
                 }
 
-        def Task copyJsps = project.task('copyJsp', group: "jsp", type: Copy, description: "Copy jsp files to jsp compile directory",
+        def Task copyJsps = project.task('copyJsp', group: GroupNames.JSP, type: Copy, description: "Copy jsp files to jsp compile directory",
                 {
                     from 'src'
                     into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
@@ -113,7 +114,7 @@ class Jsp implements Plugin<Project>
 
                 })
 
-        def Task copyTags = project.task('copyTagLibs', group: "jsp", type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
+        def Task copyTags = project.task('copyTagLibs', group: GroupNames.JSP, type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
                 {
                     from project.staging.webInfDir
                     into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
@@ -123,7 +124,7 @@ class Jsp implements Plugin<Project>
                 })
 
         def Task jspCompileTask = project.task('jsp2Java',
-                group: "jsp",
+                group: GroupNames.JSP,
                 type: JspCompile2Java,
                 description: "compile jsp files into Java classes",
                 {
@@ -141,7 +142,7 @@ class Jsp implements Plugin<Project>
         }
 
         def Task jspJar = project.task('jspJar',
-                group: "jsp",
+                group: GroupNames.JSP,
                 type: Jar,
                 description: "produce jar file of jsps", {
             from "${project.buildDir}/${project.jspCompile.classDir}"

@@ -6,6 +6,7 @@ import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
+import org.labkey.gradle.util.GroupNames
 
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
@@ -252,7 +253,7 @@ class SimpleModule implements Plugin<Project>
     protected void addTasks()
     {
         def Task moduleXmlTask = _project.task('moduleXml',
-                group: "module",
+                group: GroupNames.MODULE,
                 type: Copy,
                 description: "create the module.xml file using module.properties",
                 {
@@ -297,10 +298,12 @@ class SimpleModule implements Plugin<Project>
         )
 
         def Task moduleFile = _project.task("module",
-                group: "module",
+                group: GroupNames.MODULE,
                 type: Jar,
                 description: "create the module file for this project",
                 {
+                    // this will collect all the dependencies of the module into its jar, but it collects too much
+//                    from { _project.configurations.runtime.collect { it.isDirectory() ? it : _project.zipTree(it) } }
                     from _project.labkey.explodedModuleDir
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"

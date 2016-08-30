@@ -6,6 +6,7 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.SchemaCompile
+import org.labkey.gradle.util.GroupNames
 
 class XmlBeansExtension
 {
@@ -49,7 +50,7 @@ class XmlBeans implements Plugin<Project>
     private void addTasks(Project project)
     {
         def Task schemasCompile = project.task('schemasCompile',
-                group: "xmlSchema",
+                group: GroupNames.XML_SCHEMA,
                 type: SchemaCompile,
                 description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes",
                 {
@@ -62,7 +63,7 @@ class XmlBeans implements Plugin<Project>
         }
 
         def Task schemasJar = project.task('schemasJar',
-                group: "xmlSchema",
+                group: GroupNames.XML_SCHEMA,
                 type: Jar,
                 description: "produce schemas jar file from directory '$project.xmlBeans.classDir'",
                 {
@@ -81,7 +82,7 @@ class XmlBeans implements Plugin<Project>
                 }
 
         project.task("cleanSchemasJar",
-                group: "xmlSchema",
+                group: GroupNames.XML_SCHEMA,
                 type: Delete,
                 description: "remove schema jar file",
                 {
@@ -90,7 +91,7 @@ class XmlBeans implements Plugin<Project>
         )
 
         project.task("cleanSchemasCompile",
-                group: "xmlSchema",
+                group: GroupNames.XML_SCHEMA,
                 type: Delete,
                 description: "remove source and class files generated from xsd files",
                 {

@@ -5,6 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
+import org.labkey.gradle.util.GroupNames
+
 /**
  * Adds tasks for building the bootstrap jar file, copying it to the tomcat directory and creating the api file list
  * used during startup to remove unused jar files from the deployment.
@@ -60,7 +62,7 @@ class ServerBootstrap implements Plugin<Project>
 
         def Task copyBootstrapJar = project.task(
                 'copyBootstrapJar',
-                group: ServerDeploy.GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 type: Copy,
                 description: "Copy LabKey bootstrap jar to Tomcat",
                 {
@@ -73,7 +75,7 @@ class ServerBootstrap implements Plugin<Project>
 
         def Task createApiFilesList = project.task(
                 'createApiFilesList',
-                group: ServerDeploy.GROUP_NAME,
+                group: GroupNames.DEPLOY,
                 description: 'Create an index of the files in the application so extraneous files can be removed during bootstrapping',
                 type: JavaExec,
                 {

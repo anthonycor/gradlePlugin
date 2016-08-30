@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.labkey.gradle.task.Bootstrap
 import org.labkey.gradle.task.PickDb
+import org.labkey.gradle.util.GroupNames
 
 /**
  * Adds stand-alone tasks for setting database properties to be used by the server
@@ -21,7 +22,7 @@ class Database implements Plugin<Project>
     private void addPickPgTask(Project project)
     {
         project.task("pickPg",
-            group: 'Database',
+            group: GroupNames.DATABASE,
             type: PickDb,
             description: "Switch to PostgreSQL configuration",
             {
@@ -32,7 +33,7 @@ class Database implements Plugin<Project>
     private void addPickMSSQLTask(Project project)
     {
         project.task("pickMSSQL",
-            group: 'Database',
+            group: GroupNames.DATABASE,
             type: PickDb,
             description: "Switch to SQL Server configuration",
             {
@@ -44,7 +45,7 @@ class Database implements Plugin<Project>
     private void addBootstrapTask(Project project)
     {
         project.task("bootstrap",
-            group: 'Database',
+            group: GroupNames.DATABASE,
             type: Bootstrap,
             description: "Switch to bootstrap database properties as defined in current db.config file"
         )
