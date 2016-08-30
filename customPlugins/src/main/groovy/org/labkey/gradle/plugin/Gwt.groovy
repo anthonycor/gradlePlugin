@@ -16,6 +16,7 @@ class Gwt implements Plugin<Project>
 {
     public static final String SOURCE_DIR = "gwtsrc"
     private static final String GWT_VERSION = "2.4.0"
+    private static final String GWT_USER_VERSION = "1.7.0"
     private static final String GXT_VERSION = "2.2.5"
     private static final String GWT_DND_VERSION = "3.2.0"
     private static final String VALIDATION_VERSION = "1.0.0"
@@ -58,7 +59,7 @@ class Gwt implements Plugin<Project>
     {
 
         project.dependencies {
-            gwtCompile "com.google.gwt:gwt-user:${GWT_VERSION}",
+            gwtCompile "com.google.gwt:gwt-user:${GWT_USER_VERSION}",
                     "com.google.gwt:gwt-dev:${GWT_VERSION}",
                     "com.sencha.gxt:gxt:${GXT_VERSION}",
                     "com.allen-sauer.gwt.dnd:gwt-dnd:${GWT_DND_VERSION}",
@@ -134,7 +135,7 @@ class Gwt implements Plugin<Project>
                             {
                                 classpath {
                                     [
-                                            // TODO get value from  environment variable perhaps
+                                            // TODO get value from environment variable perhaps
                                             "${project.rootProject.rootDir}/external/lib/build/gwt-user-firefox",
                                             project.sourceSets.gwt.compileClasspath,       // Dep
                                             project.sourceSets.gwt.java.srcDirs,           // Java source
