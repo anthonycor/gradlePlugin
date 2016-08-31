@@ -59,7 +59,7 @@ class Gwt implements Plugin<Project>
     {
 
         project.dependencies {
-            gwtCompile "com.google.gwt:gwt-user:${GWT_USER_VERSION}",
+            gwtCompile "com.google.gwt:gwt-user",
                     "com.google.gwt:gwt-dev:${GWT_VERSION}",
                     "com.sencha.gxt:gxt:${GXT_VERSION}",
                     "com.allen-sauer.gwt.dnd:gwt-dnd:${GWT_DND_VERSION}",
