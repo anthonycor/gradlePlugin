@@ -69,7 +69,7 @@ class ServerDeploy implements Plugin<Project>
         )
 
         project.task(
-                'clean',
+                'cleanDeploy',
                 group: GroupNames.DEPLOY,
                 type: Delete,
                 description: "Remove the deploy directory (${project.serverDeploy.dir})",
