@@ -8,12 +8,6 @@ import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.SchemaCompile
 import org.labkey.gradle.util.GroupNames
 
-class XmlBeansExtension
-{
-    def String schemasDir = "schemas" // the directory containing the schemas to be compiled
-    def String classDir = "xb" // the name of the directory in build or build/gensrc for the source and class files
-}
-
 /**
  * Class that will convert xsd files into a jar file
  */
@@ -101,4 +95,11 @@ class XmlBeans implements Plugin<Project>
         )
     }
 }
+
+class XmlBeansExtension
+{
+    def String schemasDir = "schemas" // the directory containing the schemas to be compiled
+    def String classDir = "xb" // the name of the directory in build or build/gensrc for the source and class files
+}
+
 
