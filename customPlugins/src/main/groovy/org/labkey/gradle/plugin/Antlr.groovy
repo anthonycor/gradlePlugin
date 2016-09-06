@@ -13,7 +13,6 @@ import org.labkey.gradle.util.GroupNames
  */
 class Antlr implements Plugin<Project>
 {
-    private static final String ANTLR_JAR = "antlr-3.5.2.jar"
     private static final String EXTENSION = ".g"
 
     @Override
@@ -58,11 +57,7 @@ class Antlr implements Plugin<Project>
 
                                 main = 'org.antlr.Tool'
 
-                                classpath {
-                                    [
-                                        project.file("lib/${ANTLR_JAR}")
-                                    ]
-                                }
+                                classpath = project.configurations.antlr
 
                                 args =
                                     [

@@ -60,8 +60,8 @@ class Gwt implements Plugin<Project>
 
         project.dependencies {
             gwtCompile "com.google.gwt:gwt-user",
-                    "com.google.gwt:gwt-dev:${GWT_VERSION}",
-                    "com.sencha.gxt:gxt:${GXT_VERSION}",
+                    "com.google.gwt:gwt-dev",
+                    "com.sencha.gxt:gxt",
                     "com.allen-sauer.gwt.dnd:gwt-dnd:${GWT_DND_VERSION}",
                     "jcp.org:validation-api-${VALIDATION_VERSION}.GA:${VALIDATION_VERSION}",
                     "jcp.org:validation-api-${VALIDATION_VERSION}.GA:${VALIDATION_VERSION}@zip"
