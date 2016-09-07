@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
@@ -11,7 +12,6 @@ import org.labkey.gradle.util.GroupNames
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
@@ -38,7 +38,7 @@ class SimpleModule implements Plugin<Project>
         _project.apply plugin: 'java-base'
         setJavaBuildProperties()
 
-        _project.build.onlyIf({
+        _project.build.onlyIf ({
             return shouldDoBuild(project)
         })
 
@@ -70,8 +70,6 @@ class SimpleModule implements Plugin<Project>
     {
         _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
-        // TODO disable various tasks these maven plugins bring in
-        //        _project.apply plugin: "com.jfrog.artifactory"
 
         if (AntBuild.isApplicable(_project))
         {
@@ -80,9 +78,9 @@ class SimpleModule implements Plugin<Project>
         }
         else
         {
-            // we don't have an isApplicable method here because the directory we need to check is set in the extension
+            // We don't have an isApplicable method here because the directory we need to check is set in the extension
             // created by this plugin.  We could separate extension creation from plugin application, but it would be
-            // different from the pattern used elsewhere.  schema tasks will be skipped if there are no xsd files in
+            // different from the pattern used elsewhere.  Schema tasks will be skipped if there are no xsd files in
             // the designated directory
             _project.apply plugin: 'org.labkey.xmlBeans'
 
@@ -138,8 +136,6 @@ class SimpleModule implements Plugin<Project>
         addSourceSets()
 
         _project.jar {
-            manifest.attributes provider: 'LabKey'
-            // TODO set other attributes for manifest?
             baseName project.name
         }
     }
@@ -166,7 +162,7 @@ class SimpleModule implements Plugin<Project>
         {
             _moduleProperties.setProperty("VcsURL", _project.versioning.info.url)
             _moduleProperties.setProperty("VcsRevision", _project.versioning.info.commit)
-            _moduleProperties.setProperty("BuildNumber", _project.versioning.info.build)
+            _moduleProperties.setProperty("BuildNumber",  System.hasProperty("build.number") ? System.getProperty("build.number") : _project.versioning.info.build)
         }
         else
         {
@@ -244,10 +240,23 @@ class SimpleModule implements Plugin<Project>
 
         // remove -SNAPSHOT because the module loader does not expect or handle decorated version numbers
         _moduleProperties.setProperty("Version", _project.version.toString().replace("-SNAPSHOT", ""))
+
         setBuildInfoProperties()
         setModuleInfoProperties()
         setVcsProperties()
         setEnlistmentId()
+        setJarManifestAttributes(_project.jar.manifest)
+    }
+
+    public void setJarManifestAttributes(Manifest manifest)
+    {
+        // TODO set other attributes for manifest?
+        manifest.attributes(
+                "Implementation-Version": _project.version,
+                "Implementation-Title": _moduleProperties.getProperty("Label", _project.name),
+                "Implementation-Vendor": "LabKey"
+        )
+
     }
 
     protected void addTasks()
@@ -311,8 +320,16 @@ class SimpleModule implements Plugin<Project>
                     baseName _project.name
                     extension 'module'
                     destinationDir = new File((String) _project.staging.modulesDir)
+//                    doFirst {
+//                        project.copy {
+//                            //referring to the 'module' configuration
+//                            from configurations.module
+//                            into 'lib'
+//                        }
+//                    }
                 }
         )
+        setJarManifestAttributes(moduleFile.manifest)
         moduleFile.dependsOn(moduleXmlTask, _project.tasks.jar)
         if (_project.hasProperty('apiJar'))
             moduleFile.dependsOn(_project.tasks.apiJar)
@@ -330,24 +347,23 @@ class SimpleModule implements Plugin<Project>
     {
         _project.publishing {
             publications {
-                moduleFile(MavenPublication) {
+                libs(MavenPublication) {
                     artifact _project.tasks.module
-                }
-                if (_project.hasProperty('apiJar'))
-                {
-                    api(MavenPublication) {
+                    if (_project.hasProperty('apiJar'))
                         artifact _project.tasks.apiJar
-                    }
+//                    if (_moduleProperties.hasProperty("Description"))
+//                        pom.withXml {
+//                            asNode().appendNode('description',
+//                                    _moduleProperties.getProperty("Description"))
+//                        }
                 }
             }
         }
-//
-//        _project.artifactoryPublish {
-//            dependsOn _project.tasks.module
-//            publications('moduleFile')
-//            if (_project.hasProperty('apiJar'))
-//                publications('api')
-//        }
+
+        _project.artifactoryPublish {
+            dependsOn _project.tasks.module
+            publications('libs')
+        }
     }
 }
 

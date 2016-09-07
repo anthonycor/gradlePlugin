@@ -3,10 +3,8 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.util.GroupNames
-
 /**
  * Add a sourceSet to create a module's api jar file
  */
@@ -61,6 +59,7 @@ class Api implements Plugin<Project>
                 type: Jar,
                 description: "produce jar file for api",
                 {
+                    classifier "api"
                     from project.sourceSets['api'].output.classesDir
                     baseName "${project.name}_api"
                     destinationDir = project.file(project.labkey.explodedModuleLibDir)
@@ -80,12 +79,5 @@ class Api implements Plugin<Project>
                 {
                     apiCompile project.tasks.apiJar
                 }
-        project.publishing {
-            publications {
-                api(MavenPublication) {
-                    artifact project.tasks.apiJar
-                }
-            }
-        }
     }
 }
