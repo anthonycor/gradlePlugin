@@ -7,9 +7,12 @@ import org.gradle.api.initialization.Settings
  */
 class BuildUtils
 {
-    public static final String SERVER_MODULE_DIR = "server/modules"
+    public static final String SERVER_MODULES_DIR = "server/modules"
+    public static final String CUSTOM_MODULES_DIR = "server/customModules"
+    public static final String OPTIONAL_MODULES_DIR = "server/customModules"
+    public static final String EXTERNAL_MODULES_DIR = "externalModules"
 
-    public static final List<String>  baseModules = ["server:bootstrap",
+    public static final List<String> BASE_MODULES = ["server:bootstrap",
                                                      "server:api",
                                                      "schemas",
                                                      "server:internal",
@@ -18,11 +21,11 @@ class BuildUtils
 
 
     // a set of directory paths in which to look for module directories
-    public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULE_DIR,
-                                                           "server/customModules",
-                                                           "server/optionalModules"]
+    public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULES_DIR,
+                                                           CUSTOM_MODULES_DIR,
+                                                           OPTIONAL_MODULES_DIR]
 
-    public static final List<String> EXTERNAL_MODULE_DIRS = ["externalModules",
+    public static final List<String> EXTERNAL_MODULE_DIRS = [EXTERNAL_MODULES_DIR,
                                                              "externalModules/scharp",
                                                              "externalModules/labModules",
                                                              "externalModules/onprcEHRModules",
@@ -35,7 +38,7 @@ class BuildUtils
      */
     public static void includeBaseModules(Settings settings)
     {
-        settings.include baseModules.toArray(new String[0])
+        settings.include BASE_MODULES.toArray(new String[0])
     }
 
     /**
@@ -61,7 +64,7 @@ class BuildUtils
                 }.toArray(new String[0])
             }
         }
-        if (moduleDirs.contains(SERVER_MODULE_DIR) && !excludedModules.contains("enginesrc"))
+        if (moduleDirs.contains(SERVER_MODULES_DIR) && !excludedModules.contains("enginesrc"))
         {
             settings.include 'server:modules:flow:enginesrc'
             // this is included separately since there's no good way to detect it programmatically
