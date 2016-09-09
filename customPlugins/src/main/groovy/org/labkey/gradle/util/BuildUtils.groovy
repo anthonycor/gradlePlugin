@@ -9,7 +9,7 @@ class BuildUtils
 {
     public static final String SERVER_MODULES_DIR = "server/modules"
     public static final String CUSTOM_MODULES_DIR = "server/customModules"
-    public static final String OPTIONAL_MODULES_DIR = "server/customModules"
+    public static final String OPTIONAL_MODULES_DIR = "server/optionalModules"
     public static final String EXTERNAL_MODULES_DIR = "externalModules"
 
     public static final List<String> BASE_MODULES = ["server:bootstrap",
