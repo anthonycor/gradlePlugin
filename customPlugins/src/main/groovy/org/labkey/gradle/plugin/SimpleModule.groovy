@@ -344,7 +344,7 @@ class SimpleModule implements Plugin<Project>
 
     // FIXME this probably happens too early in the configuration phase.  Dependencies are not being
     // generated in the pom file.
-    // TODO add description, orgainzation, licenses to pom file from properties file
+    // TODO add description, organization, licenses to pom file from properties file
     protected void addArtifacts()
     {
         _project.publishing {

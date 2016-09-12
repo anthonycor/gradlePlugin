@@ -1,12 +1,13 @@
 package org.labkey.gradle.util
 
+import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
-
 /**
  * Static utility methods and constants for use in the build and settings scripts.
  */
 class BuildUtils
 {
+    public static final String BUILD_FROM_SOURCE_PROP = "buildFromSource"
     public static final String SERVER_MODULES_DIR = "server/modules"
     public static final String CUSTOM_MODULES_DIR = "server/customModules"
     public static final String OPTIONAL_MODULES_DIR = "server/optionalModules"
@@ -54,8 +55,7 @@ class BuildUtils
             File directory = new File(rootDir, path);
             if (directory.exists())
             {
-                String relativePath = directory.absolutePath - rootDir.absolutePath
-                String prefix = relativePath.replaceAll("[\\\\\\/]", ":")
+                String prefix = convertDirToPath(rootDir, directory)
                 settings.include directory.listFiles().findAll { File f ->
                     // exclude non-directories, explicitly excluded names, and directories beginning with a .
                     f.isDirectory() && !excludedModules.contains(f.getName()) && !(f =~ ".*/\\..*") && !(f =~ "^\\..*")
@@ -69,5 +69,120 @@ class BuildUtils
             settings.include 'server:modules:flow:enginesrc'
             // this is included separately since there's no good way to detect it programmatically
         }
+    }
+
+    /**
+     * Looks through all the base modules and the known server and external module directories
+     * to find a module with the given suffix (directory name)
+     * @param parentProject
+     * @param dirName
+     * @return
+     */
+    public static Project findProject(Project parentProject, String dirName)
+    {
+        // first check in the base modules
+        for (String baseMod : BASE_MODULES)
+        {
+            if (baseMod.endsWith(":${dirName}"))
+                {
+                    return parentProject.findProject(baseMod)
+                }
+        }
+        List<String> allModuleDirs = new ArrayList<>();
+        allModuleDirs.addAll(SERVER_MODULE_DIRS);
+        allModuleDirs.addAll(EXTERNAL_MODULE_DIRS);
+        for (String modDir : allModuleDirs)
+        {
+            File directory = new File(parentProject.rootDir, modDir);
+            if (directory.exists())
+            {
+                File m = new File(directory, dirName)
+                String modPath = convertDirToPath(parentProject.rootDir, m)
+                Project depProject = parentProject.findProject(modPath)
+                if (depProject != null)
+                    return depProject
+            }
+        }
+        return null
+    }
+
+    public static String convertDirToPath(File rootDir, File directory)
+    {
+        String relativePath = directory.absolutePath - rootDir.absolutePath
+        return  relativePath.replaceAll("[\\\\\\/]", ":")
+    }
+
+    public static boolean shouldBuildFromSource(Project project)
+    {
+        return whyNotBuildFromSource(project).isEmpty()
+    }
+
+    public static List<String> whyNotBuildFromSource(Project project)
+    {
+        List<String> reasons = [];
+        if (!project.hasProperty(BUILD_FROM_SOURCE_PROP))
+        {
+            reasons.add("Project does not have buildFromSource property")
+            if (isSvnModule(project))
+                reasons.add("svn module without buildFromSource property set to true")
+        }
+        else if (!Boolean.valueOf(project.property(BUILD_FROM_SOURCE_PROP)))
+            reasons.add("buildFromSource property is false")
+
+        return reasons;
+    }
+
+    public static boolean isGitModule(Project project)
+    {
+        return project.file(".git").exists();
+    }
+
+    public static boolean isSvnModule(Project project)
+    {
+        return !isGitModule(project);
+    }
+
+    public static String getVersionNumber(Project project)
+    {
+        if (project.hasProperty("versioning"))
+        {
+            String branch = project.versioning.info.branchId
+            if (["trunk", "master", "develop"].contains(branch))
+                return project.labkeyVersion
+            else
+            {
+                String currentVersion = project.labkeyVersion
+                return currentVersion.replace("-SNAPSHOT", "_${branch}-SNAPSHOT")
+            }
+        }
+        return project.labkeyVersion
+    }
+
+    public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig)
+    {
+        Project depProject = parentProject.project(depProjectPath)
+        if (depProject != null && shouldBuildFromSource(depProject))
+        {
+            println("Found project ${depProjectPath}; building ${depProjectPath} from source.")
+            parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
+            parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig))
+        }
+        else
+        {
+            if (depProject == null)
+                parentProject.logger.info("Did not find project for dependency ${depProjectPath}.  Assumed to be external.")
+            else
+            {
+                parentProject.logger.info("Found project ${depProjectPath} but not building from source because: "
+                        + whyNotBuildFromSource(parentProject).join("; "))
+            }
+            int index = depProjectPath.lastIndexOf(":")
+            String moduleName = depProjectPath
+            if (index >= 0)
+                moduleName = depProjectPath.substring(index + 1)
+
+            parentProject.dependencies.add(parentProjectConfig, "org.labkey:${moduleName}:${parentProject.version}")
+        }
+
     }
 }
