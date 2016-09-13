@@ -16,6 +16,7 @@ class NpmRun implements Plugin<Project>
     public static final String TYPESCRIPT_CONFIG_FILE = "tsconfig.json"
     public static final String TYPINGS_FILE = "typings.json"
     public static final String WEBPACK_DIR = "webpack"
+    public static final String TYPINGS_DIR = "typings"
 
     private static final String EXTENSION_NAME = "npmRun"
 
@@ -54,14 +55,18 @@ class NpmRun implements Plugin<Project>
                     dependsOn "npm_run_${project.npmRun.setup}"
                     mustRunAfter "npmInstall"
                 }
+        project.tasks.npmRunSetup.inputs.file(project.file(TYPINGS_FILE))
+        project.tasks.npmRunSetup.outputs.dir(project.file(TYPINGS_DIR))
 
         project.task("npmRunBuildProd")
                 {
                     group = GroupNames.NPM_RUN
                     description = "Runs 'npm run ${project.npmRun.buildProd}'"
                     dependsOn "npmSetup"
+                    dependsOn "npmRunSetup"
                     dependsOn "npm_run_${project.npmRun.buildProd}"
                     mustRunAfter "npmSetup"
+                    mustRunAfter "npmRunSetup"
                 }
         addTaskInputOutput(project.tasks.npmRunBuildProd)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildProd}"))
@@ -72,8 +77,10 @@ class NpmRun implements Plugin<Project>
                     group = GroupNames.NPM_RUN
                     description ="Runs 'npm run ${project.npmRun.buildDev}'"
                     dependsOn "npmSetup"
+                    dependsOn "npmRunSetup"
                     dependsOn "npm_run_${project.npmRun.buildDev}"
                     mustRunAfter "npmSetup"
+                    mustRunAfter "npmRunSetup"
                 }
         addTaskInputOutput(project.tasks.npmRunBuild)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
