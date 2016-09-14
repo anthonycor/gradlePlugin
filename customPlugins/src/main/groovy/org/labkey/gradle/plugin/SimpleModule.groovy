@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
- * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
+ * directory).  It defines tasks for building the jar files (<module>_jsp.jar, <module>.jar)
  * as well as tasks for copying resources to the build directory.
  *
  */
@@ -68,6 +68,7 @@ class SimpleModule implements Plugin<Project>
 
     protected void applyPlugins()
     {
+        _project.apply plugin: 'maven'
         _project.apply plugin: 'maven-publish'
 
         if (AntBuild.isApplicable(_project))

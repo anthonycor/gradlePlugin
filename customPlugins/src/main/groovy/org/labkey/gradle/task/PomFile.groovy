@@ -20,8 +20,6 @@ class PomFile extends DefaultTask
     @TaskAction
     public void writePomFile()
     {
-            println "configuring pom file task for ${project.path}"
-            println project.configurations.runtime.allDependencies
             project.pom {
                 withXml {
                     if (project.lkModule.getPropertyValue("Organization") != null || project.lkModule.getPropertyValue("OrganizationURL") != null)
