@@ -2,6 +2,10 @@ package org.labkey.gradle.util
 
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 /**
  * Static utility methods and constants for use in the build and settings scripts.
  */
@@ -158,12 +162,21 @@ class BuildUtils
         return project.labkeyVersion
     }
 
+    public static String getLabKeyModuleVersion(Project project)
+    {
+        String version = project.version
+        // matches to a.b.c.d_rfb_123-SNAPSHOT or a.b.c.d-SNAPSHOT
+        Matcher matcher = Pattern.compile("([^_-]*)[_-].*").matcher(version)
+        if (matcher.matches())
+            version = matcher.group(1)
+        return version
+    }
+
     public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig)
     {
         Project depProject = parentProject.project(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
         {
-            println("Found project ${depProjectPath}; building ${depProjectPath} from source.")
             parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
             parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig))
         }

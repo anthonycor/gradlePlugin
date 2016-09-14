@@ -7,6 +7,7 @@ import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 import java.text.SimpleDateFormat
@@ -237,8 +238,9 @@ class SimpleModule implements Plugin<Project>
         _moduleProperties = new Properties()
         readProperties(propertiesFile, _moduleProperties)
 
-        // remove -SNAPSHOT because the module loader does not expect or handle decorated version numbers
-        _moduleProperties.setProperty("Version", _project.version.toString().replace("-SNAPSHOT", ""))
+        // remove -SNAPSHOT and any feature branch prefix from the module version number
+        // because the module loader does not expect or handle decorated version numbers
+        _moduleProperties.setProperty("Version", BuildUtils.getLabKeyModuleVersion(_project))
 
         setBuildInfoProperties()
         setModuleInfoProperties()
@@ -249,7 +251,6 @@ class SimpleModule implements Plugin<Project>
 
     public void setJarManifestAttributes(Manifest manifest)
     {
-        // TODO set other attributes for manifest?
         manifest.attributes(
                 "Implementation-Version": _project.version,
                 "Implementation-Title": _moduleProperties.getProperty("Label", _project.name),
@@ -344,28 +345,60 @@ class SimpleModule implements Plugin<Project>
 
     // FIXME this probably happens too early in the configuration phase.  Dependencies are not being
     // generated in the pom file.
-    // TODO add description, organization, licenses to pom file from properties file
     protected void addArtifacts()
     {
-        _project.publishing {
-            publications {
-                libs(MavenPublication) {
-                    artifact _project.tasks.module
-                    if (_project.hasProperty('apiJar'))
-                        artifact _project.tasks.apiJar
-//                    if (_moduleProperties.hasProperty("Description"))
-//                        pom.withXml {
-//                            asNode().appendNode('description',
-//                                    _moduleProperties.getProperty("Description"))
+        _project.afterEvaluate {
+            _project.publishing {
+//                println _project.configurations.runtime.allDependencies
+                publications {
+                    libs(MavenPublication) {
+                        artifact _project.tasks.module
+                        if (_project.hasProperty('apiJar'))
+                            artifact _project.tasks.apiJar
+
+                        pom.withXml {
+                            if (_moduleProperties.getProperty("Organization") != null || _moduleProperties.getProperty("OrganizationURL"))
+                            {
+                                def orgNode = asNode().appendNode("organization")
+                                if (_moduleProperties.getProperty("Organization") != null)
+                                    orgNode.appendNode("name", _moduleProperties.getProperty("Organization"))
+                                if (_moduleProperties.getProperty("OrganizationURL") != null)
+                                    orgNode.appendNode("url", _moduleProperties.getProperty("OrganizationURL"))
+                            }
+                            if (_moduleProperties.getProperty("Description") != null)
+                                asNode().appendNode("description",  _moduleProperties.getProperty("Description"))
+                            if (_moduleProperties.getProperty("URL") != null)
+                                asNode().appendNode("url",_moduleProperties.getProperty("URL"))
+                            if (_moduleProperties.getProperty("License") != null || _moduleProperties.getProperty("LicenseURL") != null)
+                            {
+                                def licenseNode = asNode().appendNode("licenses").appendNode("license")
+                                if (_moduleProperties.getProperty("License") != null)
+                                    licenseNode.appendNode("name", _moduleProperties.getProperty("License"))
+                                if (_moduleProperties.getProperty("LicenseURL") != null)
+                                    licenseNode.appendNode("url", _moduleProperties.getProperty("LicenseURL"))
+                                licenseNode.appendNode("distribution", "repo")
+                            }
+                        }
+                    }
+                }
+
+//                repositories {
+//                    maven {
+//                        credentials {
+//                            username _project.artifactory_user
+//                            password _project.artifactory_password
 //                        }
+//                        url "${_project.artifactory_contextUrl}/${_project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'}"
+//                    }
+//                }
+                _project.artifactoryPublish {
+                    dependsOn _project.tasks.module
+                    if (_project.hasProperty('apiJar'))
+                        dependsOn _project.tasks.apiJar
+                    publications('libs')
                 }
             }
-        }
-
-        _project.artifactoryPublish {
-            dependsOn _project.tasks.module
-            publications('libs')
+//            _project.tasks.publish.dependsOn(_project.tasks.module)
         }
     }
 }
-
