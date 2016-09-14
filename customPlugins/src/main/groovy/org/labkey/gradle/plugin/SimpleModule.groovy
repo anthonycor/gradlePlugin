@@ -7,12 +7,13 @@ import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
+import org.labkey.gradle.task.PomFile
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.util.PropertiesUtils
 
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
-import java.util.regex.Pattern
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
@@ -21,15 +22,12 @@ import java.util.regex.Pattern
  */
 class SimpleModule implements Plugin<Project>
 {
-    // Deprecated: instead of creating this file,
+    // Deprecated: instead of creating the skipBuild.txt file,
     // set the skipBuild property to true in the module's build.gradle file
     //   ext.skipBuild = true
     private static final String SKIP_BUILD_FILE = "skipBuild.txt"
-    private static final String MODULE_PROPERTIES_FILE = "module.properties"
-    private static final String ENLISTMENT_PROPERTIES = "enlistment.properties"
-    def Properties _moduleProperties;
+
     def Project _project;
-    def Pattern PROPERTY_PATTERN = Pattern.compile("@@([^@]+)@@")
 
     @Override
     void apply(Project project)
@@ -37,15 +35,16 @@ class SimpleModule implements Plugin<Project>
         _project = project;
 
         _project.apply plugin: 'java-base'
-        setJavaBuildProperties()
 
         _project.build.onlyIf ({
             return shouldDoBuild(project)
         })
 
+        project.extensions.create("lkModule", ModuleExtension, project)
+        setJavaBuildProperties()
         applyPlugins()
         addConfiguration()
-        setModuleProperties()
+        setJarManifestAttributes(_project.jar.manifest)
         addTasks()
         addArtifacts()
     }
@@ -55,8 +54,8 @@ class SimpleModule implements Plugin<Project>
         def List<String> indicators = new ArrayList<>();
         if (project.file(SKIP_BUILD_FILE).exists())
             indicators.add(SKIP_BUILD_FILE + " exists")
-        if (!project.file(MODULE_PROPERTIES_FILE).exists())
-            indicators.add(MODULE_PROPERTIES_FILE + " does not exist")
+        if (!project.file(ModuleExtension.MODULE_PROPERTIES_FILE).exists())
+            indicators.add(ModuleExtension.MODULE_PROPERTIES_FILE + " does not exist")
         if (project.labkey.skipBuild)
             indicators.add("skipBuild property set for Gradle project")
 
@@ -156,104 +155,11 @@ class SimpleModule implements Plugin<Project>
         }
     }
 
-    private void setVcsProperties()
-    {
-        if (_project.plugins.hasPlugin("org.labkey.versioning"))
-        {
-            _moduleProperties.setProperty("VcsURL", _project.versioning.info.url)
-            _moduleProperties.setProperty("VcsRevision", _project.versioning.info.commit)
-            _moduleProperties.setProperty("BuildNumber",  System.hasProperty("build.number") ? System.getProperty("build.number") : _project.versioning.info.build)
-        }
-        else
-        {
-            _moduleProperties.setProperty("VcsURL", "Not built from a source control working copy")
-            _moduleProperties.setProperty("VcsRevision", "Not built from a source control working copy")
-            _moduleProperties.setProperty("BuildNumber", "Not built from a source control working copy")
-        }
-    }
-
-    private setEnlistmentId()
-    {
-        File enlistmentFile = new File(_project.getRootProject().getProjectDir(), ENLISTMENT_PROPERTIES)
-        Properties enlistmentProperties = new Properties()
-        if (!enlistmentFile.exists())
-        {
-            UUID id = UUID.randomUUID()
-            enlistmentProperties.setProperty("enlistment.id", id.toString())
-            enlistmentProperties.store(new FileWriter(enlistmentFile), SimpleDateFormat.getDateTimeInstance().format(new Date()))
-        }
-        else
-        {
-            readProperties(enlistmentFile, enlistmentProperties)
-        }
-        _moduleProperties.setProperty("EnlistmentId", enlistmentProperties.getProperty("enlistment.id"))
-    }
-
-    private void setBuildInfoProperties()
-    {
-        _moduleProperties.setProperty("RequiredServerVersion", "0.0")
-        if (_moduleProperties.getProperty("BuildType") == null)
-            _moduleProperties.setProperty("BuildType", _project.labkey.getDeployModeName(_project))
-        _moduleProperties.setProperty("BuildUser", System.getProperty("user.name"))
-        _moduleProperties.setProperty("BuildOS", System.getProperty("os.name"))
-        _moduleProperties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
-        _moduleProperties.setProperty("BuildPath", _project.buildDir.getAbsolutePath() )
-        _moduleProperties.setProperty("SourcePath", _project.projectDir.getAbsolutePath() )
-        _moduleProperties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
-        if (_moduleProperties.getProperty("ConsolidateScripts") == null)
-            _moduleProperties.setProperty("ConsolidateScripts", "")
-        if (_moduleProperties.getProperty("ManageVersion") == null)
-            _moduleProperties.setProperty("ManageVersion", "")
-    }
-
-    private void setModuleInfoProperties()
-    {
-        if (_moduleProperties.getProperty("Name") == null)
-            _moduleProperties.setProperty("Name", _project.name)
-        if (_moduleProperties.getProperty("ModuleClass") == null)
-            _moduleProperties.setProperty("ModuleClass", "org.labkey.api.module.SimpleModule")
-    }
-
-    private static void readProperties(File propertiesFile, Properties properties)
-    {
-        if (propertiesFile.exists())
-        {
-            FileInputStream is;
-            try
-            {
-                is = new FileInputStream(propertiesFile)
-                properties.load(is)
-            }
-            finally
-            {
-                if (is != null)
-                    is.close()
-            }
-        }
-    }
-
-    protected void setModuleProperties()
-    {
-        File propertiesFile = _project.file(MODULE_PROPERTIES_FILE)
-        _moduleProperties = new Properties()
-        readProperties(propertiesFile, _moduleProperties)
-
-        // remove -SNAPSHOT and any feature branch prefix from the module version number
-        // because the module loader does not expect or handle decorated version numbers
-        _moduleProperties.setProperty("Version", BuildUtils.getLabKeyModuleVersion(_project))
-
-        setBuildInfoProperties()
-        setModuleInfoProperties()
-        setVcsProperties()
-        setEnlistmentId()
-        setJarManifestAttributes(_project.jar.manifest)
-    }
-
     public void setJarManifestAttributes(Manifest manifest)
     {
         manifest.attributes(
                 "Implementation-Version": _project.version,
-                "Implementation-Title": _moduleProperties.getProperty("Label", _project.name),
+                "Implementation-Title": _project.lkModule.getPropertyValue("Label", _project.name),
                 "Implementation-Vendor": "LabKey"
         )
 
@@ -270,19 +176,11 @@ class SimpleModule implements Plugin<Project>
                     include 'module.template.xml'
                     rename {"module.xml"}
                     filter( { String line ->
-                        //Todo: migrate to ParsingUtils
-                        def Matcher matcher = PROPERTY_PATTERN.matcher(line);
+                        def Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
                         def String newLine = line;
                         while (matcher.find())
                         {
-                            if (_moduleProperties.containsKey(matcher.group(1)))
-                            {
-                                newLine = newLine.replace(matcher.group(), (String) _moduleProperties.get(matcher.group(1)))
-                            }
-                            else
-                            {
-                                newLine = newLine.replace(matcher.group(), "")
-                            }
+                            newLine = newLine.replace(matcher.group(), (String) _project.lkModule.getPropertyValue(matcher.group(1), ""))
                         }
                         return newLine;
 
@@ -298,7 +196,7 @@ class SimpleModule implements Plugin<Project>
                             return false
                         else
                         {
-                            if (_project.file(MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified() ||
+                            if (_project.file(ModuleExtension.MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified() ||
                                 _project.project(":server").file('module.template.xml').lastModified() > moduleXmlFile.lastModified())
                                 return false
                         }
@@ -337,6 +235,7 @@ class SimpleModule implements Plugin<Project>
             moduleFile.dependsOn(_project.tasks.jspJar)
         _project.tasks.build.dependsOn(moduleFile)
         _project.tasks.clean.dependsOn(_project.tasks.cleanModule)
+
         _project.artifacts
                 {
                     published moduleFile
@@ -348,57 +247,149 @@ class SimpleModule implements Plugin<Project>
     protected void addArtifacts()
     {
         _project.afterEvaluate {
+            _project.task("pomFile",
+                    group: GroupNames.PUBLISHING,
+                    description: "create the pom file for this project",
+                    type: PomFile
+            )
             _project.publishing {
-//                println _project.configurations.runtime.allDependencies
                 publications {
                     libs(MavenPublication) {
                         artifact _project.tasks.module
                         if (_project.hasProperty('apiJar'))
                             artifact _project.tasks.apiJar
-
-                        pom.withXml {
-                            if (_moduleProperties.getProperty("Organization") != null || _moduleProperties.getProperty("OrganizationURL"))
-                            {
-                                def orgNode = asNode().appendNode("organization")
-                                if (_moduleProperties.getProperty("Organization") != null)
-                                    orgNode.appendNode("name", _moduleProperties.getProperty("Organization"))
-                                if (_moduleProperties.getProperty("OrganizationURL") != null)
-                                    orgNode.appendNode("url", _moduleProperties.getProperty("OrganizationURL"))
-                            }
-                            if (_moduleProperties.getProperty("Description") != null)
-                                asNode().appendNode("description",  _moduleProperties.getProperty("Description"))
-                            if (_moduleProperties.getProperty("URL") != null)
-                                asNode().appendNode("url",_moduleProperties.getProperty("URL"))
-                            if (_moduleProperties.getProperty("License") != null || _moduleProperties.getProperty("LicenseURL") != null)
-                            {
-                                def licenseNode = asNode().appendNode("licenses").appendNode("license")
-                                if (_moduleProperties.getProperty("License") != null)
-                                    licenseNode.appendNode("name", _moduleProperties.getProperty("License"))
-                                if (_moduleProperties.getProperty("LicenseURL") != null)
-                                    licenseNode.appendNode("url", _moduleProperties.getProperty("LicenseURL"))
-                                licenseNode.appendNode("distribution", "repo")
-                            }
-                        }
                     }
                 }
 
-//                repositories {
-//                    maven {
-//                        credentials {
-//                            username _project.artifactory_user
-//                            password _project.artifactory_password
-//                        }
-//                        url "${_project.artifactory_contextUrl}/${_project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'}"
-//                    }
-//                }
+
                 _project.artifactoryPublish {
+                    dependsOn _project.tasks.pomFile
                     dependsOn _project.tasks.module
                     if (_project.hasProperty('apiJar'))
                         dependsOn _project.tasks.apiJar
                     publications('libs')
                 }
             }
+//            repositories {
+//                maven {
+//                    credentials {
+//                        username _project.artifactory_user
+//                        password _project.artifactory_password
+//                    }
+//                    url "${_project.artifactory_contextUrl}/${_project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'}"
+//                }
+//            }
 //            _project.tasks.publish.dependsOn(_project.tasks.module)
         }
+    }
+}
+
+public class ModuleExtension
+{
+    private static final String ENLISTMENT_PROPERTIES = "enlistment.properties"
+    protected static final String MODULE_PROPERTIES_FILE = "module.properties"
+    private Properties properties
+    private Project project
+
+    public ModuleExtension(Project project)
+    {
+        this.project = project
+        setModuleProperties(project);
+    }
+
+    public Project getProject()
+    {
+        return project
+    }
+
+    public String getPropertyValue(String propertyName, String defaultValue)
+    {
+        String value = properties.getProperty(propertyName)
+        return value == null ? defaultValue : value;
+
+    }
+    public String getPropertyValue(String propertyName)
+    {
+        return getPropertyValue(propertyName, null)
+    }
+
+    public Object get(String propertyName)
+    {
+        return properties.get(propertyName)
+    }
+
+    public void setModuleProperties(Project project)
+    {
+        File propertiesFile = project.file(MODULE_PROPERTIES_FILE)
+        this.properties = new Properties()
+        PropertiesUtils.readProperties(propertiesFile, this.properties)
+
+        // remove -SNAPSHOT and any feature branch prefix from the module version number
+        // because the module loader does not expect or handle decorated version numbers
+        properties.setProperty("Version", BuildUtils.getLabKeyModuleVersion(project))
+
+        setBuildInfoProperties()
+        setModuleInfoProperties()
+        setVcsProperties()
+        setEnlistmentId()
+
+    }
+
+    private void setVcsProperties()
+    {
+        if (project.plugins.hasPlugin("org.labkey.versioning"))
+        {
+            properties.setProperty("VcsURL", project.versioning.info.url)
+            properties.setProperty("VcsRevision", project.versioning.info.commit)
+            properties.setProperty("BuildNumber",  System.hasProperty("build.number") ? System.getProperty("build.number") : project.versioning.info.build)
+        }
+        else
+        {
+            properties.setProperty("VcsURL", "Not built from a source control working copy")
+            properties.setProperty("VcsRevision", "Not built from a source control working copy")
+            properties.setProperty("BuildNumber", "Not built from a source control working copy")
+        }
+    }
+
+    private setEnlistmentId()
+    {
+        File enlistmentFile = new File(project.getRootProject().getProjectDir(), ENLISTMENT_PROPERTIES)
+        Properties enlistmentProperties = new Properties()
+        if (!enlistmentFile.exists())
+        {
+            UUID id = UUID.randomUUID()
+            enlistmentProperties.setProperty("enlistment.id", id.toString())
+            enlistmentProperties.store(new FileWriter(enlistmentFile), SimpleDateFormat.getDateTimeInstance().format(new Date()))
+        }
+        else
+        {
+            PropertiesUtils.readProperties(enlistmentFile, enlistmentProperties)
+        }
+        properties.setProperty("EnlistmentId", enlistmentProperties.getProperty("enlistment.id"))
+    }
+
+    private void setBuildInfoProperties()
+    {
+        properties.setProperty("RequiredServerVersion", "0.0")
+        if (properties.getProperty("BuildType") == null)
+            properties.setProperty("BuildType", project.labkey.getDeployModeName(project))
+        properties.setProperty("BuildUser", System.getProperty("user.name"))
+        properties.setProperty("BuildOS", System.getProperty("os.name"))
+        properties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
+        properties.setProperty("BuildPath", project.buildDir.getAbsolutePath() )
+        properties.setProperty("SourcePath", project.projectDir.getAbsolutePath() )
+        properties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
+        if (properties.getProperty("ConsolidateScripts") == null)
+            properties.setProperty("ConsolidateScripts", "")
+        if (properties.getProperty("ManageVersion") == null)
+            properties.setProperty("ManageVersion", "")
+    }
+
+    private void setModuleInfoProperties()
+    {
+        if (properties.getProperty("Name") == null)
+            properties.setProperty("Name", project.name)
+        if (properties.getProperty("ModuleClass") == null)
+            properties.setProperty("ModuleClass", "org.labkey.api.module.SimpleModule")
     }
 }

@@ -4,7 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
-import org.labkey.gradle.util.ParsingUtils
+import org.labkey.gradle.util.PropertiesUtils
 
 
 class DoThenSetup extends DefaultTask
@@ -21,7 +21,7 @@ class DoThenSetup extends DefaultTask
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
-        Properties configProperties = ParsingUtils.readConfigProperties(project);
+        Properties configProperties = PropertiesUtils.readConfigProperties(project);
         configProperties.putAll(project.ext.properties);
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}");
         configProperties.setProperty("appDocBase", appDocBase);
@@ -44,7 +44,7 @@ class DoThenSetup extends DefaultTask
                     isNextLineComment = !newLine.contains("-->");
                     return newLine;
                 }
-                return ParsingUtils.replaceProps(line, configProperties);
+                return PropertiesUtils.replaceProps(line, configProperties);
             })
         })
 
@@ -81,7 +81,7 @@ class DoThenSetup extends DefaultTask
 
     public static void initDatabaseProperties(Project project)
     {
-        Properties configProperties = ParsingUtils.readConfigProperties(project);
+        Properties configProperties = PropertiesUtils.readConfigProperties(project);
         for (String key : configProperties.keySet())
         {
             if (key.contains("database"))
@@ -93,7 +93,7 @@ class DoThenSetup extends DefaultTask
 
     public static void setJDBCDefaultProps(Project project)
     {
-        Properties tempProperties = ParsingUtils.readConfigProperties(project);
+        Properties tempProperties = PropertiesUtils.readConfigProperties(project);
 
         project.ext.jdbcDatabase = project.ext.databaseDefault;
         project.ext.jdbcHost = project.ext.databaseDefaultHost;
@@ -101,7 +101,7 @@ class DoThenSetup extends DefaultTask
         project.ext.jdbcURLParameters = "";
 
         tempProperties.putAll(project.ext.properties);
-        project.ext.jdbcURL = ParsingUtils.parseCompositeProp(tempProperties, tempProperties.getProperty("jdbcURL"));
+        project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(tempProperties, tempProperties.getProperty("jdbcURL"));
     }
 
 }

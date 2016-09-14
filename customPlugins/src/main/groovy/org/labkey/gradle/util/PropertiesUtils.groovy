@@ -5,9 +5,9 @@ import org.gradle.api.Project
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-class ParsingUtils
+class PropertiesUtils
 {
-    private static final Pattern PROPERTY_PATTERN = Pattern.compile("@@([^@]+)@@")
+    public static final Pattern PROPERTY_PATTERN = Pattern.compile("@@([^@]+)@@")
     private static final Pattern VALUE_PATTERN = Pattern.compile("(\\\$\\{\\w*\\})")
 
     public static Properties readFileProperties(Project project, String fileName)
@@ -42,7 +42,6 @@ class ParsingUtils
         return props;
     }
 
-    //TODO: Replace with a dedicated xml parser/copy action
     public static String replaceProps(String line, Properties props)
     {
         Matcher matcher = PROPERTY_PATTERN.matcher(line);
@@ -55,5 +54,23 @@ class ParsingUtils
             }
         }
         return line;
+    }
+
+    public static void readProperties(File propertiesFile, Properties properties)
+    {
+        if (propertiesFile.exists())
+        {
+            FileInputStream is;
+            try
+            {
+                is = new FileInputStream(propertiesFile)
+                properties.load(is)
+            }
+            finally
+            {
+                if (is != null)
+                    is.close()
+            }
+        }
     }
 }
