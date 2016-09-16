@@ -256,9 +256,12 @@ class SimpleModule implements Plugin<Project>
             _project.publishing {
                 publications {
                     libs(MavenPublication) {
+                        artifact _project.tasks.jar
                         artifact _project.tasks.module
-                        if (_project.hasProperty('apiJar'))
+                        if (Api.isApplicable(_project))
                             artifact _project.tasks.apiJar
+                        if (XmlBeans.isApplicable(_project))
+                            artifact _project.tasks.schemasJar
                     }
                 }
 
@@ -271,16 +274,6 @@ class SimpleModule implements Plugin<Project>
                     publications('libs')
                 }
             }
-//            repositories {
-//                maven {
-//                    credentials {
-//                        username _project.artifactory_user
-//                        password _project.artifactory_password
-//                    }
-//                    url "${_project.artifactory_contextUrl}/${_project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'}"
-//                }
-//            }
-//            _project.tasks.publish.dependsOn(_project.tasks.module)
         }
     }
 }

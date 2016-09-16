@@ -10,6 +10,7 @@ import org.labkey.gradle.util.GroupNames
  */
 class Api implements Plugin<Project>
 {
+    public static final String CLASSIFIER = "api"
     public static final String SOURCE_DIR = "api-src"
 
     public static boolean isApplicable(Project project)
@@ -59,7 +60,7 @@ class Api implements Plugin<Project>
                 type: Jar,
                 description: "produce jar file for api",
                 {
-                    classifier "api"
+                    classifier CLASSIFIER
                     from project.sourceSets['api'].output.classesDir
                     baseName "${project.name}_api"
                     destinationDir = project.file(project.labkey.explodedModuleLibDir)

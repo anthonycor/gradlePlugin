@@ -2,6 +2,8 @@ package org.labkey.gradle.util
 
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
+import org.labkey.gradle.plugin.Api
+import org.labkey.gradle.plugin.XmlBeans
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -46,6 +48,11 @@ class BuildUtils
         settings.include BASE_MODULES.toArray(new String[0])
     }
 
+    public static void includeAllModules(Settings settings)
+    {
+        // TODO, need a way to include modules not based on directory contents
+    }
+
     /**
      * Can be used in a gradle settings file to include the projects in a particular directory.
      * @param rootDir - the root directory for the gradle build (project.rootDir)
@@ -75,41 +82,6 @@ class BuildUtils
         }
     }
 
-    /**
-     * Looks through all the base modules and the known server and external module directories
-     * to find a module with the given suffix (directory name)
-     * @param parentProject
-     * @param dirName
-     * @return
-     */
-    public static Project findProject(Project parentProject, String dirName)
-    {
-        // first check in the base modules
-        for (String baseMod : BASE_MODULES)
-        {
-            if (baseMod.endsWith(":${dirName}"))
-                {
-                    return parentProject.findProject(baseMod)
-                }
-        }
-        List<String> allModuleDirs = new ArrayList<>();
-        allModuleDirs.addAll(SERVER_MODULE_DIRS);
-        allModuleDirs.addAll(EXTERNAL_MODULE_DIRS);
-        for (String modDir : allModuleDirs)
-        {
-            File directory = new File(parentProject.rootDir, modDir);
-            if (directory.exists())
-            {
-                File m = new File(directory, dirName)
-                String modPath = convertDirToPath(parentProject.rootDir, m)
-                Project depProject = parentProject.findProject(modPath)
-                if (depProject != null)
-                    return depProject
-            }
-        }
-        return null
-    }
-
     public static String convertDirToPath(File rootDir, File directory)
     {
         String relativePath = directory.absolutePath - rootDir.absolutePath
@@ -130,7 +102,7 @@ class BuildUtils
             if (isSvnModule(project))
                 reasons.add("svn module without buildFromSource property set to true")
         }
-        else if (!Boolean.valueOf(project.property(BUILD_FROM_SOURCE_PROP)))
+        else if (!Boolean.valueOf((String) project.property(BUILD_FROM_SOURCE_PROP)))
             reasons.add("buildFromSource property is false")
 
         return reasons;
@@ -166,13 +138,24 @@ class BuildUtils
     {
         String version = project.version
         // matches to a.b.c.d_rfb_123-SNAPSHOT or a.b.c.d-SNAPSHOT
-        Matcher matcher = Pattern.compile("([^_-]*)[_-].*").matcher(version)
+        Matcher matcher = Pattern.compile("([^_-]+)[_-].*").matcher(version)
         if (matcher.matches())
             version = matcher.group(1)
         return version
     }
 
-    public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig)
+    public static void addLabKeyDependency(Map<String, Object> config)
+    {
+        addLabKeyDependency(
+                (Project) config.get("project"),
+                (String) config.get("config"),
+                (String) config.get("depProjectPath"),
+                (String) config.get("depProjectConfig"),
+                (String) config.get("depVersion")
+        )
+    }
+
+    public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig, String depVersion)
     {
         Project depProject = parentProject.project(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
@@ -183,19 +166,49 @@ class BuildUtils
         else
         {
             if (depProject == null)
+            {
                 parentProject.logger.info("Did not find project for dependency ${depProjectPath}.  Assumed to be external.")
+                if (depVersion == null)
+                    depVersion = parentProject.version
+            }
             else
             {
                 parentProject.logger.info("Found project ${depProjectPath} but not building from source because: "
                         + whyNotBuildFromSource(parentProject).join("; "))
+                if (depVersion == null)
+                    depVersion = depProject.version
             }
-            int index = depProjectPath.lastIndexOf(":")
-            String moduleName = depProjectPath
-            if (index >= 0)
-                moduleName = depProjectPath.substring(index + 1)
-
-            parentProject.dependencies.add(parentProjectConfig, "org.labkey:${moduleName}:${parentProject.version}")
+            parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion))
         }
+    }
+
+    public static String getLabKeyArtifactName(String projectPath, String projectConfig, String version)
+    {
+        String classifier = ''
+        if (projectConfig != null)
+        {
+            if ('apiCompile'.equals(projectConfig))
+                classifier = ":${Api.CLASSIFIER}"
+            else if ('xmlSchema'.equals(projectConfig))
+                classifier = ":${XmlBeans.CLASSIFIER}"
+        }
+
+        String moduleName
+        if (projectPath.endsWith("remoteapi:java"))
+        {
+            moduleName = "labkey-client-api"
+        }
+        else
+        {
+            int index = projectPath.lastIndexOf(":")
+            moduleName = projectPath
+            if (index >= 0)
+                moduleName = projectPath.substring(index + 1)
+        }
+
+        String versionString = version == null ? "" : ":$version"
+
+        return "org.labkey:${moduleName}${versionString}${classifier}"
 
     }
 }

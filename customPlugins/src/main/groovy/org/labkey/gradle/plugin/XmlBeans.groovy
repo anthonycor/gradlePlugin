@@ -13,12 +13,21 @@ import org.labkey.gradle.util.GroupNames
  */
 class XmlBeans implements Plugin<Project>
 {
+    public static final String CLASSIFIER = "schemas"
+
     def void apply(Project project)
     {
         project.extensions.create("xmlBeans", XmlBeansExtension)
+
         addDependencies(project)
         addTasks(project)
         addArtifacts(project)
+
+    }
+
+    public static boolean isApplicable(Project project)
+    {
+        return project.file(project.xmlBeans.schemasDir).exists()
     }
 
     private void addDependencies(Project project)
@@ -53,7 +62,7 @@ class XmlBeans implements Plugin<Project>
                 }
         )
         schemasCompile.onlyIf {
-            project.file(project.xmlBeans.schemasDir).exists()
+            isApplicable(project)
         }
 
         def Task schemasJar = project.task('schemasJar',
@@ -61,6 +70,7 @@ class XmlBeans implements Plugin<Project>
                 type: Jar,
                 description: "produce schemas jar file from directory '$project.xmlBeans.classDir'",
                 {
+                    classifier CLASSIFIER
                     from "$project.buildDir/$project.xmlBeans.classDir"
                     exclude '**/*.java'
                     baseName project.name.equals("schemas") ? "schemas": "${project.name}_schemas"
@@ -72,7 +82,7 @@ class XmlBeans implements Plugin<Project>
         schemasJar.dependsOn(schemasCompile)
         schemasJar.onlyIf
                 {
-                    project.file(project.xmlBeans.schemasDir).exists()
+                    isApplicable(project)
                 }
 
         project.task("cleanSchemasJar",

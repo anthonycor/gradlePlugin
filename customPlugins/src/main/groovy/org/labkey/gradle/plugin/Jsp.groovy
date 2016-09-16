@@ -7,13 +7,14 @@ import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.JspCompile2Java
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
-
 /**
  * Used to generate the jsp jar file for a module.
  */
 class Jsp implements Plugin<Project>
 {
+    public static final String CLASSIFIER = "jsp"
     public static final String BASE_NAME_EXTENSION = "_jsp"
 
     public static boolean isApplicable(Project project)
@@ -81,8 +82,8 @@ class Jsp implements Plugin<Project>
                         'org.apache.tomcat:jsp-api',
                         'org.apache.tomcat:tomcat-juli'
                     jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'])
-                    jspCompile project.project(":server:api")
-                    jspCompile project.project(":server:internal")
+                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:api")
+                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:internal")
                     jspCompile project.files(project.tasks.jar)
                     if (project.hasProperty('apiJar'))
                         jspCompile project.files(project.tasks.apiJar)
@@ -144,11 +145,14 @@ class Jsp implements Plugin<Project>
         def Task jspJar = project.task('jspJar',
                 group: GroupNames.JSP,
                 type: Jar,
-                description: "produce jar file of jsps", {
-            from "${project.buildDir}/${project.jspCompile.classDir}"
-            baseName "${project.name}${BASE_NAME_EXTENSION}"
-            destinationDir = project.file(project.labkey.explodedModuleLibDir)
-        })
+                description: "produce jar file of jsps",
+                {
+                    classifier CLASSIFIER
+                    from "${project.buildDir}/${project.jspCompile.classDir}"
+                    baseName "${project.name}${BASE_NAME_EXTENSION}"
+                    destinationDir = project.file(project.labkey.explodedModuleLibDir)
+                }
+        )
 
         jspJar.dependsOn(project.tasks.compileJspJava)
 
