@@ -43,7 +43,7 @@ class SimpleModule implements Plugin<Project>
         project.extensions.create("lkModule", ModuleExtension, project)
         setJavaBuildProperties()
         applyPlugins()
-        addConfiguration()
+        addConfigurations()
         setJarManifestAttributes(_project.jar.manifest)
         addTasks()
         addArtifacts()
@@ -118,11 +118,13 @@ class SimpleModule implements Plugin<Project>
         }
     }
 
-    private void addConfiguration()
+    private void addConfigurations()
     {
         _project.configurations
                 {
                     published
+                    external
+                    compile.extendsFrom(external)
                 }
     }
 
@@ -211,7 +213,11 @@ class SimpleModule implements Plugin<Project>
                 description: "create the module file for this project",
                 {
                     // this will collect all the dependencies of the module into its jar, but it collects too much
-//                    from { _project.configurations.runtime.collect { it.isDirectory() ? it : _project.zipTree(it) } }
+                    from {
+                        _project.configurations.external.collect {
+                            it.isDirectory() ? it : _project.zipTree(it)
+                        }
+                    }
                     from _project.labkey.explodedModuleDir
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"
