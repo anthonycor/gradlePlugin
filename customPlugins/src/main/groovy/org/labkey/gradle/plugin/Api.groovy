@@ -49,7 +49,7 @@ class Api implements Plugin<Project>
                 {
                     apiCompile  project.project(":server:api"),
                         project.project(":server:internal"),
-                        project.project(":remoteapi:java")
+                        "org.labkey:labkey-client-api:${project.version}"
                 }
     }
 

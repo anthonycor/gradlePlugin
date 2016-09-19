@@ -26,7 +26,7 @@ class Module extends SimpleModule
                 {
                     BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":server:api")
                     BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":server:internal")
-                    BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":remoteapi:java")
+                    compile "org.labkey:labkey-client-api:${_project.version}"
                     if (XmlBeans.isApplicable(_project))
                         compile _project.files(_project.tasks.schemasJar)
                     if (Api.isApplicable(_project))
