@@ -212,12 +212,6 @@ class SimpleModule implements Plugin<Project>
                 type: Jar,
                 description: "create the module file for this project",
                 {
-                    // this will collect all the dependencies of the module into its jar, but it collects too much
-                    from {
-                        _project.configurations.external.collect {
-                            it.isDirectory() ? it : _project.zipTree(it)
-                        }
-                    }
                     from _project.labkey.explodedModuleDir
                     exclude '**/*.uptodate'
                     exclude "META-INF/${_project.name}/**"
@@ -225,16 +219,20 @@ class SimpleModule implements Plugin<Project>
                     baseName _project.name
                     extension 'module'
                     destinationDir = new File((String) _project.staging.modulesDir)
-//                    doFirst {
-//                        project.copy {
-//                            //referring to the 'module' configuration
-//                            from configurations.module
-//                            into 'lib'
-//                        }
-//                    }
                 }
         )
-        setJarManifestAttributes(moduleFile.manifest)
+
+        def Task copyExternalDependencies = _project.task("copyExternalLibs",
+                group: GroupNames.MODULE,
+                type: Copy,
+                description: "copy the dependencies declared in the 'external' configuration into the lib directory of the built module",
+                {
+                    from _project.configurations.external
+                    into "${_project.labkey.explodedModuleDir}/lib"
+                }
+        )
+        moduleFile.dependsOn(copyExternalDependencies)
+        setJarManifestAttributes((Manifest) moduleFile.manifest)
         moduleFile.dependsOn(moduleXmlTask, _project.tasks.jar)
         if (_project.hasProperty('apiJar'))
             moduleFile.dependsOn(_project.tasks.apiJar)
@@ -249,8 +247,6 @@ class SimpleModule implements Plugin<Project>
                 }
     }
 
-    // FIXME this probably happens too early in the configuration phase.  Dependencies are not being
-    // generated in the pom file.
     protected void addArtifacts()
     {
         _project.afterEvaluate {
