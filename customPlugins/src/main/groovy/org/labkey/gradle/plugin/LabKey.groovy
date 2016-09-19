@@ -26,16 +26,6 @@ class LabKey implements Plugin<Project>
         StagingExtension stagingExt = project.extensions.create("staging", StagingExtension)
         stagingExt.setDirectories(project)
     }
-
-    protected static File getJavaRtDir()
-    {
-        File rtDir = new File(System.getenv('JAVA_HOME'), "/lib/java8");
-        if (!rtDir.exists())
-        {
-            rtDir = new File(System.getenv('JAVA_HOME'), "/lib")
-        }
-        return rtDir;
-    }
 }
 
 class StagingExtension
