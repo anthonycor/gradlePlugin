@@ -167,13 +167,13 @@ class BuildUtils
         {
             if (depProject == null)
             {
-                parentProject.logger.info("Did not find project for dependency ${depProjectPath}.  Assumed to be external.")
+                parentProject.logger.info("${depProjectPath} project not found; assumed to be external.")
                 if (depVersion == null)
                     depVersion = parentProject.version
             }
             else
             {
-                parentProject.logger.info("Found project ${depProjectPath} but not building from source because: "
+                parentProject.logger.info("${depProjectPath} project found but not building from source because: "
                         + whyNotBuildFromSource(parentProject).join("; "))
                 if (depVersion == null)
                     depVersion = depProject.version
