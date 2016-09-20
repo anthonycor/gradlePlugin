@@ -27,7 +27,7 @@ class XmlBeans implements Plugin<Project>
 
     public static boolean isApplicable(Project project)
     {
-        return project.file(project.xmlBeans.schemasDir).exists()
+        return !AntBuild.isApplicable(project) && project.file(project.xmlBeans.schemasDir).exists()
     }
 
     private void addDependencies(Project project)
