@@ -17,7 +17,10 @@ class Module extends SimpleModule
     {
         super.apply(project)
 
-        addDependencies()
+        if (!AntBuild.isApplicable(project))
+        {
+            addDependencies()
+        }
     }
 
     private void addDependencies()
