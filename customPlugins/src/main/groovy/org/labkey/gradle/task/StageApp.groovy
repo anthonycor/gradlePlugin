@@ -38,7 +38,6 @@ class StageApp extends DefaultTask
         stageJspLibs()
     }
 
-
     // TODO what does this look like when the libraries are not on disk?
     private void stageServerLibs()
     {
@@ -47,24 +46,14 @@ class StageApp extends DefaultTask
             into stagingServerLibDir
             include "*.jar"
         })
-        project.copy({
-            from internalModuleLibDir
-            into stagingServerLibDir
-            include "*.jar"
-            exclude "*_jsp*.jar"
-        })
+
         project.copy({
             from externalLibDir
             into stagingServerLibDir
             include "*.jar"
         }
         )
-        project.copy({
-            from apiModuleLibDir
-            into stagingServerLibDir
-            include "*.jar"
-            exclude "*_jsp*.jar"
-        })
+
         project.copy({
             from schemasLibDir
             into stagingServerLibDir
