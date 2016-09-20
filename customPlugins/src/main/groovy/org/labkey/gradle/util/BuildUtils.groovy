@@ -26,6 +26,7 @@ class BuildUtils
                                                      'remoteapi:java'
     ]
 
+    // TODO add other convenience lists here (e.g., EHR modules, "core" modules)
 
     // a set of directory paths in which to look for module directories
     public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULES_DIR,
@@ -45,12 +46,12 @@ class BuildUtils
      */
     public static void includeBaseModules(Settings settings)
     {
-        settings.include BASE_MODULES.toArray(new String[0])
+        includeModules(settings, BASE_MODULES)
     }
 
-    public static void includeAllModules(Settings settings)
+    public static void includeModules(Settings settings, List<String> modules)
     {
-        // TODO, need a way to include modules not based on directory contents
+        settings.include modules.toArray(new String[0])
     }
 
     /**
