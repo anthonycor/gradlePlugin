@@ -69,6 +69,16 @@ class ServerDeploy implements Plugin<Project>
         )
 
         project.task(
+                'cleanStaging',
+                group: GroupNames.DEPLOY,
+                type: Delete,
+                description: "Removes the staging directory (${project.staging.dir})",
+                {
+                    delete project.staging.dir
+                }
+        )
+
+        project.task(
                 'cleanDeploy',
                 group: GroupNames.DEPLOY,
                 type: Delete,
@@ -78,13 +88,13 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
-        def Task cleanDeploy = project.task(
+        def Task cleanAndDeploy = project.task(
                 "cleanAndDeploy",
                 group: GroupNames.DEPLOY,
                 type: DeployApp,
                 description: "Deploy the application locally into ${project.serverDeploy.dir}",
         )
-        cleanDeploy.doFirst{
+        cleanAndDeploy.doFirst{
             project.delete(project.serverDeploy.dir)
         }
 
