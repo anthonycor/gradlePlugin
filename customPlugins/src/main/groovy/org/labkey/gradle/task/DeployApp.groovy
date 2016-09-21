@@ -60,7 +60,7 @@ class DeployApp extends DefaultTask
 
     private void deployModules()
     {
-        ant.move(
+        ant.copy(
                 todir: deployModulesDir,
                 preserveLastModified: true,
         )
