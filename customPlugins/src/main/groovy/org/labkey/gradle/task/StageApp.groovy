@@ -1,12 +1,13 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Copies varoius files into a staging directory to prepare for deployment of the application.
+ * Copies various files into a staging directory to prepare for deployment of the application.
  */
 class StageApp extends DefaultTask
 {
@@ -18,9 +19,6 @@ class StageApp extends DefaultTask
 
     @InputDirectory
     File apiModuleLibDir = new File((String) project.project(":server:api").labkey.explodedModuleLibDir)
-
-    @InputDirectory
-    File clientApiLibDir = new File("${project.rootProject.buildDir}/client-api/java/jar")
 
     @InputDirectory
     File schemasLibDir = new File((String) project.project(':schemas').labkey.explodedModuleLibDir)
@@ -41,16 +39,25 @@ class StageApp extends DefaultTask
     // TODO what does this look like when the libraries are not on disk?
     private void stageServerLibs()
     {
+
         project.copy({
-            from clientApiLibDir
+            from project.project(":remoteapi:java").tasks.jar
             into stagingServerLibDir
             include "*.jar"
         })
 
+//        project.allprojects { Project p ->
+//            p.copy {
+//                from p.configurations.external
+//                into stagingServerLibDir
+//            }
+//        }
         project.copy({
             from externalLibDir
             into stagingServerLibDir
             include "*.jar"
+            exclude "*-sources.jar"
+            exclude "*-javadoc.jar"
         }
         )
 

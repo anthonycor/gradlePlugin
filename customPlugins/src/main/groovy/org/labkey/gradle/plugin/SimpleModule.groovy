@@ -229,6 +229,9 @@ class SimpleModule implements Plugin<Project>
                 {
                     from _project.configurations.external
                     into "${_project.labkey.explodedModuleDir}/lib"
+                    include "*.jar"
+                    exclude "*-sources.jar"
+                    exclude "*-javadoc.jar"
                 }
         )
         moduleFile.dependsOn(copyExternalDependencies)
@@ -341,9 +344,9 @@ public class ModuleExtension
         }
         else
         {
-            properties.setProperty("VcsURL", "Not built from a source control working copy")
-            properties.setProperty("VcsRevision", "Not built from a source control working copy")
-            properties.setProperty("BuildNumber", "Not built from a source control working copy")
+            properties.setProperty("VcsURL", "Unknown")
+            properties.setProperty("VcsRevision", "Unknown")
+            properties.setProperty("BuildNumber", "Unknown")
         }
     }
 
