@@ -45,7 +45,8 @@ class ServerBootstrap implements Plugin<Project>
                 {
                     compile 'org.apache.tomcat:tomcat-api',
                             'org.apache.tomcat:catalina',
-                            'org.apache.tomcat:tomcat-juli'
+                            'org.apache.tomcat:tomcat-juli',
+                            'org.apache.tomcat:tomcat-util'
                 }
     }
 
