@@ -31,6 +31,15 @@ class PomFile extends DefaultTask
                     toRemove.each {
                         asNode().dependencies.first().remove(it)
                     }
+                    // add in the dependencies from the external configuration as well
+                    def dependenciesNode = asNode().dependencies.first()
+                    project.configurations.external.dependencies.each {
+                        def depNode = dependenciesNode.appendNode("dependency")
+                        depNode.appendNode("groupId", it.group)
+                        depNode.appendNode("artifactId", it.name)
+                        depNode.appendNode("version", it.version)
+                        depNode.appendNode("scope", "compile")
+                    }
                     if (project.lkModule.getPropertyValue("Organization") != null || project.lkModule.getPropertyValue("OrganizationURL") != null)
                     {
                         def orgNode = asNode().appendNode("organization")
