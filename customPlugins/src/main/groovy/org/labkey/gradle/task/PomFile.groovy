@@ -3,7 +3,6 @@ package org.labkey.gradle.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-
 /**
  * This task creates a pom file in a location that artifactory expects it when publishing.  It is meant to
  * replace the task created by the (incubating) maven-publish plugin since for whatever reason that task does
@@ -22,6 +21,16 @@ class PomFile extends DefaultTask
     {
             project.pom {
                 withXml {
+                    // remove the tomcat dependencies with no version specified because we cannot know which version of tomcat is in use
+                    List<Node> toRemove = []
+                    asNode().dependencies.first().each {
+                        if ( it.get("groupId").first().value().first().equals("org.apache.tomcat") &&
+                             it.get("version").isEmpty())
+                            toRemove.add(it)
+                    }
+                    toRemove.each {
+                        asNode().dependencies.first().remove(it)
+                    }
                     if (project.lkModule.getPropertyValue("Organization") != null || project.lkModule.getPropertyValue("OrganizationURL") != null)
                     {
                         def orgNode = asNode().appendNode("organization")

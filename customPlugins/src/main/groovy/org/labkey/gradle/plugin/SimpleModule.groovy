@@ -46,6 +46,7 @@ class SimpleModule implements Plugin<Project>
         addConfigurations()
         setJarManifestAttributes(_project.jar.manifest)
         addTasks()
+        addDependencies()
         addArtifacts()
     }
 
@@ -94,8 +95,8 @@ class SimpleModule implements Plugin<Project>
             if (Webapp.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.webapp'
 
-            if (LibResources.isApplicable(_project))
-                _project.apply plugin: 'org.labkey.libResources'
+//            if (LibResources.isApplicable(_project))
+//                _project.apply plugin: 'org.labkey.libResources'
 
             if (ClientLibraries.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.clientLibraries'
@@ -218,7 +219,7 @@ class SimpleModule implements Plugin<Project>
                     exclude 'gwt-unitCache/**'
                     baseName _project.name
                     extension 'module'
-                    destinationDir = new File((String) _project.staging.modulesDir)
+                    destinationDir = new File((String) _project.buildDir)
                 }
         )
 
@@ -250,6 +251,12 @@ class SimpleModule implements Plugin<Project>
                 }
     }
 
+    private void addDependencies()
+    {
+        Project serverProject = _project.project(":server")
+        BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
+    }
+
     protected void addArtifacts()
     {
         _project.afterEvaluate {
@@ -267,6 +274,8 @@ class SimpleModule implements Plugin<Project>
                             artifact _project.tasks.apiJar
                         if (XmlBeans.isApplicable(_project))
                             artifact _project.tasks.schemasJar
+                        if (Jsp.isApplicable(_project))
+                            artifact _project.tasks.jspJar
                     }
                 }
 
@@ -276,6 +285,8 @@ class SimpleModule implements Plugin<Project>
                     dependsOn _project.tasks.module
                     if (_project.hasProperty('apiJar'))
                         dependsOn _project.tasks.apiJar
+                    if (_project.hasProperty('jspJar'))
+                        dependsOn _project.tasks.jspJar
                     publications('libs')
                 }
             }

@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.*
 import org.labkey.gradle.util.GroupNames
@@ -25,7 +26,18 @@ class ServerDeploy implements Plugin<Project>
             binDir = "${dir}/bin"
             rootWebappsDir = "${project.rootDir}/webapps"
         }
+        addConfigurations(project)
         addTasks(project)
+    }
+
+    private static void addConfigurations(Project project)
+    {
+        project.configurations
+                {
+                    modules
+                    jars
+                    jspJars
+                }
     }
 
     private static void addTasks(Project project)
@@ -37,13 +49,51 @@ class ServerDeploy implements Plugin<Project>
                 description: "Deploy the application locally into ${project.serverDeploy.dir}"
         )
 
-        def Task stageAppTask = project.task(
+        // TODO staging step seems possibly unnecessary
+        def Task stageModulesTask = project.task(
+                "stageModule",
+                group: GroupNames.DEPLOY,
+                type: Copy,
+                description: "Stage the modules for the application into ${project.staging.dir}",
+                {
+                    from project.configurations.modules
+                    into project.staging.modulesDir
+                }
+        )
+
+        def Task stageJarsTask = project.task(
+                "stageJars",
+                group: GroupNames.DEPLOY,
+                type: Copy,
+                description: "Stage select jars into ${project.staging.dir}",
+                {
+                    from project.configurations.jars
+                    into project.staging.libDir
+                }
+        )
+
+        def Task stageJspJarsTask = project.task(
+                "stageJspJars",
+                group: GroupNames.DEPLOY,
+                type: Copy,
+                description: "Stage select jsp jar files into ${project.staging.dir} ",
+                {
+                    from project.configurations.jspJars
+                    into project.staging.jspDir
+                }
+        )
+
+        project.task(
                 "stageApp",
                 group: GroupNames.DEPLOY,
-                type: StageApp,
-                description: "Stage the modules for the application into ${project.staging.dir}"
+                description: "Stage modules and jar files into ${project.staging.dir}",
+                {
+                    dependsOn stageModulesTask
+                    dependsOn stageJspJarsTask
+                    dependsOn stageJarsTask
+                }
         )
-        deployAppTask.dependsOn(stageAppTask)
+        deployAppTask.dependsOn(project.tasks.stageApp)
 
         def Task setup = project.task(
                 "setup",

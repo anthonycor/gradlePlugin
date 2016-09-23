@@ -4,7 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Created by susanh on 4/11/16.
+ * TODO probably more efficient to fold this into the SimpleModule plugin
  */
 class ModuleResources implements Plugin<Project>
 {

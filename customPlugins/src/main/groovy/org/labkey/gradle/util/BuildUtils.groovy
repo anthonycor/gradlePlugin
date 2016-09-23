@@ -3,6 +3,7 @@ package org.labkey.gradle.util
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.labkey.gradle.plugin.Api
+import org.labkey.gradle.plugin.Jsp
 import org.labkey.gradle.plugin.XmlBeans
 
 import java.util.regex.Matcher
@@ -152,17 +153,21 @@ class BuildUtils
                 (String) config.get("config"),
                 (String) config.get("depProjectPath"),
                 (String) config.get("depProjectConfig"),
-                (String) config.get("depVersion")
+                (String) config.get("depVersion"),
+                (String) config.get("depExtension")
         )
     }
 
-    public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig, String depVersion)
+    public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig, String depVersion, String depExtension)
     {
         Project depProject = parentProject.project(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
         {
             parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
-            parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig))
+            if (depProjectConfig != null)
+                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig))
+            else
+                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath))
         }
         else
         {
@@ -179,11 +184,11 @@ class BuildUtils
                 if (depVersion == null)
                     depVersion = depProject.version
             }
-            parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion))
+            parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion, depExtension))
         }
     }
 
-    public static String getLabKeyArtifactName(String projectPath, String projectConfig, String version)
+    public static String getLabKeyArtifactName(String projectPath, String projectConfig, String version, String extension)
     {
         String classifier = ''
         if (projectConfig != null)
@@ -192,6 +197,8 @@ class BuildUtils
                 classifier = ":${Api.CLASSIFIER}"
             else if ('xmlSchema'.equals(projectConfig))
                 classifier = ":${XmlBeans.CLASSIFIER}"
+            else if ('jspCompile'.equals(projectConfig))
+                classifier = ":${Jsp.CLASSIFIER}"
         }
 
         String moduleName
@@ -209,7 +216,9 @@ class BuildUtils
 
         String versionString = version == null ? "" : ":$version"
 
-        return "org.labkey:${moduleName}${versionString}${classifier}"
+        String extensionString = extension == null ? "" : "@$extension"
+
+        return "org.labkey:${moduleName}${versionString}${classifier}${extensionString}"
 
     }
 }
