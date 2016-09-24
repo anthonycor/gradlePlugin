@@ -20,11 +20,26 @@ class LabKey implements Plugin<Project>
             buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
         }
 
+        addConfigurations(project)
+
         LabKeyExtension labKeyExt = project.extensions.create("labkey", LabKeyExtension)
         labKeyExt.setDirectories(project)
 
         StagingExtension stagingExt = project.extensions.create("staging", StagingExtension)
         stagingExt.setDirectories(project)
+    }
+
+    // These configurations are used for deploying the app.  We declare them here
+    // because we need them available for all projects to declare their dependencies
+    // to these configurations.
+    private static void addConfigurations(Project project)
+    {
+        project.configurations
+                {
+                    modules
+                    jars
+                    jspJars
+                }
     }
 }
 

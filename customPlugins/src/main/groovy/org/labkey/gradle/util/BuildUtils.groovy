@@ -27,6 +27,15 @@ class BuildUtils
                                                      'remoteapi:java'
     ]
 
+    public static final List<String> EHR_MODULE_NAMES = [
+            "EHR_ComplianceDB",
+            "WNPRC_EHR",
+            "cnprc_ehr",
+            "snprc_ehr",
+            "ehr",
+            "onprc_ehr"
+    ]
+
     // TODO add other convenience lists here (e.g., EHR modules, "core" modules)
 
     // a set of directory paths in which to look for module directories

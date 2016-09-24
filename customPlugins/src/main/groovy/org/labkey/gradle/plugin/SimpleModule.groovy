@@ -253,8 +253,7 @@ class SimpleModule implements Plugin<Project>
 
     private void addDependencies()
     {
-        Project serverProject = _project.project(":server")
-        BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
+        BuildUtils.addLabKeyDependency(project: _project.project(":server"), config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
     }
 
     protected void addArtifacts()

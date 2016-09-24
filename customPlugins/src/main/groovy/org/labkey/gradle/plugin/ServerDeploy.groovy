@@ -26,18 +26,7 @@ class ServerDeploy implements Plugin<Project>
             binDir = "${dir}/bin"
             rootWebappsDir = "${project.rootDir}/webapps"
         }
-        addConfigurations(project)
         addTasks(project)
-    }
-
-    private static void addConfigurations(Project project)
-    {
-        project.configurations
-                {
-                    modules
-                    jars
-                    jspJars
-                }
     }
 
     private static void addTasks(Project project)
