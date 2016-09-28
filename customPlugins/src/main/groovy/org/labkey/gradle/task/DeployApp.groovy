@@ -82,7 +82,7 @@ class DeployApp extends DefaultTask
                 preserveLastModified: true
         )
                 {
-                    // Use cutdirsmapper to strop off the parent directory name to merge each subdirectory into a single parent
+                    // Use cutdirsmapper to strip off the parent directory name to merge each subdirectory into a single parent
                     ant.cutdirsmapper(dirs: 1)
                     // first grab all the JAR files, which are the same for all platforms
                     fileset(dir: "${project.labkey.externalDir}/windows")
@@ -100,7 +100,9 @@ class DeployApp extends DefaultTask
 
     private void deployBinariesViaCp(String osDirectory)
     {
-        "cp -Rn ${project.labkey.externalDir}/${osDirectory}/* ${project.serverDeploy.binDir}".execute()
+        project.exec {
+            commandLine "cp", "-Rn", "${project.labkey.externalDir}/${osDirectory}/bin/", "${project.serverDeploy.binDir}"
+        }
     }
 
     private void deployBinariesViaAndCopy(String osDirectory)
