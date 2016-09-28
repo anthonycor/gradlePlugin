@@ -169,14 +169,15 @@ class BuildUtils
 
     public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig, String depVersion, String depExtension)
     {
+        Boolean transitive = !"jars".equals(parentProjectConfig) && !"jspJars".equals(parentProjectConfig)
         Project depProject = parentProject.project(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
         {
             parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
             if (depProjectConfig != null)
-                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig))
+                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig, transitive: transitive))
             else
-                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath))
+                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, transitive: transitive))
         }
         else
         {

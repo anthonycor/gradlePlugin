@@ -39,6 +39,7 @@ class LabKey implements Plugin<Project>
                     modules
                     jars
                     jspJars
+                    external
                 }
     }
 }

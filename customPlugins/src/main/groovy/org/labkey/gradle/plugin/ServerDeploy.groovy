@@ -38,9 +38,12 @@ class ServerDeploy implements Plugin<Project>
                 description: "Deploy the application locally into ${project.serverDeploy.dir}"
         )
 
-        // TODO staging step seems possibly unnecessary
+        // FIXME staging step complicates things, but we currently depend on it for generating the
+        // apiFilesList that determines which libraries to keep and which to remove from WEB-INF/lib
+        // We need to put libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
+        // for recompiling JSP's.
         def Task stageModulesTask = project.task(
-                "stageModule",
+                "stageModules",
                 group: GroupNames.DEPLOY,
                 type: Copy,
                 description: "Stage the modules for the application into ${project.staging.dir}",
@@ -50,6 +53,20 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
+        def Task stageApiTask = project.task(
+                "stageApi",
+                group: GroupNames.DEPLOY,
+                type: Copy,
+                description: "Stage the api jar files and the dependencies into ${project.staging.dir}",
+                {
+                    from project.project(":server:api").configurations.external
+                    into project.staging.libDir
+                }
+        )
+
+        // N.B. It might be preferable to not have the stageApiTask and declare
+        // dependencies or exclusions such that we can pull the :server:api transitive
+        // dependencies but exclude the jars from the tomcat lib.
         def Task stageJarsTask = project.task(
                 "stageJars",
                 group: GroupNames.DEPLOY,
@@ -77,6 +94,7 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 description: "Stage modules and jar files into ${project.staging.dir}",
                 {
+                    dependsOn stageApiTask
                     dependsOn stageModulesTask
                     dependsOn stageJspJarsTask
                     dependsOn stageJarsTask

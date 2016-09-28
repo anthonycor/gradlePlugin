@@ -124,8 +124,9 @@ class SimpleModule implements Plugin<Project>
         _project.configurations
                 {
                     published
-                    external
+                    local
                     compile.extendsFrom(external)
+                    compile.extendsFrom(local)
                 }
     }
 
