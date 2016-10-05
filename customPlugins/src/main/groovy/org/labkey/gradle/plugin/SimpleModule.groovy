@@ -95,9 +95,6 @@ class SimpleModule implements Plugin<Project>
             if (Webapp.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.webapp'
 
-//            if (LibResources.isApplicable(_project))
-//                _project.apply plugin: 'org.labkey.libResources'
-
             if (ClientLibraries.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.clientLibraries'
 
@@ -259,35 +256,38 @@ class SimpleModule implements Plugin<Project>
 
     protected void addArtifacts()
     {
-        _project.afterEvaluate {
-            _project.task("pomFile",
-                    group: GroupNames.PUBLISHING,
-                    description: "create the pom file for this project",
-                    type: PomFile
-            )
-            _project.publishing {
-                publications {
-                    libs(MavenPublication) {
-                        artifact _project.tasks.jar
-                        artifact _project.tasks.module
-                        if (Api.isApplicable(_project))
-                            artifact _project.tasks.apiJar
-                        if (XmlBeans.isApplicable(_project))
-                            artifact _project.tasks.schemasJar
-                        if (Jsp.isApplicable(_project))
-                            artifact _project.tasks.jspJar
+        if (!AntBuild.isApplicable(_project))
+        {
+            _project.afterEvaluate {
+                _project.task("pomFile",
+                        group: GroupNames.PUBLISHING,
+                        description: "create the pom file for this project",
+                        type: PomFile
+                )
+                _project.publishing {
+                    publications {
+                        libs(MavenPublication) {
+                            artifact _project.tasks.jar
+                            artifact _project.tasks.module
+                            if (Api.isApplicable(_project))
+                                artifact _project.tasks.apiJar
+                            if (XmlBeans.isApplicable(_project))
+                                artifact _project.tasks.schemasJar
+                            if (Jsp.isApplicable(_project))
+                                artifact _project.tasks.jspJar
+                        }
                     }
-                }
 
 
-                _project.artifactoryPublish {
-                    dependsOn _project.tasks.pomFile
-                    dependsOn _project.tasks.module
-                    if (_project.hasProperty('apiJar'))
-                        dependsOn _project.tasks.apiJar
-                    if (_project.hasProperty('jspJar'))
-                        dependsOn _project.tasks.jspJar
-                    publications('libs')
+                    _project.artifactoryPublish {
+                        dependsOn _project.tasks.pomFile
+                        dependsOn _project.tasks.module
+                        if (_project.hasProperty('apiJar'))
+                            dependsOn _project.tasks.apiJar
+                        if (_project.hasProperty('jspJar'))
+                            dependsOn _project.tasks.jspJar
+                        publications('libs')
+                    }
                 }
             }
         }
