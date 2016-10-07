@@ -22,4 +22,4 @@
     Container c = getContainer();
     User user = getUser();
 %>
-Hello, and welcome to the @@MODULE_NAME@@ module.
+<div name="helloMessage">Hello, and welcome to the @@MODULE_NAME@@ module.</div>

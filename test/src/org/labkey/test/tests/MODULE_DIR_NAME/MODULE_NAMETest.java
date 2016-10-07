@@ -16,8 +16,8 @@
 
 package org.labkey.test.tests.@@MODULE_LOWERCASE_NAME@@;
 
-import org.junit.BeforeClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.labkey.test.BaseWebDriverTest;
@@ -25,9 +25,8 @@ import org.labkey.test.TestTimeoutException;
 import org.labkey.test.categories.InDevelopment;
 import org.labkey.test.pages.@@MODULE_LOWERCASE_NAME@@.BeginPage;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -65,6 +64,8 @@ public class @@MODULE_NAME@@Test extends BaseWebDriverTest
         _containerHelper.enableModule("@@MODULE_NAME@@");
         BeginPage beginPage = BeginPage.beginAt(this, getProjectName());
         assertEquals(200, getResponseCode());
+        final String expectedHello = "Hello, and welcome to the @@MODULE_NAME@@ module.";
+        assertEquals("Wrong hello message", expectedHello, beginPage.getHelloMessage());
     }
 
     @Override

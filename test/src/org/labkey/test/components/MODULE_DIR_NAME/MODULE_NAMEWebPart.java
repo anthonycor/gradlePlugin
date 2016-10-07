@@ -18,15 +18,18 @@ package org.labkey.test.components.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.test.Locator;
 import org.labkey.test.components.BodyWebPart;
-import org.labkey.test.components.WebPart;
-import org.labkey.test.selenium.LazyWebElement;
+import org.labkey.test.components.html.Input;
+import org.labkey.test.pages.LabKeyPage;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class @@MODULE_NAME@@WebPart extends BodyWebPart
-{
-    private Elements _elements;
+import static org.labkey.test.components.html.Input.Input;
 
+/**
+ * Component for a hypothetical webpart containing an input and a save button
+ */
+public class @@MODULE_NAME@@WebPart extends BodyWebPart<@@MODULE_NAME@@WebPart.ElementCache>
+{
     public @@MODULE_NAME@@WebPart(WebDriver driver)
     {
         this(driver, 0);
@@ -34,18 +37,30 @@ public class @@MODULE_NAME@@WebPart extends BodyWebPart
 
     public @@MODULE_NAME@@WebPart(WebDriver driver, int index)
     {
-        super(driver, "@@MODULE_NAME@@", index); // Assuming your modules has a WebPart named @@MODULE_NAME@@
+        super(driver, "@@MODULE_NAME@@", index);
     }
 
-    protected Elements elements()
+    public @@MODULE_NAME@@WebPart setInput(String value)
     {
-        if (null == _elements)
-            _elements = new Elements();
-        return _elements;
+        elementCache().input.set(value);
+        return this;
     }
 
-    protected class Elements extends WebPart.Elements
+    public LabKeyPage clickSave()
     {
-        protected WebElement example = new LazyWebElement(Locator.css("button"), this);
+        getWrapper().clickAndWait(elementCache().button);
+        return new LabKeyPage(getDriver());
+    }
+
+    @Override
+    protected ElementCache newElementCache()
+    {
+        return new ElementCache();
+    }
+
+    protected class ElementCache extends BodyWebPart.ElementCache
+    {
+        protected WebElement button = Locator.tag("button").withText("Save").findWhenNeeded(this);
+        protected Input input = Input(Locator.tag("input"), getDriver()).findWhenNeeded(this);
     }
 }

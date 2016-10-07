@@ -20,14 +20,10 @@ import org.labkey.test.BaseWebDriverTest;
 import org.labkey.test.Locator;
 import org.labkey.test.WebTestHelper;
 import org.labkey.test.pages.LabKeyPage;
-import org.labkey.test.selenium.LazyWebElement;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class BeginPage extends LabKeyPage
+public class BeginPage extends LabKeyPage<BeginPage.ElementCache>
 {
-    Elements _elements;
-
     public BeginPage(BaseWebDriverTest test)
     {
         super(test);
@@ -39,15 +35,19 @@ public class BeginPage extends LabKeyPage
         return new BeginPage(test);
     }
 
-    public Elements elements()
+    public String getHelloMessage()
     {
-        if (_elements == null)
-            _elements = new Elements();
-        return _elements;
+        return elementCache().helloMessage.getText();
     }
 
-    private class Elements extends LabKeyPage.ElementCache
+    @Override
+    protected ElementCache newElementCache()
     {
-        WebElement example = new LazyWebElement(Locator.css("button"), this);
+        return new ElementCache();
+    }
+
+    protected class ElementCache extends LabKeyPage.ElementCache
+    {
+        WebElement helloMessage = Locator.tagWithName("div", "helloMessage").findWhenNeeded(this);
     }
 }
