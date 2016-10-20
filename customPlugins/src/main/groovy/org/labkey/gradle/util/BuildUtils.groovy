@@ -40,8 +40,9 @@ class BuildUtils
 
     // a set of directory paths in which to look for module directories
     public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULES_DIR,
-                                                           CUSTOM_MODULES_DIR,
-                                                           OPTIONAL_MODULES_DIR]
+//                                                           CUSTOM_MODULES_DIR
+//                                                           ,OPTIONAL_MODULES_DIR
+    ]
 
     public static final List<String> EXTERNAL_MODULE_DIRS = [EXTERNAL_MODULES_DIR,
                                                              "externalModules/scharp",
@@ -163,11 +164,27 @@ class BuildUtils
                 (String) config.get("depProjectPath"),
                 (String) config.get("depProjectConfig"),
                 (String) config.get("depVersion"),
-                (String) config.get("depExtension")
+                (String) config.get("depExtension"),
+                (Closure) config.get("specialParams")
         )
     }
 
-    public static void addLabKeyDependency(Project parentProject, String parentProjectConfig, String depProjectPath, String depProjectConfig, String depVersion, String depExtension)
+    public static void addLabKeyDependency(Project parentProject,
+                                           String parentProjectConfig,
+                                           String depProjectPath,
+                                           String depProjectConfig,
+                                           String depVersion,
+                                           String depExtension) {
+        addLabKeyDependency(parentProject, parentProjectConfig, depProjectPath, depProjectConfig, depVersion, depExtension, null)
+    }
+
+    public static void addLabKeyDependency(Project parentProject,
+                                           String parentProjectConfig,
+                                           String depProjectPath,
+                                           String depProjectConfig,
+                                           String depVersion,
+                                           String depExtension,
+                                           Closure specialParams)
     {
         Boolean transitive = !"jars".equals(parentProjectConfig) && !"jspJars".equals(parentProjectConfig)
         Project depProject = parentProject.project(depProjectPath)
@@ -194,7 +211,14 @@ class BuildUtils
                 if (depVersion == null)
                     depVersion = depProject.version
             }
-            parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion, depExtension))
+            if (specialParams != null)
+            {
+                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion, depExtension), specialParams)
+            }
+            else
+            {
+                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion, depExtension))
+            }
         }
     }
 
