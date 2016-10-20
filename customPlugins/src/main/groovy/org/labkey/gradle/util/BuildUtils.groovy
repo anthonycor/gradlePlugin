@@ -40,8 +40,8 @@ class BuildUtils
 
     // a set of directory paths in which to look for module directories
     public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULES_DIR,
-//                                                           CUSTOM_MODULES_DIR
-//                                                           ,OPTIONAL_MODULES_DIR
+                                                           CUSTOM_MODULES_DIR,
+                                                           OPTIONAL_MODULES_DIR
     ]
 
     public static final List<String> EXTERNAL_MODULE_DIRS = [EXTERNAL_MODULES_DIR,
