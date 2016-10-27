@@ -87,11 +87,6 @@ class BuildUtils
                 }.toArray(new String[0])
             }
         }
-        if (moduleDirs.contains(SERVER_MODULES_DIR) && !excludedModules.contains("enginesrc"))
-        {
-            settings.include 'server:modules:flow:enginesrc'
-            // this is included separately since there's no good way to detect it programmatically
-        }
     }
 
     public static String convertDirToPath(File rootDir, File directory)
