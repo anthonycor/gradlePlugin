@@ -267,25 +267,19 @@ class SimpleModule implements Plugin<Project>
                 _project.publishing {
                     publications {
                         libs(MavenPublication) {
-                            artifact _project.tasks.jar
-                            artifact _project.tasks.module
-                            if (Api.isApplicable(_project))
-                                artifact _project.tasks.apiJar
-                            if (XmlBeans.isApplicable(_project))
-                                artifact _project.tasks.schemasJar
-                            if (Jsp.isApplicable(_project))
-                                artifact _project.tasks.jspJar
+                            _project.tasks.each {
+                                if (it instanceof org.gradle.api.tasks.bundling.Jar)
+                                    artifact it
+                            }
                         }
                     }
 
 
                     _project.artifactoryPublish {
-                        dependsOn _project.tasks.pomFile
-                        dependsOn _project.tasks.module
-                        if (_project.hasProperty('apiJar'))
-                            dependsOn _project.tasks.apiJar
-                        if (_project.hasProperty('jspJar'))
-                            dependsOn _project.tasks.jspJar
+                        _project.tasks.each {
+                            if (it instanceof org.gradle.api.tasks.bundling.Jar)
+                                dependsOn it
+                        }
                         publications('libs')
                     }
                 }
