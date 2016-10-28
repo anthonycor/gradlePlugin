@@ -11,6 +11,8 @@ import org.gradle.api.Project
 class LabKey implements Plugin<Project>
 {
     public static final String LABKEY_GROUP = "org.labkey"
+    public static final String SOURCES_CLASSIFIER = "sources"
+    public static final String JAVADOC_CLASSIFIER = "javadoc"
 
     @Override
     void apply(Project project)

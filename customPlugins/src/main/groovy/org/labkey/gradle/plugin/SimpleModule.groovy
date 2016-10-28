@@ -169,6 +169,22 @@ class SimpleModule implements Plugin<Project>
 
     protected void addTasks()
     {
+        def Task javadocJarTask = _project.task('javadocJar', type: Jar) {
+            from project.tasks.javadoc.destinationDir
+            group GroupNames.DISTRIBUTION
+            baseName "${project.name}_${LabKey.JAVADOC_CLASSIFIER}"
+            classifier LabKey.JAVADOC_CLASSIFIER
+            dependsOn project.tasks.javadoc
+        }
+
+        def Task sourcesJarTask = _project.task('sourcesJar', type: Jar) {
+            from project.sourceSets.main.allJava
+
+            group GroupNames.DISTRIBUTION
+            baseName "${project.name}_${LabKey.SOURCES_CLASSIFIER}"
+            classifier LabKey.SOURCES_CLASSIFIER
+        }
+
         def Task moduleXmlTask = _project.task('moduleXml',
                 group: GroupNames.MODULE,
                 type: Copy,
@@ -268,8 +284,9 @@ class SimpleModule implements Plugin<Project>
                     publications {
                         libs(MavenPublication) {
                             _project.tasks.each {
-                                if (it instanceof org.gradle.api.tasks.bundling.Jar)
-                                    artifact it
+                                if (it instanceof org.gradle.api.tasks.bundling.Jar &&
+                                    (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
+                                        artifact it
                             }
                         }
                     }
@@ -277,7 +294,8 @@ class SimpleModule implements Plugin<Project>
 
                     _project.artifactoryPublish {
                         _project.tasks.each {
-                            if (it instanceof org.gradle.api.tasks.bundling.Jar)
+                            if (it instanceof org.gradle.api.tasks.bundling.Jar &&
+                                    (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
                                 dependsOn it
                         }
                         publications('libs')
