@@ -169,7 +169,7 @@ class SimpleModule implements Plugin<Project>
 
     protected void addTasks()
     {
-        def Task javadocJarTask = _project.task('javadocJar', type: Jar) {
+        def Task javadocJarTask = _project.task('javadocJar', description: "Generate jar file of javadoc files", type: Jar) {
             from project.tasks.javadoc.destinationDir
             group GroupNames.DISTRIBUTION
             baseName "${project.name}_${LabKey.JAVADOC_CLASSIFIER}"
@@ -177,7 +177,7 @@ class SimpleModule implements Plugin<Project>
             dependsOn project.tasks.javadoc
         }
 
-        def Task sourcesJarTask = _project.task('sourcesJar', type: Jar) {
+        def Task sourcesJarTask = _project.task('sourcesJar', description: "Generate jar file of source files", type: Jar) {
             from project.sourceSets.main.allJava
 
             group GroupNames.DISTRIBUTION
