@@ -27,13 +27,11 @@ class JsDoc implements Plugin<Project>
 
     public void addTasks(Project project)
     {
-//        println ("adding tasks to ${project.name} with jsdoc root ${project.jsDoc.root} and paths ${project.jsDoc.paths}" )
         def Task jsdocTemplateTask = project.task('jsdocTemplate',
                 type: Copy,
                 description: "insert the proper version number into the JavaScript documentation",
                 {
-                    from project.file(project.jsDoc.root)
-                    include "templates/jsdoc/**"
+                    from project.file("${project.jsDoc.root}/templates/jsdoc")
                     filter( { String line ->
                         def Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
                         def String newLine = line;
@@ -45,7 +43,7 @@ class JsDoc implements Plugin<Project>
                         return newLine;
 
                     })
-                    destinationDir = new File((String) "${project.jsDoc.root}/templates/jsdoc/substituted")
+                    destinationDir = new File((String) "${project.jsDoc.root}/templates/jsdoc_substituted")
                 }
         )
         def jsDocTask = project.task(
@@ -60,8 +58,8 @@ class JsDoc implements Plugin<Project>
                     // Workaround for incremental build (GRADLE-1483)
                     outputs.upToDateSpec = new AndSpec()
 
-//                    println ("paths is ${project.jsDoc.paths}")
                     main = "-jar"
+                    // FIXME not sure why the project.jsDoc.paths can't be included progammatically here.
                     args = ["${project.jsDoc.root}/jsrun.jar",
                             "${project.jsDoc.root}/app/run.js",
                             "--template=${jsdocTemplateTask.destinationDir}",
@@ -77,8 +75,6 @@ class JsDoc implements Plugin<Project>
                             "modules/visualization/resources/web/vis/genericChart/genericChartHelper.js",
                             "modules/visualization/resources/web/vis/timeChart/timeChartHelper.js",
                             "internal/webapp/vis/src"]
-//                    args.addAll(project.jsDoc.paths)
-//                    println ("args is ${args}")
                     dependsOn(jsdocTemplateTask)
                 }
         )
@@ -88,7 +84,6 @@ class JsDoc implements Plugin<Project>
 class JsDocExtension
 {
     def String root
-//    def String[] paths = []
     def String[] paths =[ "api/webapp/clientapi",
                           "api/webapp/clientapi/dom",
                           "api/webapp/clientapi/core",
