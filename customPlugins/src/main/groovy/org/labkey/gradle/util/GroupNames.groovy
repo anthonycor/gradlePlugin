@@ -11,6 +11,7 @@ class GroupNames
     public static final String DATABASE = "Database"
     public static final String DEPLOY = "Deploy"
     public static final String DISTRIBUTION = "Distribution"
+    public static final String DOCUMENTATION = "Documentation"
     public static final String GWT = "gwt"
     public static final String JSP = "jsp"
     public static final String MODULE = "Module"
