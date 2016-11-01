@@ -39,7 +39,7 @@ class XmlBeans implements Plugin<Project>
                 }
         project.dependencies
                 {
-                    xmlbeans 'org.apache.xmlbeans:xbean:2.5.0'
+                    xmlbeans "org.apache.xmlbeans:xbean:${project.xmlbeansVersion}"
                 }
     }
 
