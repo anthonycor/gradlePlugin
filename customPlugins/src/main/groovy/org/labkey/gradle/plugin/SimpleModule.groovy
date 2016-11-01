@@ -154,6 +154,11 @@ class SimpleModule implements Plugin<Project>
                     exclude '**/*.jsp'
                 }
             }
+//            test {
+//                java {
+//                    srcDirs = ['test']
+//                }
+//            }
         }
     }
 
@@ -169,21 +174,22 @@ class SimpleModule implements Plugin<Project>
 
     protected void addTasks()
     {
-        def Task javadocJarTask = _project.task('javadocJar', description: "Generate jar file of javadoc files", type: Jar) {
-            from project.tasks.javadoc.destinationDir
-            group GroupNames.DISTRIBUTION
-            baseName "${project.name}_${LabKey.JAVADOC_CLASSIFIER}"
-            classifier LabKey.JAVADOC_CLASSIFIER
-            dependsOn project.tasks.javadoc
-        }
-
-        def Task sourcesJarTask = _project.task('sourcesJar', description: "Generate jar file of source files", type: Jar) {
-            from project.sourceSets.main.allJava
-
-            group GroupNames.DISTRIBUTION
-            baseName "${project.name}_${LabKey.SOURCES_CLASSIFIER}"
-            classifier LabKey.SOURCES_CLASSIFIER
-        }
+//        FIXME: the following tasks will not work in general because of the cycle between ms2 and ms1.  Would be nice...
+//        _project.task('javadocJar', description: "Generate jar file of javadoc files", type: Jar) {
+//            from project.tasks.javadoc.destinationDir
+//            group GroupNames.DISTRIBUTION
+//            baseName "${project.name}_${LabKey.JAVADOC_CLASSIFIER}"
+//            classifier LabKey.JAVADOC_CLASSIFIER
+//            dependsOn project.tasks.javadoc
+//        }
+//
+//        _project.task('sourcesJar', description: "Generate jar file of source files", type: Jar) {
+//            from project.sourceSets.main.allJava
+//
+//            group GroupNames.DISTRIBUTION
+//            baseName "${project.name}_${LabKey.SOURCES_CLASSIFIER}"
+//            classifier LabKey.SOURCES_CLASSIFIER
+//        }
 
         def Task moduleXmlTask = _project.task('moduleXml',
                 group: GroupNames.MODULE,
@@ -233,7 +239,7 @@ class SimpleModule implements Plugin<Project>
                     exclude 'gwt-unitCache/**'
                     baseName _project.name
                     extension 'module'
-                    destinationDir = new File((String) _project.buildDir)
+                    destinationDir = _project.buildDir
                 }
         )
 
@@ -263,11 +269,40 @@ class SimpleModule implements Plugin<Project>
                 {
                     published moduleFile
                 }
+//
+//        def Task deployModule = _project.task('deployModule',
+//            group: GroupNames.MODULE,
+//            type: Copy,
+//            description: "copy a project's .module file to the local deploy directory",
+//                {
+//                    from moduleFile
+//                    into _project.project(":server").serverDeploy.modulesDir
+//                })
     }
 
     private void addDependencies()
     {
         BuildUtils.addLabKeyDependency(project: _project.project(":server"), config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
+        if (_project.file("test").exists())
+        {
+            _project.dependencies {
+                testCompile "org.jetbrains:annotations:${_project.annotationsVersion}",
+                            "commons-beanutils:commons-beanutils:${_project.commonsBeanutilsVersion}",
+                            "org.apache.commons:commons-lang3:${_project.commonsLang3Version}",
+                            "org.apache.commons:commons-collections4:${_project.commonsCollections4Version}",
+                            "com.googlecode.json-simple:json-simple:${_project.jsonSimpleVersion}",
+                            "junit:junit:${_project.junitVersion}",
+                            "org.apache.tika:tika-app:${_project.tikaAppVersion}",
+                            "log4j:log4j:${_project.log4jVersion}",
+                            "org.apache.xmlbeans:xbean:${_project.xmlbeansVersion}",
+                            "com.fasterxml.jackson.core:jackson-annotations:${_project.jacksonAnnotationsVersion}",
+                            "com.fasterxml.jackson.core:jackson-core:${_project.jacksonVersion}",
+                            "com.fasterxml.jackson.core:jackson-databind:${_project.jacksonVersion}"
+            }
+            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":schemas")
+            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":server:api")
+            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":remoteapi:java")
+        }
     }
 
     protected void addArtifacts()
@@ -284,7 +319,7 @@ class SimpleModule implements Plugin<Project>
                     publications {
                         libs(MavenPublication) {
                             _project.tasks.each {
-                                if (it instanceof org.gradle.api.tasks.bundling.Jar &&
+                                if (it instanceof Jar &&
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
                                         artifact it
                             }
@@ -294,7 +329,7 @@ class SimpleModule implements Plugin<Project>
 
                     _project.artifactoryPublish {
                         _project.tasks.each {
-                            if (it instanceof org.gradle.api.tasks.bundling.Jar &&
+                            if (it instanceof Jar &&
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
                                 dependsOn it
                         }
