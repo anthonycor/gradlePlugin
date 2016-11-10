@@ -310,7 +310,7 @@ class SimpleModule implements Plugin<Project>
         if (!AntBuild.isApplicable(_project))
         {
             _project.afterEvaluate {
-                _project.task("pomFile",
+                Task pomFileTask = _project.task("pomFile",
                         group: GroupNames.PUBLISHING,
                         description: "create the pom file for this project",
                         type: PomFile
@@ -331,10 +331,14 @@ class SimpleModule implements Plugin<Project>
                         _project.tasks.each {
                             if (it instanceof Jar &&
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
+                            {
                                 dependsOn it
+                            }
                         }
+                        dependsOn pomFileTask
                         publications('libs')
                     }
+
                 }
             }
         }
