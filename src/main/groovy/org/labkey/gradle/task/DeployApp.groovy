@@ -91,11 +91,11 @@ class DeployApp extends DefaultTask
                             }
                 }
         if (SystemUtils.IS_OS_MAC)
-            deployBinariesViaCp("osx")
+            deployBinariesViaAntCopy("osx")
         else if (SystemUtils.IS_OS_LINUX)
-            deployBinariesViaCp("linux")
+            deployBinariesViaAntCopy("linux")
         else if (SystemUtils.IS_OS_WINDOWS)
-            deployBinariesViaAndCopy("windows")
+            deployBinariesViaAntCopy("windows")
     }
 
     private void deployBinariesViaCp(String osDirectory)
@@ -105,7 +105,7 @@ class DeployApp extends DefaultTask
         }
     }
 
-    private void deployBinariesViaAndCopy(String osDirectory)
+    private void deployBinariesViaAntCopy(String osDirectory)
     {
         ant.copy(
                 todir: project.serverDeploy.binDir,
