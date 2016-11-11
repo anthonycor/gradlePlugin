@@ -84,7 +84,7 @@ class ServerBootstrap implements Plugin<Project>
                     workingDir = project.staging.webappDir
                     classpath {
                         [
-                                project.file("${project.rootProject.buildDir}/bootstrap")
+                                project.jar
                         ]
                     }
                 }
