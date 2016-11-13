@@ -156,7 +156,10 @@ class SimpleModule implements Plugin<Project>
             }
 //            test {
 //                java {
-//                    srcDirs = ['test']
+//                    srcDirs = ['test/src']
+//                }
+//                resources {
+//                    srcDirs = ["test/resources"]
 //                }
 //            }
         }
