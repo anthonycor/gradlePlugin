@@ -29,12 +29,13 @@ class Module extends SimpleModule
                 {
                     BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":server:api")
                     // This is only required for :server:api to compile, but we exclude the declaration of dependencies from
-                    // the :server:api pom file because we cannot specify a version since we rely on the local tomcat version.
-                    // Therefore, when relying on the api jar file not build from, we require this extra definition or
+                    // the :server:api pom file because we cannot specify a version, since we rely on the local tomcat version.
+                    // Therefore, when relying on the api jar file not build from source, we require this extra definition;
                     // it will not find the tomcat jar files without this.
-                    local _project.fileTree(dir: "${_project.ext.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar'])
+                    local _project.fileTree(dir: "${_project.ext.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar', 'mail.jar'])
 
                     BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":server:internal")
+                    BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":remoteapi:java")
                     compile "org.labkey:labkey-client-api:${_project.version}"
                     compile 'org.apache.tomcat:jsp-api'
                     compile 'org.apache.tomcat:jasper'
