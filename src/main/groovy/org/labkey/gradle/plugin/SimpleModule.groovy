@@ -273,14 +273,14 @@ class SimpleModule implements Plugin<Project>
                     published moduleFile
                 }
 
-//        _project.task('deployModule',
-//            group: GroupNames.MODULE,
-//            type: Copy,
-//            description: "copy a project's .module file to the local deploy directory",
-//                {
-//                    from moduleFile
-//                    into _project.project(":server").serverDeploy.modulesDir
-//                })
+        _project.task('deployModule',
+            group: GroupNames.MODULE,
+            type: Copy,
+            description: "copy a project's .module file to the local deploy directory",
+                {
+                    from moduleFile
+                    into "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
+                })
     }
 
     private void addDependencies()

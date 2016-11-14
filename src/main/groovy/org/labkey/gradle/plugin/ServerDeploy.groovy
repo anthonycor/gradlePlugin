@@ -20,7 +20,7 @@ class ServerDeploy implements Plugin<Project>
         project.extensions.create("serverDeploy", ServerDeployExtension)
 
         project.serverDeploy {
-            dir = "${project.rootProject.buildDir}/deploy"
+            dir = ServerDeployExtension.getServerDeployDirectory(project)
             modulesDir = "${dir}/modules"
             webappDir = "${dir}/labkeyWebapp"
             binDir = "${dir}/bin"
@@ -167,5 +167,10 @@ class ServerDeployExtension
     def String webappDir
     def String binDir
     def String rootWebappsDir
+
+    public static String getServerDeployDirectory(Project project)
+    {
+        return "${project.rootProject.buildDir}/deploy";
+    }
 }
 
