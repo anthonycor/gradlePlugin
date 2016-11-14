@@ -280,6 +280,7 @@ class SimpleModule implements Plugin<Project>
                 {
                     from moduleFile
                     into "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
+                    dependsOn(moduleFile)
                 })
     }
 
