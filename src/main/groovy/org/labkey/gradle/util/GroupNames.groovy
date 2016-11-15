@@ -17,5 +17,6 @@ class GroupNames
     public static final String MODULE = "Module"
     public static final String NPM_RUN = "NPM Run"
     public static final String PUBLISHING = "Publishing"
+    public static final String WEB_APPLICATION = "Web application"
     public static final String XML_SCHEMA = "xmlSchema"
 }
