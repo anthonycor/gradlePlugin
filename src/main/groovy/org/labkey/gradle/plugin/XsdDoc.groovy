@@ -51,7 +51,7 @@ class XsdDoc implements Plugin<Project>
                 description: 'Generating documentation for classes generated from XSD files',
                 {
                     inputs.files project.xsdDoc.xsdFiles
-                    outputs.dir project.jsDoc.outputDir
+                    outputs.dir project.xsdDoc.outputDir
 
                     // Workaround for incremental build (GRADLE-1483)
                     outputs.upToDateSpec = new AndSpec()
