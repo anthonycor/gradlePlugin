@@ -19,7 +19,7 @@ class ClientLibsCompress extends DefaultTask
 
     public ClientLibsCompress()
     {
-        // TODO get rid of this in favor of porting Gradle.
+        // TODO get rid of this in favor of porting to Gradle.
         // Possibly replace the lib.xml files with dependency declarations, or perhpas read the .xml files
         // to make the dependency declarations.
         ant.taskdef(
