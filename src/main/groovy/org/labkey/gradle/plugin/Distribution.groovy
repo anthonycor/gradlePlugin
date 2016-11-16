@@ -66,6 +66,7 @@ class Distribution implements Plugin<Project>
 
 class DistributionExtension
 {
+    def String dir = "dist"
     def String distModulesDir
     def String type = "modules"
 

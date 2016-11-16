@@ -3,6 +3,7 @@ package org.labkey.gradle.task
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.plugin.TeamCity
 
 /**
  * Created by susanh on 11/15/16.
@@ -23,14 +24,44 @@ class StartTomcat extends DefaultTask
         )
         {
 
-            env(
-                    key: "PATH",
-                    path: "${project.project(":server").serverDeploy.binDir}${File.pathSeparator}${System.getProperty("PATH")}"
-            )
+            if (TeamCity.isTeamCity(project))
+            {
+                if (SystemUtils.IS_OS_WINDOWS)
+                {
+                    env(
+                            key: "PATH",
+                            path: "${project.rootDir}/external/windows/core${File.pathSeparator}${System.getProperty("PATH")}"
+                    )
+                }
+            }
+            else
+            {
+                env(
+                        key: "PATH",
+                        path: "${project.project(":server").serverDeploy.binDir}${File.pathSeparator}${System.getProperty("PATH")}"
+                )
+            }
+            // TODO incorporate teamcity.build.id if necessary (where/how is it set in ant???);
+            // TODO incorporate sequencePipelineEnabled for Unix
             env(
                     key: "CATALINA_OPTS",
-                    value: "-ea -Ddevmode=true -Xmx1G"
+                    value: "${project.tomcat.assertionFlag} -Ddevmode=${project.tomcat.devMode} ${project.tomcat.catalinaOpts} -Xmx${project.tomcat.maxMemory} ${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} ${project.tomcat.trustStore} ${project.tomcat.trustStorePassword}"
             )
+            if (TeamCity.isTeamCity(project))
+            {
+                env(
+                        key: "R_LIBS_USER",
+                        value: System.getProperty("R_LIBS_USER") != null ? System.getProperty("R_LIBS_USER") : project.rootProject.file("sampledata/rlabkey")
+                )
+                env (
+                        key: "JAVA_HOME",
+                        value: System.getProperty("JAVA_HOME")
+                )
+                env (
+                        key: "JRE_HOME",
+                        value: System.getProperty("JAVA_HOME")
+                )
+            }
 
             if (SystemUtils.IS_OS_WINDOWS)
             {

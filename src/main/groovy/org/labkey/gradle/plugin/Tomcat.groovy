@@ -13,9 +13,10 @@ class Tomcat implements Plugin<Project>
     @Override
     void apply(Project project)
     {
+        project.extensions.create("tomcat",TomcatExtension)
         addTasks(project)
-
     }
+
 
     private void addTasks(Project project)
     {
@@ -32,4 +33,17 @@ class Tomcat implements Plugin<Project>
                 type: StopTomcat
         )
     }
+}
+
+public class TomcatExtension
+{
+    def boolean devMode = true
+    def String assertionFlag = "-ea" // set to -da to disable assertions
+    def String maxMemory = "1G"
+    def boolean recompileJsp = true
+    def boolean sequencePipelineEnabled = false
+    def String trustStore = ""
+    def String trustStorePassword = ""
+    def String catalinaOpts = ""
+
 }
