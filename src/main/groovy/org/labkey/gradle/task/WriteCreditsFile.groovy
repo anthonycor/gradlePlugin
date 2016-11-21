@@ -7,9 +7,7 @@ import org.gradle.api.tasks.TaskAction
 
 class WriteCreditsFile extends DefaultTask
 {
-    @InputFile
-    File buildFile = project.file("build.gradle")
-
+    // we assume that if a version number has changed, we should generate a new dependencies file
     @InputFile
     File globalProperties = project.rootProject.file("gradle.properties")
 
@@ -18,6 +16,10 @@ class WriteCreditsFile extends DefaultTask
 
     public WriteCreditsFile()
     {
+        if (project.file("build.gradle").exists())
+        {
+            this.inputs.file(project.file("build.gradle"))
+        }
         if (project.file("gradle.properties").exists())
         {
             this.inputs.file(project.file("gradle.properties"))
