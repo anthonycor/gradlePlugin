@@ -15,6 +15,7 @@ import java.util.regex.Pattern
 class BuildUtils
 {
     public static final String BUILD_FROM_SOURCE_PROP = "buildFromSource"
+    public static final String BUILD_CLIENT_LIBS_FROM_SOURCE_PROP = "buildClientLibsFromSource"
     public static final String SERVER_MODULES_DIR = "server/modules"
     public static final String CUSTOM_MODULES_DIR = "server/customModules"
     public static final String OPTIONAL_MODULES_DIR = "server/optionalModules"
@@ -36,7 +37,7 @@ class BuildUtils
             "onprc_ehr"
     ]
 
-    // TODO add other convenience lists here (e.g., EHR modules, "core" modules)
+    // TODO add other convenience lists here (e.g., "core" modules)
 
     // a set of directory paths in which to look for module directories
     public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULES_DIR,
@@ -97,22 +98,27 @@ class BuildUtils
 
     public static boolean shouldBuildFromSource(Project project)
     {
-        return whyNotBuildFromSource(project).isEmpty()
+        return whyNotBuildFromSource(project, BUILD_FROM_SOURCE_PROP).isEmpty()
     }
 
-    public static List<String> whyNotBuildFromSource(Project project)
+    public static List<String> whyNotBuildFromSource(Project project, String property)
     {
         List<String> reasons = [];
-        if (!project.hasProperty(BUILD_FROM_SOURCE_PROP))
+        if (!project.hasProperty(property))
         {
-            reasons.add("Project does not have buildFromSource property")
+            reasons.add("Project does not have ${property} property")
             if (isSvnModule(project))
-                reasons.add("svn module without buildFromSource property set to true")
+                reasons.add("svn module without ${property} property set to true")
         }
-        else if (!Boolean.valueOf((String) project.property(BUILD_FROM_SOURCE_PROP)))
-            reasons.add("buildFromSource property is false")
+        else if (!Boolean.valueOf((String) project.property(property)))
+            reasons.add("${property} property is false")
 
         return reasons;
+    }
+
+    public static boolean shouldBuildClientLibsFromSource(Project project)
+    {
+        return whyNotBuildFromSource(project, BUILD_CLIENT_LIBS_FROM_SOURCE_PROP).isEmpty()
     }
 
     public static boolean isGitModule(Project project)
@@ -202,7 +208,7 @@ class BuildUtils
             else
             {
                 parentProject.logger.info("${depProjectPath} project found but not building from source because: "
-                        + whyNotBuildFromSource(parentProject).join("; "))
+                        + whyNotBuildFromSource(parentProject, BuildUtils.BUILD_FROM_SOURCE_PROP).join("; "))
                 if (depVersion == null)
                     depVersion = depProject.version
             }

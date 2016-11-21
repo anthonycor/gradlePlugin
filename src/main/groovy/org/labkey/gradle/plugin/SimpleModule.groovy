@@ -7,6 +7,7 @@ import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.PomFile
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -92,6 +93,7 @@ class SimpleModule implements Plugin<Project>
 
             if (SpringConfig.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.springConfig'
+
             if (Webapp.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.webapp'
 
@@ -268,6 +270,21 @@ class SimpleModule implements Plugin<Project>
         _project.tasks.build.dependsOn(moduleFile)
         _project.tasks.clean.dependsOn(_project.tasks.cleanModule)
 
+
+        if (hasClientLibraries(_project))
+        {
+            _project.task("zipWebDir",
+                    group: GroupNames.MODULE,
+                    type: Zip,
+                    {
+                        baseName = _project.name
+                        classifier = LabKey.CLIENT_LIBS_CLASSIFER
+                        from _project.labkey.explodedModuleWebDir
+                        destinationDir _project.file("${_project.buildDir}/${_project.libsDirName}")
+                    }
+            )
+        }
+
         _project.artifacts
                 {
                     published moduleFile
@@ -282,6 +299,11 @@ class SimpleModule implements Plugin<Project>
                     into "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
                     dependsOn(moduleFile)
                 })
+    }
+
+    private boolean hasClientLibraries(Project project)
+    {
+        return ClientLibraries.isApplicable(project) || Gwt.isApplicable(project) || Webapp.isApplicable(project);
     }
 
     private void addDependencies()
@@ -327,6 +349,9 @@ class SimpleModule implements Plugin<Project>
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
                                         artifact it
                             }
+                            if (_project.hasProperty("zipWebDir"))
+                                artifact _project.tasks.zipWebDir
+
                         }
                     }
 
@@ -340,6 +365,8 @@ class SimpleModule implements Plugin<Project>
                             }
                         }
                         dependsOn pomFileTask
+                        if (_project.hasProperty("zipWebDir"))
+                            dependsOn _project.tasks.zipWebDir
                         publications('libs')
                     }
 
