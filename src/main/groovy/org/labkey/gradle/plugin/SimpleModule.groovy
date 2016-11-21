@@ -9,6 +9,7 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.PomFile
+import org.labkey.gradle.task.WriteCreditsFile
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
@@ -248,6 +249,12 @@ class SimpleModule implements Plugin<Project>
                 }
         )
 
+        def Task writeCreditsListFile = _project.task("writeCreditsList",
+                group: GroupNames.MODULE,
+                type: WriteCreditsFile,
+                description: "write a list of external libraries that should be checked on the credits page"
+        )
+        _project.tasks.build.dependsOn(writeCreditsListFile)
         def Task copyExternalDependencies = _project.task("copyExternalLibs",
                 group: GroupNames.MODULE,
                 type: Copy,
