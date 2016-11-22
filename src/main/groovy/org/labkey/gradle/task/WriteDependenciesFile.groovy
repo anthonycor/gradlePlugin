@@ -5,7 +5,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-class WriteCreditsFile extends DefaultTask
+class WriteDependenciesFile extends DefaultTask
 {
     // we assume that if a version number has changed, we should generate a new dependencies file
     @InputFile
@@ -14,7 +14,7 @@ class WriteCreditsFile extends DefaultTask
     @OutputFile
     File dependenciesFile = new File("${project.labkey.explodedModuleWebDir}/credits/dependencies.txt")
 
-    public WriteCreditsFile()
+    public WriteDependenciesFile()
     {
         if (project.file("build.gradle").exists())
         {
@@ -24,25 +24,28 @@ class WriteCreditsFile extends DefaultTask
         {
             this.inputs.file(project.file("gradle.properties"))
         }
-
-    }
-    @TaskAction
-    public void writeFile()
-    {
         // add a configuration that has the external dependencies but is not transitive
         project.configurations {
-            extNotTrans.extendsFrom(project.configurations.external)
-            extNotTrans {
+            externalsNotTrans.extendsFrom(project.configurations.external)
+            externalsNotTrans {
                 transitive = false
             }
         }
+        onlyIf {
+            !project.configurations.externalsNotTrans.isEmpty()
+        }
+    }
+
+    @TaskAction
+    public void writeFile()
+    {
         FileOutputStream outputStream = null;
         try
         {
             outputStream = new FileOutputStream(dependenciesFile)
             outputStream.write("# direct external dependencies for project ${project.path}\n".getBytes())
 
-            project.configurations.extNotTrans.each { File file ->
+            project.configurations.externalsNotTrans.each { File file ->
                 outputStream.write((file.getName() + "\n").getBytes());
             }
         }

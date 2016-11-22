@@ -9,7 +9,7 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.PomFile
-import org.labkey.gradle.task.WriteCreditsFile
+import org.labkey.gradle.task.WriteDependenciesFile
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
@@ -249,15 +249,12 @@ class SimpleModule implements Plugin<Project>
                 }
         )
 
-//        if (!_project.configurations.external.allDependencies.isEmpty())
-//        {
-            def Task writeCreditsListFile = _project.task("writeDependenciesList",
-                    group: GroupNames.MODULE,
-                    type: WriteCreditsFile,
-                    description: "write a list of direct external dependencies that should be checked on the credits page"
-            )
-            _project.tasks.build.dependsOn(writeCreditsListFile)
-//        }
+        def Task writeDependenciesFile = _project.task("writeDependenciesList",
+                group: GroupNames.MODULE,
+                type: WriteDependenciesFile,
+                description: "write a list of direct external dependencies that should be checked on the credits page"
+        )
+        _project.tasks.build.dependsOn(writeDependenciesFile)
         def Task copyExternalDependencies = _project.task("copyExternalLibs",
                 group: GroupNames.MODULE,
                 type: Copy,
