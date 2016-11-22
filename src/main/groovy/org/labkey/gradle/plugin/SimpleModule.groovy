@@ -249,12 +249,15 @@ class SimpleModule implements Plugin<Project>
                 }
         )
 
-        def Task writeCreditsListFile = _project.task("writeCreditsList",
-                group: GroupNames.MODULE,
-                type: WriteCreditsFile,
-                description: "write a list of external libraries that should be checked on the credits page"
-        )
-        _project.tasks.build.dependsOn(writeCreditsListFile)
+//        if (!_project.configurations.external.allDependencies.isEmpty())
+//        {
+            def Task writeCreditsListFile = _project.task("writeDependenciesList",
+                    group: GroupNames.MODULE,
+                    type: WriteCreditsFile,
+                    description: "write a list of direct external dependencies that should be checked on the credits page"
+            )
+            _project.tasks.build.dependsOn(writeCreditsListFile)
+//        }
         def Task copyExternalDependencies = _project.task("copyExternalLibs",
                 group: GroupNames.MODULE,
                 type: Copy,
@@ -356,8 +359,8 @@ class SimpleModule implements Plugin<Project>
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
                                         artifact it
                             }
-                            if (_project.hasProperty("zipWebDir"))
-                                artifact _project.tasks.zipWebDir
+//                            if (_project.hasProperty("zipWebDir"))
+//                                artifact _project.tasks.zipWebDir
 
                         }
                     }
@@ -372,8 +375,8 @@ class SimpleModule implements Plugin<Project>
                             }
                         }
                         dependsOn pomFileTask
-                        if (_project.hasProperty("zipWebDir"))
-                            dependsOn _project.tasks.zipWebDir
+//                        if (_project.hasProperty("zipWebDir"))
+//                            dependsOn _project.tasks.zipWebDir
                         publications('libs')
                     }
 
