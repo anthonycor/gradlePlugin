@@ -12,7 +12,7 @@ class WriteDependenciesFile extends DefaultTask
     File globalProperties = project.rootProject.file("gradle.properties")
 
     @OutputFile
-    File dependenciesFile = new File("${project.labkey.explodedModuleWebDir}/credits/dependencies.txt")
+    File dependenciesFile = project.file("resources/credits/dependencies.txt")
 
     public WriteDependenciesFile()
     {
