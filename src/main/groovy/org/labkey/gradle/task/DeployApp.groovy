@@ -12,9 +12,6 @@ class DeployApp extends DefaultTask
     File stagingModulesDir = new File((String) project.staging.modulesDir)
 
     @InputDirectory
-    File externalLibDir = new File("${project.labkey.externalLibDir}/server")
-
-    @InputDirectory
     File stagingWebappDir = new File((String) project.staging.webappDir)
 
     @OutputDirectory
