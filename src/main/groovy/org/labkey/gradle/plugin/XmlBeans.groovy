@@ -75,7 +75,6 @@ class XmlBeans implements Plugin<Project>
                     exclude '**/*.java'
                     baseName project.name.equals("schemas") ? "schemas": "${project.name}_schemas"
                     version project.version
-                    group project.group
                     destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 }
         )
