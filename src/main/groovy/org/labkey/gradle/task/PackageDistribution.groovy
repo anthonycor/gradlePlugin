@@ -7,10 +7,40 @@ class PackageDistribution extends DefaultTask
 {
     public static final String ALL_DISTRIBUTIONS = "all"
 
+    public static final String[] STANDARD_MODULES = [
+            ':server:modules:announcements',
+            ':server:modules:audit',
+            ':server:modules:bigiron',
+            ':server:modules:core',
+            ':server:modules:dataintegration',
+            ':server:modules:elisa',
+            ':server:modules:elispotassay',
+            ':server:modules:experiment',
+            ':server:customModules:fcsexpress',
+            ':server:modules:filecontent',
+            ':server:modules:flow',
+            ':server:modules:issues',
+            ':server:modules:list',
+            ':server:modules:luminex',
+            ':server:modules:microarray',
+            ':server:modules:ms1',
+            ':server:modules:ms2',
+            ':server:modules:nab',
+            ':server:modules:pipeline',
+            ':server:modules:query',
+            ':server:modules:search',
+            ':server:modules:study',
+            ':server:modules:survey',
+            ':server:customModules:targetedms',
+            ':server:modules:visualization',
+            ':server:modules:wiki'
+    ]
+
     @TaskAction
     public void action()
     {
         setUpModuleDistDirectories()
+        // TODO enum would be better for these types
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
             gatherModules()
@@ -24,7 +54,7 @@ class PackageDistribution extends DefaultTask
         {
             packagePipelineConfigs()
         }
-        else if ("client-apis".equalsIgnoreCase(project.dist.type))
+        else if ("clientApis".equalsIgnoreCase(project.dist.type))
         {
             packageClientApis()
         }
