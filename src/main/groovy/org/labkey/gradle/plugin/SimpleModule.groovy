@@ -293,13 +293,22 @@ class SimpleModule implements Plugin<Project>
 
         _project.task('deployModule',
             group: GroupNames.MODULE,
-            type: Copy,
-            description: "copy a project's .module file to the local deploy directory",
+            description: "copy a project's .module file to the local deploy directory")
                 {
-                    from moduleFile
-                    into "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
-                    dependsOn(moduleFile)
-                })
+                    _project.copy {
+                        from moduleFile
+                        into "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
+                    }
+                    if (LabKeyExtension.isBootstrapModule(_project))
+                    {
+                        _project.copy
+                                {
+                                    from _project.tasks.jar
+                                    into "${_project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/lib"
+                                }
+
+                    }
+                }
     }
 
     private boolean hasClientLibraries(Project project)
