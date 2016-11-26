@@ -149,13 +149,21 @@ class ServerDeploy implements Plugin<Project>
                 "cleanAndDeploy",
                 group: GroupNames.DEPLOY,
                 type: DeployApp,
-                description: "Deploy the application locally into ${project.serverDeploy.dir}",
+                description: "Remove the deploy directory ${project.serverDeploy.dir} then deploy the application locally",
         )
         cleanAndDeploy.doFirst{
             project.delete(project.serverDeploy.dir)
         }
 
-
+        def Task cleanBuild = project.task(
+                "cleanBuild",
+                group: GroupNames.DEPLOY,
+                type: Delete,
+                description: "Remove the build directory ${project.rootProject.buildDir}",
+                {
+                    delete project.rootProject.buildDir
+                }
+        )
     }
 }
 
