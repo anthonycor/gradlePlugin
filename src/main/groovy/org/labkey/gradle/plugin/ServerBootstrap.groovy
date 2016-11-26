@@ -87,6 +87,8 @@ class ServerBootstrap implements Plugin<Project>
                                 project.jar
                         ]
                     }
+                    inputs.dir  project.staging.webappDir
+                    outputs.file  "${project.staging.webInfDir}/apiFiles.list"
                 }
         )
         createApiFilesList.dependsOn(project.jar)
