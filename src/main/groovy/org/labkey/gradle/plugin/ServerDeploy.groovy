@@ -5,8 +5,15 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
-import org.labkey.gradle.task.*
+import org.labkey.gradle.task.ConfigureLog4J
+import org.labkey.gradle.task.DeployApp
+import org.labkey.gradle.task.DoThenSetup
+import org.labkey.gradle.task.UndeployModules
 import org.labkey.gradle.util.GroupNames
+
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * First stages then deploys the application locally to the tomcat directory
@@ -162,6 +169,9 @@ class ServerDeploy implements Plugin<Project>
                 description: "Remove the build directory ${project.rootProject.buildDir}",
                 {
                     delete project.rootProject.buildDir
+                    Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
+                      delete path.toString()
+                    }
                 }
         )
     }

@@ -16,6 +16,7 @@ import org.labkey.gradle.util.GroupNames
 class ServerBootstrap implements Plugin<Project>
 {
     private static final String BOOTSTRAP_MAIN_CLASS = "org.labkey.bootstrap.ModuleExtractor"
+    public static final String JAR_BASE_NAME = "labkeyBootstrap"
 
     @Override
     void apply(Project project)
