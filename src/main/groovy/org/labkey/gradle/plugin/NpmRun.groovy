@@ -86,9 +86,9 @@ class NpmRun implements Plugin<Project>
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
 
         if (project.hasProperty('npmDevMode'))
-            project.tasks.build.dependsOn("npmRunBuild")
+            project.tasks.module.dependsOn("npmRunBuild")
         else
-            project.tasks.build.dependsOn("npmRunBuildProd")
+            project.tasks.module.dependsOn("npmRunBuildProd")
     }
 
     private void addTaskInputOutput(Task task)
