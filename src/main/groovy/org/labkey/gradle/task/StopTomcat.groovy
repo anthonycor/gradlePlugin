@@ -16,6 +16,7 @@ class StopTomcat extends DefaultTask
             classpath  { ["${project.tomcatDir}/bin/bootstrap.jar", "${project.tomcatDir}/bin/tomcat-juli.jar"] }
             systemProperties["user.dir"] = project.tomcatDir
             args = ["stop"]
+            ignoreExitValue true
         })
     }
 }
