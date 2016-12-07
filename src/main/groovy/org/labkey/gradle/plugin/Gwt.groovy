@@ -103,7 +103,7 @@ class Gwt implements Plugin<Project>
                             def extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
                             def outputDir = project.labkey.explodedModuleWebDir
 
-                            inputs.file(project.sourceSets.gwt.java.srcDirs).skipWhenEmpty()
+                            inputs.file(project.sourceSets.gwt.java.srcDirs)
 
                             outputs.dir outputDir
 

@@ -49,7 +49,7 @@ class Antlr implements Plugin<Project>
                             group: GroupNames.CODE_GENERATION,
                             description: "Generate Java classes from " + file.getName(),
                             {
-                                inputs.file(file).skipWhenEmpty()
+                                inputs.file(file)
                                 outputs.dir outputDir
 
                                 // Workaround for incremental build (GRADLE-1483)
