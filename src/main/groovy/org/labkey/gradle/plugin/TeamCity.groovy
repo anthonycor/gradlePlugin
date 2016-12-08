@@ -1,6 +1,8 @@
 package org.labkey.gradle.plugin
 
 import org.gradle.api.Project
+import org.labkey.gradle.util.GroupNames
+
 /**
  * TODO:
  *  - TeamCityTabs tasks
@@ -11,6 +13,8 @@ import org.gradle.api.Project
  */
 class TeamCity extends Tomcat
 {
+    private static final String TEAMCITY_INFO_FILE = "teamcity-info.xml";
+
     @Override
     void apply(Project project)
     {
@@ -27,6 +31,20 @@ class TeamCity extends Tomcat
 
     private void addTasks(Project project)
     {
+        project.task("setTeamcityAgentPassword",
+                group: GroupNames.TEST,
+                description: "Set the password for use in running tests",
+                {
+                    doLast project.javaexec({
+                        main = "org.labkey.test.util.PasswordUtil"
+                        classpath {
+                            [project.configurations.testCompile, project.project(":server:test").tasks.classes.outputs]
+                        }
+                        systemProperties["labkey.server"] = project.labkey.server
+                        args = ["set", "teamcity@labkey.test", "yekbal1!"]
+                    })
+                }
+        )
 //        Task teamCityTabsTask = project.task("copyJavascriptDocs",
 //            group: GroupNames.TEST_SERVER,
 //                description: "create client-api docs file for presentation in TeamCity",
@@ -46,6 +64,17 @@ class TeamCity extends Tomcat
         </copy>
     </target>
          */
+        project.task("cleanTestLogs",
+                group: GroupNames.TEST_SERVER,
+                description: "Removes log files from Tomcat and TeamCity",
+                {
+                    dependsOn project.tasks.cleanLogs, project.tasks.cleanTemp,
+                    doLast {
+                        project.delete "${project.projectDir}/${TEAMCITY_INFO_FILE}"
+                    }
+                }
+        )
+
         project.tasks.stopTomcat.dependsOn(project.tasks.debugClasses)
         project.tasks.stopTomcat.doLast (
                 {
