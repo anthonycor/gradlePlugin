@@ -327,20 +327,22 @@ class SimpleModule implements Plugin<Project>
         BuildUtils.addLabKeyDependency(project: _project.project(":server"), config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
         if (_project.file("test").exists())
         {
-            _project.dependencies {
-                testCompile "org.jetbrains:annotations:${_project.annotationsVersion}",
-                            "commons-beanutils:commons-beanutils:${_project.commonsBeanutilsVersion}",
-                            "org.apache.commons:commons-lang3:${_project.commonsLang3Version}",
-                            "org.apache.commons:commons-collections4:${_project.commonsCollections4Version}",
-                            "com.googlecode.json-simple:json-simple:${_project.jsonSimpleVersion}",
-                            "junit:junit:${_project.junitVersion}",
-                            "org.apache.tika:tika-app:${_project.tikaAppVersion}",
-                            "log4j:log4j:${_project.log4jVersion}",
-                            "org.apache.xmlbeans:xbean:${_project.xmlbeansVersion}",
-                            "com.fasterxml.jackson.core:jackson-annotations:${_project.jacksonAnnotationsVersion}",
-                            "com.fasterxml.jackson.core:jackson-core:${_project.jacksonVersion}",
-                            "com.fasterxml.jackson.core:jackson-databind:${_project.jacksonVersion}"
-            }
+//            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":server:test")
+//            _project.dependencies {
+//
+//                testCompile "org.jetbrains:annotations:${_project.annotationsVersion}",
+//                            "commons-beanutils:commons-beanutils:${_project.commonsBeanutilsVersion}",
+//                            "org.apache.commons:commons-lang3:${_project.commonsLang3Version}",
+//                            "org.apache.commons:commons-collections4:${_project.commonsCollections4Version}",
+//                            "com.googlecode.json-simple:json-simple:${_project.jsonSimpleVersion}",
+//                            "junit:junit:${_project.junitVersion}",
+//                            "org.apache.tika:tika-app:${_project.tikaAppVersion}",
+//                            "log4j:log4j:${_project.log4jVersion}",
+//                            "org.apache.xmlbeans:xbean:${_project.xmlbeansVersion}",
+//                            "com.fasterxml.jackson.core:jackson-annotations:${_project.jacksonAnnotationsVersion}",
+//                            "com.fasterxml.jackson.core:jackson-core:${_project.jacksonVersion}",
+//                            "com.fasterxml.jackson.core:jackson-databind:${_project.jacksonVersion}"
+//            }
             BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":schemas")
             BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":server:api")
             BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":remoteapi:java")
