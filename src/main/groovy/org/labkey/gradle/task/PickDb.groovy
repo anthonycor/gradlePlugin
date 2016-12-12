@@ -12,7 +12,7 @@ class PickDb extends DoThenSetup
         //ant pick_[pg|mssql|db]
         //copies the correct config file.
         project.copy({
-            from "${project.projectDir}${File.separator}configs"
+            from "${project.projectDir}/configs"
             into "${project.projectDir}"
             include "${dbType}.properties"
             rename { String fileName ->
