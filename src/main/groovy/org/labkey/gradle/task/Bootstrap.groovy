@@ -8,7 +8,7 @@ class Bootstrap extends DoThenSetup
     def Closure<Void> fn = {
         initDatabaseProperties(project);
 
-        Properties configProperties = PropertiesUtils.readConfigProperties(project);
+        Properties configProperties = PropertiesUtils.readDatabaseProperties(project);
 
         project.ext.jdbcDatabase = project.ext.databaseBootstrap;
         project.ext.jdbcHost = project.ext.databaseDefaultHost;

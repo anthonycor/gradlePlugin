@@ -36,9 +36,9 @@ class PropertiesUtils
     }
 
     //Convenience method. Mimics ant's "<property file="${basedir}/config.properties"/>"
-    public static Properties readConfigProperties(Project project)
+    public static Properties readDatabaseProperties(Project project)
     {
-        Properties props = readFileProperties(project, "config.properties");
+        Properties props = readFileProperties(project.project(":server"), "config.properties");
         return props;
     }
 

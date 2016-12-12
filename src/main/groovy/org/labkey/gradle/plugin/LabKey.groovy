@@ -113,6 +113,7 @@ class LabKeyExtension
 
     def String server = "http://localhost"
     def String port = "8080"
+    def String contextPath = "/labkey"
 
     /**
      * @param project the project in question
