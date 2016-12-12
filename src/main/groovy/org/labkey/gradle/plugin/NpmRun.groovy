@@ -57,6 +57,8 @@ class NpmRun implements Plugin<Project>
                 }
         project.tasks.npmRunSetup.inputs.file(project.file(TYPINGS_FILE))
         project.tasks.npmRunSetup.outputs.dir(project.file(TYPINGS_DIR))
+        project.tasks.getByName("npm_run_${project.npmRun.setup}").inputs.file(project.file(TYPINGS_FILE))
+        project.tasks.getByName("npm_run_${project.npmRun.setup}").outputs.dir(project.file(TYPINGS_DIR))
 
         project.task("npmRunBuildProd")
                 {
@@ -89,7 +91,13 @@ class NpmRun implements Plugin<Project>
             project.tasks.module.dependsOn("npmRunBuild")
         else
             project.tasks.module.dependsOn("npmRunBuildProd")
+
+        project.tasks.npmInstall {
+            inputs.file project.file(NPM_PROJECT_FILE)
+            outputs.dir project.file("node_modules")
+        }
     }
+
 
     private void addTaskInputOutput(Task task)
     {
