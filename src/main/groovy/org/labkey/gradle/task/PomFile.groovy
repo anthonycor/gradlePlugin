@@ -27,6 +27,10 @@ class PomFile extends DefaultTask
                         if ( it.get("groupId").first().value().first().equals("org.apache.tomcat") &&
                              it.get("version").isEmpty())
                             toRemove.add(it)
+                        if ( it.get('groupId').first().value().first().equals("org.labkey") && it.get('artifactId').first().value().first().equals("java"))
+                        {
+                            it.get('artifactId').first().setValue(['labkey-client-api'])
+                        }
                     }
                     toRemove.each {
                         asNode().dependencies.first().remove(it)
