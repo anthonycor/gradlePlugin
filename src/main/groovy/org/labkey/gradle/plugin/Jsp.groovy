@@ -9,6 +9,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.JspCompile2Java
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
+
 /**
  * Used to generate the jsp jar file for a module.
  */
@@ -17,14 +18,14 @@ class Jsp implements Plugin<Project>
     public static final String CLASSIFIER = "jsp"
     public static final String BASE_NAME_EXTENSION = "_jsp"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return !getJspFileTree(project).isEmpty()
     }
 
     private static FileTree getJspFileTree(Project project)
     {
-        def FileTree jspTree = project.fileTree("src").matching
+        FileTree jspTree = project.fileTree("src").matching
                 {
                     include('**/*.jsp')
                 }
@@ -32,7 +33,7 @@ class Jsp implements Plugin<Project>
                 {
                     include("**/*.jsp")
                 }
-        return jspTree;
+        return jspTree
     }
 
     @Override
@@ -96,26 +97,28 @@ class Jsp implements Plugin<Project>
 
     private void addJspTasks(Project project)
     {
-        def Task listJsps = project.task('listJsps', group: GroupNames.JSP)
+        Task listJsps = project.task('listJsps', group: GroupNames.JSP)
         listJsps.doLast {
                     getJspFileTree(project).each ({
                         println it.absolutePath
                     })
                 }
 
-        def Task copyJsps = project.task('copyJsp', group: GroupNames.JSP, type: Copy, description: "Copy jsp files to jsp compile directory",
+        Task copyJsps = project.task('copyJsp', group: GroupNames.JSP, type: Copy, description: "Copy jsp files to jsp compile directory",
                 {
                     from 'src'
                     into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
                     include '**/*.jsp'
+                })
 
+        Task copyResourceJsps = project.task('copyResourceJsp', group: GroupNames.JSP, type: Copy, description: "Copy resource jsp files to jsp compile directory",
+                {
                     from 'resources'
                     into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/org/labkey/${project.name}"
                     include '**/*.jsp'
-
                 })
 
-        def Task copyTags = project.task('copyTagLibs', group: GroupNames.JSP, type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
+        Task copyTags = project.task('copyTagLibs', group: GroupNames.JSP, type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
                 {
                     from project.staging.webInfDir
                     into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
@@ -124,12 +127,13 @@ class Jsp implements Plugin<Project>
                     include 'tags/**'
                 })
 
-        def Task jspCompileTask = project.task('jsp2Java',
+        Task jspCompileTask = project.task('jsp2Java',
                 group: GroupNames.JSP,
                 type: JspCompile2Java,
                 description: "compile jsp files into Java classes",
                 {
                     inputs.file copyJsps
+                    inputs.file copyResourceJsps
                     inputs.file copyTags
                     outputs.dir "${project.buildDir}/${project.jspCompile.classDir}"
                 }
@@ -142,7 +146,7 @@ class Jsp implements Plugin<Project>
             dependsOn jspCompileTask
         }
 
-        def Task jspJar = project.task('jspJar',
+        Task jspJar = project.task('jspJar',
                 group: GroupNames.JSP,
                 type: Jar,
                 description: "produce jar file of jsps",
@@ -165,6 +169,6 @@ class Jsp implements Plugin<Project>
 
 class JspCompileExtension
 {
-    def String tempDir = "jspTempDir"
-    def String classDir = "$tempDir/classes"
+    String tempDir = "jspTempDir"
+    String classDir = "$tempDir/classes"
 }
