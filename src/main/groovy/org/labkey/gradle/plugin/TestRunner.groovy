@@ -138,89 +138,6 @@ class TestRunner implements Plugin<Project>
         }
     }
 
-    private void addRunSuiteTask(Project project)
-    {
-        project.ant.taskdef(name: 'junit', classname: 'org.apache.tools.ant.taskdefs.optional.junit.JUnitTask',
-                classpath: project.configurations.junitAnt.asPath)
-
-        TestRunnerExtension testEx = (TestRunnerExtension) project.getExtensions().getByName("testRunner")
-        Properties testProperties = testEx.getProperties();
-
-        project.task("runsuite", group: GroupNames.TEST, description: "Run a suite of UI tests").doLast({
-            project.ant.junit(
-                    fork: true,
-                    forkmode: "once",
-                    maxmemory: "512m",
-                    showoutput: true,
-                    errorproperty: "suite.failed",
-                    failureproperty: "suite.failed",
-                    haltonfailure: testEx.getTestProperty("haltOnError"),
-                    haltonerror: testEx.getTestProperty("haltOnError"),
-            )
-                    {
-                        jvmarg(value: "-Xmx512m")
-                        jvmarg(value: "-Xdebug")
-                        jvmarg(value: "-Xrunjdwp:transport=dt_socket,server=y,suspend=${project.testRunner.debugSuspendSelenium},address=${testEx.getTestProperty("selenium.debug.port")}")
-                        jmvarg(value: "-Dfile.encoding=UTF-8")
-                        if (!project.testRunner.trustStore.isEmpty() && !project.testRunner.trustStorePassword.isEmpty())
-                        {
-                            jvmarg(value: project.testRunner.trustStore)
-                            jvmarg(value: project.testRunner.trustStorePassword)
-                        }
-                        classpath()
-                            {
-                                pathElement(path: project.sourceSets.test.runtimeClasspath.asPath)
-                            }
-
-                        for (String key : testProperties.keySet())
-                        {
-                            sysproperty key: key, value: testProperties.get(key)
-                        }
-                        if (project.hasProperty('teamcity'))
-                        {
-                            sysproperty key: "teamcity.tests.recentlyFailedTests.file", value: project.teamcity['tests.recentlyFailedTests.file']
-                            sysproperty key: "teamcity.build.changedFiles.file", value: project.teamcity['build.changedFiles.file']
-                            sysproperty key: "testNewAndModified", value: "${((String) project.teamcity['tests.runRiskGroupTestsFirst']).contains("newAndModified")}"
-                            sysproperty key: "testRecentlyFailed", value: "${((String) project.teamcity['tests.runRiskGroupTestsFirst']).contains("recentlyFailed")}"
-                            sysproperty key: "teamcity.buildType.id", value: project.teamcity['buildType.id']
-                        }
-                        if (SystemUtils.IS_OS_WINDOWS)
-                        {
-                            if (SystemUtils.OS_ARCH.equals("amd64"))
-                                sysproperty key: "webdriver.ie.driver", value: "${project.projectDir}/bin/windows/amd64/IEDriverServer.exe"
-                            else if (SystemUtils.OS_ARCH.equals("i386"))
-                                sysproperty key: "webdriver.ie.driver", value: "${project.projectDir}/bin/windows/i386/IEDriverServer.exe"
-                            sysproperty key: "webdriver.chrome.driver", value: "${project.projectDir}/bin/windows/chromedriver.exe"
-                        }
-                        else if (SystemUtils.IS_OS_MAC)
-                        {
-                            sysproperty key: "webdriver.chrome.driver", value: "${project.projectDir}/bin/mac/chromedriver"
-                        }
-                        else if (SystemUtils.IS_OS_LINUX)
-                        {
-                            if (System.OS_ARCH.equals("amd64"))
-                            {
-                                sysproperty key: "webdriver.chrome.driver", value: "${project.projectDir}/bin/linux/amd64/chromedriver"
-                            }
-                            else if (SystemUtils.OS_ARCH.equals("i386"))
-                                systemProperties "webdriver.chrome.driver", value: "${project.projectDir}/bin/linux/i386/chromedriver"
-                        }
-
-                        sysproperty key: "devMode", LabKeyExtension.isDevMode(project)
-                        sysproperty key: "failure.output.dir", "${project.buildDir}/${project.testRunner.logDir}"
-                        sysproperty key: "labkey.root", project.rootDir
-
-                        sysproperty key: "user.home", System.getProperty('user.home')
-                        sysproperty key: "tomcat.home", project.ext.tomcatDir
-                        sysproperty key: "test.credentials.file", "${project.projectDir}/test.credentials.json"
-
-                        formatter(type: "brief")
-                        formatter(type: "xml")
-                        test(name: "org.labkey.test.Runner", todir: "${project.buildDir}/${project.testRunner.logDir}", outfile: "${testEx.getTestProperty("suite")} - results")
-                    }
-        })
-    }
-
     private void configureUnitTestTask(Project project)
     {
         TestRunnerExtension testEx = (TestRunnerExtension) project.getExtensions().getByName("testRunner")
@@ -229,9 +146,9 @@ class TestRunner implements Plugin<Project>
                                     "-Xrunjdwp:transport=dt_socket,server=y,suspend=${project.testRunner.debugSuspendSelenium},address=${testEx.getTestProperty("selenium.debug.port")}",
                                     "-Dfile.encoding=UTF-8",
                                     "-Duser.timezone=${System.getenv().get("TZ")}"]
-        if (!project.testRunner.trustStore.isEmpty() && !project.testRunner.trustStorePassword.isEmpty())
+        if (!project.tomcat.trustStore.isEmpty() && !project.tomcat.trustStorePassword.isEmpty())
         {
-            jvmArgsList += [project.testRunner.trustStore, project.testRunner.trustStorePassword]
+            jvmArgsList += [project.tomcat.trustStore, project.tomcat.trustStorePassword]
         }
 
         project.tasks.test {
@@ -295,7 +212,16 @@ class TestRunner implements Plugin<Project>
                 logger.lifecycle("[" + descriptor.getName() + "] " + event.message )
             }
             dependsOn(project.tasks.writeSampleDataFile)
-            dependsOn(project.tasks.packageChromeExtensions)
+            if (!project.getPlugins().hasPlugin(TeamCity.class))
+                dependsOn(project.tasks.packageChromeExtensions)
+            dependsOn(project.tasks.ensurePassword)
+            if (project.findProject(":tools:Rpackages:install") != null)
+                dependsOn(project.project(':tools:Rpackages:install'))
+            if (project.getPlugins().hasPlugin(TeamCity.class))
+            {
+                dependsOn(project.tasks.killChrome)
+                dependsOn(project.tasks.ensurePassword)
+            }
         }
     }
 
@@ -321,11 +247,6 @@ class TestRunnerExtension
 
     private Properties properties = null
     private Project project
-
-    String trustStore =""
-    //    def String trustStore="-Djavax.net.ssl.trustStore=${project.tomcatDir}/localhost.truststore"
-    String trustStorePassword = ""
-    //    def String trustStorePassword="-Djavax.net.ssl.trustStorePassword=changeit"
 
     String logDir = "test/logs"
 

@@ -11,7 +11,7 @@ import org.labkey.gradle.plugin.TeamCity
 class StartTomcat extends DefaultTask
 {
     @TaskAction
-    public void action()
+    void action()
     {
         if (SystemUtils.IS_OS_UNIX)
         {
@@ -24,7 +24,7 @@ class StartTomcat extends DefaultTask
         )
         {
 
-            if (TeamCity.isTeamCity(project))
+            if (TeamCity.isOnTeamCity(project))
             {
                 if (SystemUtils.IS_OS_WINDOWS)
                 {
@@ -41,13 +41,22 @@ class StartTomcat extends DefaultTask
                         path: "${project.project(":server").serverDeploy.binDir}${File.pathSeparator}${System.getProperty("PATH")}"
                 )
             }
-            // TODO incorporate teamcity.build.id if necessary (where/how is it set in ant???);
-            // TODO incorporate sequencePipelineEnabled for Unix
+
+
+            String catalinaOpts = "${project.tomcat.assertionFlag} -Ddevmode=${project.tomcat.devMode} ${project.tomcat.catalinaOpts} " +
+                    "-Xmx${TeamCity.getProperty(project, "Xmx", project.tomcat.maxMemory)} " +
+                    "${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} " +
+                    "${project.tomcat.trustStore} ${project.tomcat.trustStorePassword} "
+            if (TeamCity.isOnTeamCity(project) && SystemUtils.IS_OS_UNIX)
+            {
+                catalinaOpts += "-DsequencePipelineEnabled=${TeamCity.getProperty(project, "sequencePiplineEnabled", false)}"
+            }
+
             env(
                     key: "CATALINA_OPTS",
-                    value: "${project.tomcat.assertionFlag} -Ddevmode=${project.tomcat.devMode} ${project.tomcat.catalinaOpts} -Xmx${project.tomcat.maxMemory} ${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} ${project.tomcat.trustStore} ${project.tomcat.trustStorePassword}"
+                    value: catalinaOpts
             )
-            if (TeamCity.isTeamCity(project))
+            if (TeamCity.isOnTeamCity(project))
             {
                 env(
                         key: "R_LIBS_USER",
