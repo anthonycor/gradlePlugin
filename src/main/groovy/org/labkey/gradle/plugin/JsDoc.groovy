@@ -25,16 +25,16 @@ class JsDoc implements Plugin<Project>
         addTasks(project)
     }
 
-    public void addTasks(Project project)
+    void addTasks(Project project)
     {
-        def Task jsdocTemplateTask = project.task('jsdocTemplate',
+        Task jsdocTemplateTask = project.task('jsdocTemplate',
                 type: Copy,
                 description: "insert the proper version number into the JavaScript documentation",
                 {
                     from project.file("${project.jsDoc.root}/templates/jsdoc")
                     filter( { String line ->
-                        def Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
-                        def String newLine = line;
+                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
+                        String newLine = line;
                         while (matcher.find())
                         {
                             if (matcher.group(1).equals("product.version"))
@@ -46,7 +46,7 @@ class JsDoc implements Plugin<Project>
                     destinationDir = new File((String) "${project.jsDoc.root}/templates/jsdoc_substituted")
                 }
         )
-        def jsDocTask = project.task(
+        project.task(
                 "jsdoc",
                 group: GroupNames.DOCUMENTATION,
                 type: JavaExec,
@@ -83,8 +83,8 @@ class JsDoc implements Plugin<Project>
 
 class JsDocExtension
 {
-    def String root
-    def String[] paths =[ "api/webapp/clientapi",
+    String root
+    String[] paths =[ "api/webapp/clientapi",
                           "api/webapp/clientapi/dom",
                           "api/webapp/clientapi/core",
                           "api/webapp/clientapi/ext3",
@@ -94,5 +94,5 @@ class JsDocExtension
                           "modules/visualization/resources/web/vis/genericChart/genericChartHelper.js",
                           "modules/visualization/resources/web/vis/timeChart/timeChartHelper.js",
                           "internal/webapp/vis/src"]
-    def String outputDir
+    String outputDir
 }

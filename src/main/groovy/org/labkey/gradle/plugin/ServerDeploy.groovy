@@ -180,13 +180,13 @@ class ServerDeploy implements Plugin<Project>
 
 class ServerDeployExtension
 {
-    def String dir
-    def String modulesDir
-    def String webappDir
-    def String binDir
-    def String rootWebappsDir
+    String dir
+    String modulesDir
+    String webappDir
+    String binDir
+    String rootWebappsDir
 
-    public static String getServerDeployDirectory(Project project)
+    static String getServerDeployDirectory(Project project)
     {
         return "${project.rootProject.buildDir}/deploy";
     }

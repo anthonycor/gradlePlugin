@@ -36,13 +36,13 @@ class PropertiesUtils
     }
 
     //Convenience method. Mimics ant's "<property file="${basedir}/config.properties"/>"
-    public static Properties readDatabaseProperties(Project project)
+    static Properties readDatabaseProperties(Project project)
     {
         Properties props = readFileProperties(project.project(":server"), "config.properties");
         return props;
     }
 
-    public static String replaceProps(String line, Properties props)
+    static String replaceProps(String line, Properties props)
     {
         Matcher matcher = PROPERTY_PATTERN.matcher(line);
         while(matcher.find())
@@ -56,7 +56,7 @@ class PropertiesUtils
         return line;
     }
 
-    public static void readProperties(File propertiesFile, Properties properties)
+    static void readProperties(File propertiesFile, Properties properties)
     {
         if (propertiesFile.exists())
         {

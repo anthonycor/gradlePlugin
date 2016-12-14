@@ -196,7 +196,7 @@ class SimpleModule implements Plugin<Project>
 //            classifier LabKey.SOURCES_CLASSIFIER
 //        }
 
-        def Task moduleXmlTask = _project.task('moduleXml',
+        Task moduleXmlTask = _project.task('moduleXml',
                 group: GroupNames.MODULE,
                 type: Copy,
                 description: "create the module.xml file using module.properties",
@@ -205,8 +205,8 @@ class SimpleModule implements Plugin<Project>
                     include 'module.template.xml'
                     rename {"module.xml"}
                     filter( { String line ->
-                        def Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
-                        def String newLine = line;
+                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
+                        String newLine = line;
                         while (matcher.find())
                         {
                             newLine = newLine.replace(matcher.group(), (String) _project.lkModule.getPropertyValue(matcher.group(1), ""))
