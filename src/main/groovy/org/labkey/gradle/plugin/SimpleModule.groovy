@@ -53,7 +53,7 @@ class SimpleModule implements Plugin<Project>
         addArtifacts()
     }
 
-    public static boolean shouldDoBuild(Project project)
+    static boolean shouldDoBuild(Project project)
     {
         def List<String> indicators = new ArrayList<>();
         if (project.file(SKIP_BUILD_FILE).exists())
@@ -169,7 +169,14 @@ class SimpleModule implements Plugin<Project>
         }
     }
 
-    public void setJarManifestAttributes(Manifest manifest)
+    static boolean isDatabaseSupported(Project project, String database)
+    {
+        ModuleExtension extension = project.extensions.getByType(ModuleExtension.class)
+        String supported = extension.getPropertyValue("SupportedDatabases")
+        return supported == null || supported.contains(database)
+    }
+
+    void setJarManifestAttributes(Manifest manifest)
     {
         manifest.attributes(
                 "Implementation-Version": _project.version,
@@ -235,7 +242,7 @@ class SimpleModule implements Plugin<Project>
                 }
         )
 
-        def Task moduleFile = _project.task("module",
+        Task moduleFile = _project.task("module",
                 group: GroupNames.MODULE,
                 type: Jar,
                 description: "create the module file for this project",
@@ -250,7 +257,7 @@ class SimpleModule implements Plugin<Project>
                 }
         )
 
-        def Task copyExternalDependencies = _project.task("copyExternalLibs",
+        Task copyExternalDependencies = _project.task("copyExternalLibs",
                 group: GroupNames.MODULE,
                 type: Copy,
                 description: "copy the dependencies declared in the 'external' configuration into the lib directory of the built module",
@@ -323,13 +330,23 @@ class SimpleModule implements Plugin<Project>
             description: "remove a project's .module file and the unjarred file from the deploy directory",
             type: Delete,
                 {
-                    // delete the module directory first because tomcat when is listening it may decide to reinstate the directory if the .module file is there
-                    delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${moduleFile.outputs.getFiles().getAt(0).getName()}"
-                    delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(moduleFile.outputs.getFiles().getAt(0).getName())}"
+                    inputs.file "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${project.tasks.module.outputs.getFiles().getAt(0).getName()}"
+                    inputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(project.tasks.module.outputs.getFiles().getAt(0).getName())}"
+                    outputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
+                   doFirst {
+                       undeployModule(project)
+                   }
                 })
     }
 
-    private boolean hasClientLibraries(Project project)
+    static undeployModule(Project project)
+    {
+        // delete the module directory first because tomcat when is listening it may decide to reinstate the directory if the .module file is there
+        project.delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${project.tasks.module.outputs.getFiles().getAt(0).getName()}"
+        project.delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(project.tasks.module.outputs.getFiles().getAt(0).getName())}"
+    }
+
+    private static boolean hasClientLibraries(Project project)
     {
         return ClientLibraries.isApplicable(project) || Gwt.isApplicable(project) || Webapp.isApplicable(project);
     }
@@ -379,9 +396,6 @@ class SimpleModule implements Plugin<Project>
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
                                         artifact it
                             }
-//                            if (_project.hasProperty("zipWebDir"))
-//                                artifact _project.tasks.zipWebDir
-
                         }
                     }
 
@@ -395,8 +409,6 @@ class SimpleModule implements Plugin<Project>
                             }
                         }
                         dependsOn pomFileTask
-//                        if (_project.hasProperty("zipWebDir"))
-//                            dependsOn _project.tasks.zipWebDir
                         publications('libs')
                     }
 
@@ -406,41 +418,41 @@ class SimpleModule implements Plugin<Project>
     }
 }
 
-public class ModuleExtension
+class ModuleExtension
 {
     private static final String ENLISTMENT_PROPERTIES = "enlistment.properties"
     protected static final String MODULE_PROPERTIES_FILE = "module.properties"
     private Properties properties
     private Project project
 
-    public ModuleExtension(Project project)
+    ModuleExtension(Project project)
     {
         this.project = project
         setModuleProperties(project);
     }
 
-    public Project getProject()
+    Project getProject()
     {
         return project
     }
 
-    public String getPropertyValue(String propertyName, String defaultValue)
+    String getPropertyValue(String propertyName, String defaultValue)
     {
         String value = properties.getProperty(propertyName)
         return value == null ? defaultValue : value;
 
     }
-    public String getPropertyValue(String propertyName)
+    String getPropertyValue(String propertyName)
     {
         return getPropertyValue(propertyName, null)
     }
 
-    public Object get(String propertyName)
+    Object get(String propertyName)
     {
         return properties.get(propertyName)
     }
 
-    public void setModuleProperties(Project project)
+    void setModuleProperties(Project project)
     {
         File propertiesFile = project.file(MODULE_PROPERTIES_FILE)
         this.properties = new Properties()

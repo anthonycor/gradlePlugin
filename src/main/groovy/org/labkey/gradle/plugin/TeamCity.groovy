@@ -1,6 +1,9 @@
 package org.labkey.gradle.plugin
 
 import org.apache.commons.lang3.SystemUtils
+import org.apache.commons.lang3.tuple.ImmutablePair
+import org.apache.commons.lang3.tuple.Pair
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.labkey.gradle.util.GroupNames
@@ -18,6 +21,19 @@ class TeamCity extends Tomcat
     private static final String TEST_CONFIGS_DIR = "configs/config-test"
     private static final String NLP_CONFIG_FILE = "nlpConfig.xml"
     private static final String PIPELINE_CONFIG_FILE =  "pipelineConfig.xml"
+    private static final Map<String, Pair<String, String>> SUPPORTED_DATABASES = new HashMap<>();
+    static
+    {
+        SUPPORTED_DATABASES.put("postgres9.2", new ImmutablePair<>("pg", "9.2"))
+        SUPPORTED_DATABASES.put("postgres9.3", new ImmutablePair<>("pg", "9.3"))
+        SUPPORTED_DATABASES.put("postgres9.4", new ImmutablePair<>("pg", "9.4"))
+        SUPPORTED_DATABASES.put("postgres9.5", new ImmutablePair<>("pg", "9.5"))
+        SUPPORTED_DATABASES.put("postgres9.6", new ImmutablePair<>("pg", "9.6"))
+        SUPPORTED_DATABASES.put("sqlserver2012", new ImmutablePair<>("mssql", "2012"))
+        SUPPORTED_DATABASES.put("sqlserver2014", new ImmutablePair<>("mssql", "2014"))
+        SUPPORTED_DATABASES.put("sqlserver2016", new ImmutablePair<>("mssql", "2016"))
+
+    }
 
     @Override
     void apply(Project project)
@@ -48,6 +64,7 @@ class TeamCity extends Tomcat
                     })
                 }
         )
+
         // The ant task was written such that multiple zip files could be incorporated into the one.
         // TODO Verify that a single file is sufficient.
         project.task("copyJavascriptDocs",
@@ -55,7 +72,7 @@ class TeamCity extends Tomcat
                 description: "create client-api docs file for presentation in TeamCity",
                 type: Copy,
                 {
-                    from "${project.labkey.distDir}/client-api/javascript" // TODO this should be a proper dependency on installer a distribution task
+                    from "${project.labkey.distDir}/client-api/javascript" // TODO this should be a proper dependency on a distribution task
                     include *.zip
                     into "${project.labkey.distDir}/TeamCityTabs" {
                         rename "JavascriptAPIDocs.zip"
@@ -175,6 +192,22 @@ class TeamCity extends Tomcat
                     )
                 })
 
+        project.tasks.startTomcat.doFirst(
+                {
+
+                    String database = getProperty(project, "database")
+                    if (database.isEmpty())
+                        throw new GradleException("${project.path} No database type provided")
+                    else if (!SUPPORTED_DATABASES.containsKey(database))
+                        throw new GradleException("${project.path} Database ${database} not supported")
+                    project.rootProject.allprojects.each {Project p ->
+                        if (!SimpleModule.shouldDoBuild(project) || !SimpleModule.isDatabaseSupported(p, database))
+                        {
+                            SimpleModule.undeployModule(project)
+                        }
+                    }
+                }
+        )
         project.tasks.startTomcat.dependsOn(project.tasks.createPipelineConfig)
         project.tasks.startTomcat.dependsOn(project.tasks.createNlpConfig)
     }
