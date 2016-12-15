@@ -39,7 +39,20 @@ class XsdDoc implements Plugin<Project>
                 project.project(":schemas").file("visitMap.xsd"),
                 project.project(":schemas").file("webpart.xsd")
         ]
+        addDependencies(project)
         addTasks(project)
+    }
+
+    private void addDependencies(Project project)
+    {
+        project.configurations {
+            xsdDoc
+        }
+        project.dependencies {
+            xsdDoc 'xml-apis:xml-apis:1.3.04'
+            xsdDoc 'xerces:xercesImpl:2.9.1'
+            xsdDoc 'docflex:docflex-xml-re:1.7.2'
+        }
     }
 
     private void addTasks(Project project)
@@ -57,11 +70,10 @@ class XsdDoc implements Plugin<Project>
                     outputs.upToDateSpec = new AndSpec()
 
                     main "com.docflex.xml.Generator"
+
                     classpath {
                         [
-                                "${project.xsdDoc.root}/lib/xml-apis.jar",
-                                "${project.xsdDoc.root}/lib/xercesImpl.jar",
-                                "${project.xsdDoc.root}/lib/docflex-xml-re.jar"
+                                project.configurations.xsdDoc.asPath
                         ]
                     }
                     args = [
@@ -100,9 +112,9 @@ class XsdDoc implements Plugin<Project>
     }
 }
 
-public class XsdDocExtension
+class XsdDocExtension
 {
-    def String root = "/tools/docflex-xml-re-1.7.2" //the location of the DocFlex/XML home directory
-    def File[] xsdFiles = []
-    def outputDir
+    String root = "/tools/docflex-xml-re-1.7.2" //the location of the DocFlex/XML home directory
+    File[] xsdFiles = []
+    String outputDir
 }
