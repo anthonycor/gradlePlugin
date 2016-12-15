@@ -1,11 +1,13 @@
 package org.labkey.gradle.plugin
 
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.PomFile
@@ -315,6 +317,16 @@ class SimpleModule implements Plugin<Project>
                         }
                     }
                 }
+
+        _project.task('undeployModule',
+            group: GroupNames.MODULE,
+            description: "remove a project's .module file and the unjarred file from the deploy directory",
+            type: Delete,
+                {
+                    // delete the module directory first because tomcat when is listening it may decide to reinstate the directory if the .module file is there
+                    delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${moduleFile.outputs.getFiles().getAt(0).getName()}"
+                    delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(moduleFile.outputs.getFiles().getAt(0).getName())}"
+                })
     }
 
     private boolean hasClientLibraries(Project project)
