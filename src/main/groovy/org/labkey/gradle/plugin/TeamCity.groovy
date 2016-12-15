@@ -53,7 +53,7 @@ class TeamCity extends Tomcat
         project.task("copyJavascriptDocs",
             group: GroupNames.TEST_SERVER,
                 description: "create client-api docs file for presentation in TeamCity",
-                type: Copy
+                type: Copy,
                 {
                     from "${project.labkey.distDir}/client-api/javascript" // TODO this should be a proper dependency on installer a distribution task
                     include *.zip
