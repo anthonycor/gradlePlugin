@@ -12,6 +12,7 @@ class Api implements Plugin<Project>
 {
     public static final String CLASSIFIER = "api"
     public static final String SOURCE_DIR = "api-src"
+    private static final String MODULES_API_DIR = "modules-api"
 
     public static boolean isApplicable(Project project)
     {
@@ -55,7 +56,7 @@ class Api implements Plugin<Project>
 
     private void addApiJarTask(Project project)
     {
-        def Task apiJar = project.task("apiJar",
+        Task apiJar = project.task("apiJar",
                 group: GroupNames.API,
                 type: Jar,
                 description: "produce jar file for api",
@@ -72,6 +73,16 @@ class Api implements Plugin<Project>
 
         project.tasks.assemble.dependsOn(apiJar)
 
+        if (LabKeyExtension.isDevMode(project))
+        {
+            apiJar.doLast {
+                project.copy {
+                    from project.file(project.labkey.explodedModuleLibDir)
+                    into "${project.rootProject.buildDir}/${MODULES_API_DIR}"
+                    include "${project.name}_api*.jar"
+                }
+            }
+        }
     }
 
     private void addArtifacts(Project project)
