@@ -24,13 +24,13 @@ class TestRunner implements Plugin<Project>
 
     private void addTasks(Project project)
     {
+        addJarTask(project)
+
         addPasswordTasks(project)
 
         addDataFileTasks(project)
 
         addExtensionsTasks(project)
-
-        addJarTask(project)
 
         configureUnitTestTask(project)
 
@@ -41,32 +41,43 @@ class TestRunner implements Plugin<Project>
 
         project.task("setPassword",
                 group: GroupNames.TEST,
-                description: "Set the password for use in running tests").doFirst({
-            project.javaexec({
-                main = "org.labkey.test.util.PasswordUtil"
-                classpath {
-                    [project.configurations.compile, project.tasks.jar]
+                description: "Set the password for use in running tests",
+                {
+                    dependsOn(project.tasks.testJar)
+                    doFirst({
+                        project.javaexec({
+                            main = "org.labkey.test.util.PasswordUtil"
+                            classpath {
+                                [project.configurations.compile, project.tasks.testJar]
+                            }
+                            systemProperties["labkey.server"] = project.labkey.server
+                            args = ["set"]
+                            standardInput = System.in
+                        })
+                    })
                 }
-                systemProperties["labkey.server"] = project.labkey.server
-                args = ["set"]
-                standardInput = System.in
-            })
-        })
+        )
+
 
         project.task("ensurePassword",
                 group: GroupNames.TEST,
-                description: "Ensure that the password property used for running tests has been set").doFirst(
+                description: "Ensure that the password property used for running tests has been set",
                 {
-                    project.javaexec({
-                        main = "org.labkey.test.util.PasswordUtil"
-                        classpath {
-                            [project.configurations.compile, project.tasks.jar]
-                        }
-                        systemProperties["labkey.server"] = project.labkey.server
-                        args = ["ensure"]
-                        standardInput = System.in
-                    })
-                })
+                    dependsOn(project.tasks.testJar)
+                    doFirst(
+                            {
+                                project.javaexec({
+                                    main = "org.labkey.test.util.PasswordUtil"
+                                    classpath {
+                                        [project.configurations.compile, project.tasks.testJar]
+                                    }
+                                    systemProperties["labkey.server"] = project.labkey.server
+                                    args = ["ensure"]
+                                    standardInput = System.in
+                                })
+                            })
+                }
+        )
     }
 
     private void addDataFileTasks(Project project)

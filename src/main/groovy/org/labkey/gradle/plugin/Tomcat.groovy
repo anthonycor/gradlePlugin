@@ -17,7 +17,8 @@ class Tomcat implements Plugin<Project>
         project.extensions.create("tomcat",TomcatExtension)
         if (project.plugins.hasPlugin(TestRunner.class))
         {
-            project.tomcat.assertionFlag = project.testRunner.disableAssertions ? "-da" : "-ea"
+            TestRunnerExtension testEx = (TestRunnerExtension) project.getExtensions().getByName("testRunner")
+            project.tomcat.assertionFlag = testEx.getTestProperty("disableAssertions") ? "-da" : "-ea"
         }
         addTasks(project)
     }
@@ -38,7 +39,7 @@ class Tomcat implements Plugin<Project>
                 type: StopTomcat
         )
         project.task(
-                "cleanLogsAndTemp",
+                "cleanLogs",
                 group: GroupNames.WEB_APPLICATION,
                 description: "Delete logs from ${project.tomcatDir}",
                 type: Delete,
