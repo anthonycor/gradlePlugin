@@ -75,6 +75,7 @@ class Api implements Plugin<Project>
 
         if (LabKeyExtension.isDevMode(project))
         {
+            // we put all API jar files into a special directory for the RecompilingJspClassLoader's classpath
             apiJar.doLast {
                 project.copy {
                     from project.file(project.labkey.explodedModuleLibDir)
