@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 class JspCompile2Java extends DefaultTask
 {
     @TaskAction
-    def compile() {
+    void compile() {
         File uriRoot = new File("${project.buildDir}/${project.jspCompile.tempDir}/webapp")
         if (!uriRoot.exists())
             uriRoot.mkdirs();

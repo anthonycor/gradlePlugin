@@ -5,9 +5,9 @@ package org.labkey.gradle.task
  */
 class PickDb extends DoThenSetup
 {
-    def String dbType;
+    String dbType;
 
-    def Closure<Void> fn = {
+    Closure<Void> fn = {
 
         //ant pick_[pg|mssql|db]
         //copies the correct config file.

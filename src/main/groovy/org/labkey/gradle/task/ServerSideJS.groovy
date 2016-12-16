@@ -11,13 +11,13 @@ import org.gradle.api.tasks.TaskAction
 class ServerSideJS extends DefaultTask
 {
     @InputDirectory
-    def File scriptFragmentsDir = project.file("script-fragments")
+    File scriptFragmentsDir = project.file("script-fragments")
 
     @OutputDirectory
-    def File scriptsDir = project.file("resources/scripts")
+    File scriptsDir = project.file("resources/scripts")
 
     @TaskAction
-    public void action()
+    void action()
     {
         concatenateExt3JsFiles()
         concatenateExt4JsFiles()

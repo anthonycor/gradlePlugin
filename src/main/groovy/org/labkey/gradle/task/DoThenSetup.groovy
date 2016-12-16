@@ -11,7 +11,7 @@ class DoThenSetup extends DefaultTask
 {
 
     //default value is init_database_properties, so dependsOn relationship with setup is preserved.
-    def Closure<Void> fn = {
+    Closure<Void> fn = {
         initDatabaseProperties(project);
         setJDBCDefaultProps(project);
     }
@@ -25,7 +25,7 @@ class DoThenSetup extends DefaultTask
         configProperties.putAll(project.ext.properties);
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}");
         configProperties.setProperty("appDocBase", appDocBase);
-        def boolean isNextLineComment = false;
+        boolean isNextLineComment = false;
         project.copy({
             from "${project.rootProject.projectDir}${File.separator}webapps"
             into "${project.rootProject.buildDir}"
@@ -79,7 +79,7 @@ class DoThenSetup extends DefaultTask
         }
     }
 
-    public static void initDatabaseProperties(Project project)
+    static void initDatabaseProperties(Project project)
     {
         Properties configProperties = PropertiesUtils.readDatabaseProperties(project);
         for (String key : configProperties.keySet())
@@ -91,7 +91,7 @@ class DoThenSetup extends DefaultTask
         }
     }
 
-    public static void setJDBCDefaultProps(Project project)
+    static void setJDBCDefaultProps(Project project)
     {
         Properties tempProperties = PropertiesUtils.readDatabaseProperties(project);
 

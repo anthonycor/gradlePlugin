@@ -29,8 +29,8 @@ class StartTomcat extends DefaultTask
                 if (SystemUtils.IS_OS_WINDOWS)
                 {
                     env(
-                            key: "PATH",
-                            path: "${project.rootDir}/external/windows/core${File.pathSeparator}${System.getProperty("PATH")}"
+                        key: "PATH",
+                        path: "${project.rootDir}/external/windows/core${File.pathSeparator}${System.getProperty("PATH")}"
                     )
                 }
             }
@@ -42,11 +42,11 @@ class StartTomcat extends DefaultTask
                 )
             }
 
-
             String catalinaOpts = "${project.tomcat.assertionFlag} -Ddevmode=${project.tomcat.devMode} ${project.tomcat.catalinaOpts} " +
-                    "-Xmx${TeamCity.getProperty(project, "Xmx", project.tomcat.maxMemory)} " +
-                    "${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} " +
-                    "${project.tomcat.trustStore} ${project.tomcat.trustStorePassword} "
+                        "-Xmx${TeamCity.getProperty(project, "Xmx", project.tomcat.maxMemory)} " +
+                        "${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} " +
+                        "${project.tomcat.trustStore} ${project.tomcat.trustStorePassword} "
+
             if (TeamCity.isOnTeamCity(project) && SystemUtils.IS_OS_UNIX)
             {
                 catalinaOpts += "-DsequencePipelineEnabled=${TeamCity.getProperty(project, "sequencePiplineEnabled", false)}"

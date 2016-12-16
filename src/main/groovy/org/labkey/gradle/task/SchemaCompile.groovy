@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 class SchemaCompile extends DefaultTask {
 
   @TaskAction
-  def compile() {
+  void compile() {
     ant.taskdef(
             name: 'xmlbean',
             classname: 'org.apache.xmlbeans.impl.tool.XMLBean',

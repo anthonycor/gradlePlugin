@@ -17,7 +17,7 @@ class PomFile extends DefaultTask
     File pomFile = new File(project.buildDir, "publications/${artifactCategory}/pom-default.xml")
 
     @TaskAction
-    public void writePomFile()
+    void writePomFile()
     {
             project.pom {
                 withXml {
