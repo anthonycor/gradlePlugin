@@ -5,7 +5,7 @@ import org.labkey.gradle.util.SqlUtils
 
 class Bootstrap extends DoThenSetup
 {
-    def Closure<Void> fn = {
+    Closure<Void> fn = {
         initDatabaseProperties(project);
 
         Properties configProperties = PropertiesUtils.readDatabaseProperties(project);

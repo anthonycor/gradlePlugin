@@ -92,7 +92,7 @@ class Gwt implements Plugin<Project>
         Map<String, String> gwtModuleClasses = getGwtModuleClasses(project)
         List<Task> gwtTasks = new ArrayList<>(gwtModuleClasses.size());
         gwtModuleClasses.entrySet().each {
-            def gwtModuleClass ->
+             gwtModuleClass ->
 
                 def compileTask = project.task(
                         'compileGwt' + gwtModuleClass.getKey(),

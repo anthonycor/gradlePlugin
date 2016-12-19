@@ -16,7 +16,7 @@ class PickDb extends DoThenSetup
             into "${project.projectDir}"
             include "${dbType}.properties"
             rename { String fileName ->
-                fileName.replace("${dbType}", "config")
+                fileName.replace(dbType, "config")
             }
         })
 

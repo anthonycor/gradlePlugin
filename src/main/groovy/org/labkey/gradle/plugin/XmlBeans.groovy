@@ -52,7 +52,7 @@ class XmlBeans implements Plugin<Project>
 
     private void addTasks(Project project)
     {
-        def Task schemasCompile = project.task('schemasCompile',
+        Task schemasCompile = project.task('schemasCompile',
                 group: GroupNames.XML_SCHEMA,
                 type: SchemaCompile,
                 description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes",
@@ -65,7 +65,7 @@ class XmlBeans implements Plugin<Project>
             isApplicable(project)
         }
 
-        def Task schemasJar = project.task('schemasJar',
+        Task schemasJar = project.task('schemasJar',
                 group: GroupNames.XML_SCHEMA,
                 type: Jar,
                 description: "produce schemas jar file from directory '$project.xmlBeans.classDir'",
@@ -107,8 +107,8 @@ class XmlBeans implements Plugin<Project>
 
 class XmlBeansExtension
 {
-    def String schemasDir = "schemas" // the directory containing the schemas to be compiled
-    def String classDir = "xb" // the name of the directory in build or build/gensrc for the source and class files
+    String schemasDir = "schemas" // the directory containing the schemas to be compiled
+    String classDir = "xb" // the name of the directory in build or build/gensrc for the source and class files
 }
 
 

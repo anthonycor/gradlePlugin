@@ -31,7 +31,7 @@ class DoThenSetup extends DefaultTask
             into "${project.rootProject.buildDir}"
             include "labkey.xml"
             filter ({ String line ->
-                def String newLine = line;
+                String newLine = line;
 
                 if (project.ext.has('enableJms') && project.ext.enableJms)
                 {

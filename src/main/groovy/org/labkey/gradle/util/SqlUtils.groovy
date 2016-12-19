@@ -12,7 +12,7 @@ class SqlUtils
 {
     //in ant no tasks ever depend on this, so it makes sense to be a method.
     //additionally, it is always called with inheritAll=false, so we should explicitly pass in parameters.
-    public static void execSql(Project project, Properties params, String sql)
+    static void execSql(Project project, Properties params, String sql)
     {
         Properties configProperties = PropertiesUtils.readDatabaseProperties(project);
         configProperties.putAll(params); //overrides configProperties in case of duplicates
