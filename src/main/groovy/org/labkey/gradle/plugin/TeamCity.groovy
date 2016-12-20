@@ -1,13 +1,14 @@
 package org.labkey.gradle.plugin
 
 import org.apache.commons.lang3.SystemUtils
-import org.apache.commons.lang3.tuple.ImmutablePair
-import org.apache.commons.lang3.tuple.Pair
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
+import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
+import org.labkey.gradle.task.RunTestSuite
 
 import java.util.regex.Matcher
 /**
@@ -21,31 +22,19 @@ class TeamCity extends Tomcat
     private static final String TEST_CONFIGS_DIR = "configs/config-test"
     private static final String NLP_CONFIG_FILE = "nlpConfig.xml"
     private static final String PIPELINE_CONFIG_FILE =  "pipelineConfig.xml"
-    private static final Map<String, Pair<String, String>> SUPPORTED_DATABASES = new HashMap<>();
-    static
-    {
-        SUPPORTED_DATABASES.put("postgres9.2", new ImmutablePair<>("pg", "9.2"))
-        SUPPORTED_DATABASES.put("postgres9.3", new ImmutablePair<>("pg", "9.3"))
-        SUPPORTED_DATABASES.put("postgres9.4", new ImmutablePair<>("pg", "9.4"))
-        SUPPORTED_DATABASES.put("postgres9.5", new ImmutablePair<>("pg", "9.5"))
-        SUPPORTED_DATABASES.put("postgres9.6", new ImmutablePair<>("pg", "9.6"))
-        SUPPORTED_DATABASES.put("sqlserver2012", new ImmutablePair<>("mssql", "2012"))
-        SUPPORTED_DATABASES.put("sqlserver2014", new ImmutablePair<>("mssql", "2014"))
-        SUPPORTED_DATABASES.put("sqlserver2016", new ImmutablePair<>("mssql", "2016"))
 
-    }
 
     @Override
     void apply(Project project)
     {
         super.apply(project)
-        project.extensions.create("teamCity", TeamCityExtension)
+        TeamCityExtension extension = project.extensions.create("teamCity", TeamCityExtension, project)
         if (project.file("${project.tomcatDir}/localhost.truststore").exists())
         {
             project.tomcat.trustStore = "-Djavax.net.ssl.trustStore=${project.tomcatDir}/localhost.truststore"
             project.tomcat.trustStorePassword = "-Djavax.net.ssl.trustStorePassword=changeit"
         }
-        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootDir} -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${getProperty(project, "tomcat.debug")} "
+        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootDir} -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.getTeamCityProperty("tomcat.debug")} "
 
         addTasks(project)
     }
@@ -71,7 +60,7 @@ class TeamCity extends Tomcat
         )
 
         // The ant task was written such that multiple zip files could be incorporated into the one.
-        // TODO Verify that a single file is sufficient.
+        // TODO Verify that a single file is sufficient, otherwise use the fatjar method similar to what is seen in sampledata/qc/build.gradle
 //        project.task("copyJavascriptDocs",
 //            group: GroupNames.TEST_SERVER,
 //                description: "create client-api docs file for presentation in TeamCity",
@@ -90,7 +79,7 @@ class TeamCity extends Tomcat
                 group: GroupNames.TEST_SERVER,
                 description: "Removes log files from Tomcat and TeamCity",
                 {
-                    dependsOn project.project(":server").tasks.cleanLogs, project.project(":server").tasks.cleanTemp,
+                    dependsOn project.tasks.cleanLogs, project.tasks.cleanTemp
                     doLast {
                         project.delete "${project.projectDir}/${TEAMCITY_INFO_FILE}"
                     }
@@ -110,24 +99,7 @@ class TeamCity extends Tomcat
             description: "Kill Chrome processes",
                 {
                     doLast {
-                        if (SystemUtils.IS_OS_WINDOWS)
-                        {
-                            project.exec({
-                                commandLine "taskkill", "/F /IM chromedriver.exe"
-                            })
-                        }
-                        else if (SystemUtils.IS_OS_UNIX)
-                        {
-                            project.exec( {
-                                commandLine "killall", "-q -KILL chromedriver"
-                            })
-                            project.exec( {
-                                commandLine "killall", "-q -KILL chrome"
-                            })
-                            project.exec( {
-                                commandLine "killall", "-q KILL BrowserBlocking"
-                            })
-                        }
+                        killChrome(project)
                     }
                 }
         )
@@ -137,18 +109,7 @@ class TeamCity extends Tomcat
                 description: "Kill Firefox processes",
                 {
                     doLast {
-                        if (SystemUtils.IS_OS_WINDOWS)
-                        {
-                            project.exec({
-                                commaneLine "taskkill", "/F /IM firefox.exe"
-                            })
-                        }
-                        else if (SystemUtils.IS_OS_UNIX)
-                        {
-                            project.exec( {
-                                commandLine "killall", "-q firefox"
-                            })
-                        }
+                        killFirefox(project)
                     }
                 }
         )
@@ -168,7 +129,7 @@ class TeamCity extends Tomcat
                             while (matcher.find())
                             {
                                 if (matcher.group(1).equals("SEQUENCEANALYSIS_CODELOCATION") || matcher.group(1).equals("SEQUENCEANALYSIS_TOOLS"))
-                                    newLine = newLine.replace(matcher.group(), getProperty(project, "additional.pipeline.tools"))
+                                    newLine = newLine.replace(matcher.group(), TeamCityExtension.getTeamCityProperty("additional.pipeline.tools"))
                                 else if (matcher.group(1).equals("SEQUENCEANALYSIS_EXTERNALDIR"))
                                     newLine = newLine.replace(matcher.group(), project.project(":externalModules:labModules:SequenceAnalysis").file("pipeline_code/external").getAbsolutePath())
                             }
@@ -203,10 +164,11 @@ class TeamCity extends Tomcat
 
         project.tasks.startTomcat.doFirst(
                 {
-                    String database = getProperty(project, "database")
+                    TeamCityExtension extension = project.getExtensions().getByType(TeamCityExtension.class)
+                    String database = extension.getTeamCityProperty("database")
                     if (database.isEmpty())
                         throw new GradleException("${project.path} No database type provided")
-                    else if (!SUPPORTED_DATABASES.containsKey(database))
+                    else if (!extension.isDatabaseSupported(database))
                         throw new GradleException("${project.path} Database ${database} not supported")
                     project.rootProject.allprojects.each {Project p ->
                         if (!SimpleModule.shouldDoBuild(project) || !SimpleModule.isDatabaseSupported(p, database))
@@ -216,94 +178,113 @@ class TeamCity extends Tomcat
                     }
                 }
         )
-        project.tasks.startTomcat.dependsOn(project.tasks.createPipelineConfig)
+        if (project.findProject(":externalModules:labModules:SequenceAnalysis") != null)
+        {
+            project.tasks.startTomcat.dependsOn(project.tasks.createPipelineConfig)
+        }
         project.tasks.startTomcat.dependsOn(project.tasks.createNlpConfig)
 
-        project.task("ciTest",
-            group: GroupNames.TEST_SERVER,
-            description: "Run a test suite on the TeamCity server",
+        project.task("validateConfiguration",
                 {
                     doFirst
                             {
-                                List<String> messages = getValidationMessages(project)
-                                if (!messages.isEmpty())
+                                TeamCityExtension extension = project.getExtensions().getByType(TeamCityExtension.class)
+                                if (!extension.isValidForTestRun())
                                     throw new GradleException("TeamCity configuration problem(s): ${messages.join('; ')}")
 
-                                project.logger.info("teamcity.build.branch.is_default: ${getProperty(project, 'teamcity.build.branch.is_default')}")
-                                project.logger.info("teamcity.build.branch: ${getProperty(project, 'teamcity.build.branch')}")
-                                project.teamCity.databaseName = getDatabaseName(project)
-                                println("Database name is ${getDatabaseName(project)}")
+                                project.logger.info("teamcity.build.branch.is_default: ${TeamCityExtension.getTeamCityProperty('teamcity.build.branch.is_default')}")
+                                project.logger.info("teamcity.build.branch: ${TeamCityExtension.getTeamCityProperty('teamcity.build.branch')}")
                             }
                 })
-    }
 
-    private static List<String> getValidationMessages(Project project)
-    {
-        List<String> messages = new ArrayList<>()
-        if (getProperty(project, "suite").isEmpty())
-            messages.add("'suite' property not specified")
 
-        if (getProperty(project, "tomcat.home").isEmpty())
-            messages.add("'tomcat.home' property not specified")
-        if (getProperty(project, "tomcat.port").isEmpty())
-            messages.add("'tomcat.port' property not specified")
-        String databaseTypes = getProperty(project, "database.types")
-        if (databaseTypes.isEmpty())
-            messages.add("'database.types' property not specified")
-        else
+        List<Task> ciTests = new ArrayList<>()
+        for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
-            Boolean databaseFound = false;
-            for (String database : SUPPORTED_DATABASES.keySet())
-            {
-                databaseFound = (Boolean) getProperty(project, "database.${database}", false) &&
-                        databaseTypes.contains(database)
-            }
-            if (!databaseFound)
-                messages.add("'database.types' property (${databaseTypes}) does not specify a supported database.  Must be one of: ${SUPPORTED_DATABASES.keySet().join(", ")}.")
+            Task ciTestTask = project.task("ciTest" + properties.dbTypeAndVersion,
+                    group: GroupNames.TEST_SERVER,
+                    description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
+                    type: RunTestSuite,
+                    {
+                        dbProperties = properties
+                        doFirst
+                        {
+                            Properties tempProperties = new Properties();
+                            tempProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
+
+                            project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(tempProperties, properties.jdbcURL)
+                            // This is probably not necessary, but will be accurate if someone looks at properties before
+                            // running this build.
+                            project.ext.jdbcDatabase = properties.jdbcDatabase
+                            PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
+                        }
+                    }
+            )
+            if (properties.shortType.equals('pg'))
+                ciTestTask.dependsOn(project.project(":server").tasks.pickPg)
+            else if (properties.shortType.equals('mssql'))
+                ciTestTask.dependsOn(project.project(":server").tasks.pickMSSQL)
+
+            ciTests.add(ciTestTask)
+            ciTestTask.mustRunAfter(project.tasks.validateConfiguration)
         }
-        if (getProperty(project, 'agent.name').isEmpty())
-            messages.add("'agent.name' property not specified")
-        if (getProperty(project, 'teamcity.projectName').isEmpty())
-            messages.add("'teamcity.projectName' property not specified")
 
-        return messages
-
+        // gradlew :server:stopTomcat :server:test:clean :unpackDist server:test:setTeamCityAgentPassword ciTests
+        project.task("ciTests",
+            group: GroupNames.TEST_SERVER,
+            dependsOn: ciTests + project.tasks.validateConfiguration,
+            description: "Run a test suite on the TeamCity server",
+                {
+                    doLast
+                    {
+                        killFirefox(project)
+                    }
+                })
+        project.tasks.ciTests.dependsOn(project.tasks.cleanTestLogs)
     }
 
-    private static String getDatabaseName(Project project)
+    private static void killChrome(Project project)
     {
-        if ((Boolean) getProperty(project, "build.is.personal", false))
-            return "LabKey_PersonalBuild"
-        else
+        if (SystemUtils.IS_OS_WINDOWS)
         {
-            String name = getProperty(project, "teamcity.buildType.id")
-            if (!(Boolean) getProperty(project, "teamcity.build.branch.is_default", true))
-                name = "${getProperty(project, 'teamcity.build.branch')}_${name}"
-            name.replaceAll("[/\\.\\s-]", "_")
+            project.exec({
+                commandLine "taskkill", "/F /IM chromedriver.exe"
+            })
+        }
+        else if (SystemUtils.IS_OS_UNIX)
+        {
+            project.exec( {
+                commandLine "killall", "-q -KILL chromedriver"
+            })
+            project.exec( {
+                commandLine "killall", "-q -KILL chrome"
+            })
+            project.exec( {
+                commandLine "killall", "-q KILL BrowserBlocking"
+            })
         }
     }
 
-    static boolean isOnTeamCity(Project project)
+    private static void killFirefox(Project project)
     {
-        return project.hasProperty('teamcity')
+        if (SystemUtils.IS_OS_WINDOWS)
+        {
+            project.exec({
+                commaneLine "taskkill", "/F /IM firefox.exe"
+            })
+        }
+        else if (SystemUtils.IS_OS_UNIX)
+        {
+            project.exec( {
+                commandLine "killall", "-q firefox"
+            })
+        }
     }
 
-    static String getProperty(Project project, String name)
-    {
-        return getProperty(project, name, "")
-    }
-
-    static Object getProperty(Project project, String name, Object defaultValue)
-    {
-        if (isOnTeamCity(project))
-            return project.teamcity[name] != null ? project.teamcity[name] : defaultValue
-        else
-            return defaultValue;
-    }
 
     private void ensureShutdown(Project project)
     {
-        if (!getProperty(project, "tomcat.debug").isEmpty())
+        if (!TeamCityExtension.getTeamCityProperty("tomcat.debug").isEmpty())
         {
             project.javaexec({
                 main = "org.labkey.test.debug.ThreadDumpAndKill"
@@ -317,4 +298,116 @@ class TeamCity extends Tomcat
 class TeamCityExtension
 {
     String databaseName
+    Boolean dropDatabase = false
+    List<DatabaseProperties> databaseTypes = new ArrayList<>()
+    List<String> validationMessages = new ArrayList<>()
+    Project project
+
+    private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>();
+    static
+    {
+        SUPPORTED_DATABASES.put("postgres9.2", new DatabaseProperties("postgres9.2", "pg", "9.2"))
+        SUPPORTED_DATABASES.put("postgres9.3", new DatabaseProperties("postgres9.3", "pg", "9.3"))
+        SUPPORTED_DATABASES.put("postgres9.4", new DatabaseProperties("postgres9.4", "pg", "9.4"))
+        SUPPORTED_DATABASES.put("postgres9.5", new DatabaseProperties("postgres9.5", "pg", "9.5"))
+        SUPPORTED_DATABASES.put("postgres9.6", new DatabaseProperties("postgres9.6", "pg", "9.6"))
+        SUPPORTED_DATABASES.put("sqlserver2012", new DatabaseProperties("sqlserver2012", "mssql", "2012"))
+        SUPPORTED_DATABASES.put("sqlserver2014", new DatabaseProperties("sqlserver2014", "mssql", "2014"))
+        SUPPORTED_DATABASES.put("sqlserver2016", new DatabaseProperties("sqlserver2016", "mssql", "2016"))
+    }
+
+    TeamCityExtension(Project project)
+    {
+        this.project = project
+        setDatabaseNameFromTeamCityProperty()
+        setDatabaseTypesFromTeamCityProperty()
+        setValidationMessages()
+    }
+
+    private void setDatabaseTypesFromTeamCityProperty()
+    {
+        String databaseTypesProp = getTeamCityProperty("database.types")
+        if (!databaseTypesProp.isEmpty())
+        {
+            for (String type : databaseTypesProp.split(","))
+            {
+                if (SUPPORTED_DATABASES.containsKey(type) && (Boolean) getTeamCityProperty("database.${type}", false))
+                {
+                    DatabaseProperties props = SUPPORTED_DATABASES.get(type)
+                    props.jdbcDatabase = getDatabaseName()
+                    if (getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
+                        validationMessages.add("'database.${type}.jdbcURL' not specified")
+                    else
+                        props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
+                    this.databaseTypes.add(props)
+                }
+            }
+        }
+    }
+
+    static Boolean isDatabaseSupported(String database)
+    {
+        return SUPPORTED_DATABASES.containsKey(database)
+    }
+
+    Boolean isValidForTestRun()
+    {
+        return validationMessages.isEmpty();
+    }
+
+    void setValidationMessages()
+    {
+        if (getTeamCityProperty("suite").isEmpty())
+            validationMessages.add("'suite' property not specified")
+
+        if (getTeamCityProperty("tomcat.home").isEmpty())
+            validationMessages.add("'tomcat.home' property not specified")
+        if (getTeamCityProperty("tomcat.port").isEmpty())
+            validationMessages.add("'tomcat.port' property not specified")
+        if (this.databaseTypes.isEmpty())
+            validationMessages.add("'database.types' property not specified or does not specify a supported database.  Must be one of: ${SUPPORTED_DATABASES.keySet().join(", ")}.")
+        if (getTeamCityProperty('agent.name').isEmpty())
+            validationMessages.add("'agent.name' property not specified")
+        if (getTeamCityProperty('teamcity.projectName').isEmpty())
+            validationMessages.add("'teamcity.projectName' property not specified")
+    }
+
+    private void setDatabaseNameFromTeamCityProperty()
+    {
+        if ((Boolean) getTeamCityProperty("build.is.personal", false))
+        {
+            this.databaseName = "LabKey_PersonalBuild"
+            this.dropDatabase = true
+        }
+        else
+        {
+            String name = getTeamCityProperty("teamcity.buildType.id")
+            if (!(Boolean) getTeamCityProperty("teamcity.build.branch.is_default", true))
+                name = "${getTeamCityProperty('teamcity.build.branch')}_${name}"
+            this.databaseName = name.replaceAll("[/\\.\\s-]", "_")
+        }
+    }
+
+    static boolean isOnTeamCity(Project project)
+    {
+        return project.hasProperty('teamcity')
+    }
+
+    String getTeamCityProperty(String name)
+    {
+        return getTeamCityProperty(name, "")
+    }
+
+    Object getTeamCityProperty(String name, Object defaultValue)
+    {
+        getTeamCityProperty(project, name, defaultValue)
+    }
+
+    static Object getTeamCityProperty(Project project, String name, Object defaultValue)
+    {
+        if (isOnTeamCity(project))
+            return project.teamcity[name] != null ? project.teamcity[name] : defaultValue
+        else
+            return defaultValue;
+    }
 }

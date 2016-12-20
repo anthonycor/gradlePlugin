@@ -10,14 +10,14 @@ class PropertiesUtils
     public static final Pattern PROPERTY_PATTERN = Pattern.compile("@@([^@]+)@@")
     private static final Pattern VALUE_PATTERN = Pattern.compile("(\\\$\\{\\w*\\})")
 
-    public static Properties readFileProperties(Project project, String fileName)
+    static Properties readFileProperties(Project project, String fileName)
     {
         Properties props = new Properties()
         props.load(new FileInputStream(project.file(fileName)))
         return props;
     }
 
-    public static String parseCompositeProp(Properties props, String prop)
+    static String parseCompositeProp(Properties props, String prop)
     {
         Matcher valMatcher = VALUE_PATTERN.matcher(prop);
         while (valMatcher.find())
@@ -28,11 +28,21 @@ class PropertiesUtils
         return prop;
     }
 
-    public static String parseCompositeProp(Map<String, Object> props, String prop)
+    static String parseCompositeProp(Map<String, Object> props, String prop)
     {
         Properties propWrapper = new Properties();
         propWrapper.putAll(props);
         return parseCompositeProp(propWrapper, prop);
+    }
+
+    static void replaceDatabaseProperty(Project project, String name, String value)
+    {
+        project.ant.propertyfile(
+                file: "${project.project(":server")}/config.properties"
+        )
+                {
+                    entry( key: name, value: value)
+                }
     }
 
     //Convenience method. Mimics ant's "<property file="${basedir}/config.properties"/>"

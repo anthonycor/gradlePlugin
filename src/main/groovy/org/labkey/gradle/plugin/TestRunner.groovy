@@ -1,11 +1,11 @@
 package org.labkey.gradle.plugin
 
-import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
+import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
 /**
@@ -13,7 +13,6 @@ import org.labkey.gradle.util.PropertiesUtils
  */
 class TestRunner implements Plugin<Project>
 {
-
     @Override
     void apply(Project project)
     {
@@ -32,7 +31,7 @@ class TestRunner implements Plugin<Project>
 
         addExtensionsTasks(project)
 
-        configureUnitTestTask(project)
+        addTestSuiteTask(project)
 
     }
 
@@ -149,91 +148,14 @@ class TestRunner implements Plugin<Project>
         }
     }
 
-    private void configureUnitTestTask(Project project)
+    private void addTestSuiteTask(Project project)
     {
-        TestRunnerExtension testEx = (TestRunnerExtension) project.getExtensions().getByName("testRunner")
-        List<String> jvmArgsList = ["-Xmx512m",
-                                    "-Xdebug",
-                                    "-Xrunjdwp:transport=dt_socket,server=y,suspend=${project.testRunner.debugSuspendSelenium},address=${testEx.getTestProperty("selenium.debug.port")}",
-                                    "-Dfile.encoding=UTF-8",
-                                    "-Duser.timezone=${System.getenv().get("TZ")}"]
-        if (!project.tomcat.trustStore.isEmpty() && !project.tomcat.trustStorePassword.isEmpty())
-        {
-            jvmArgsList += [project.tomcat.trustStore, project.tomcat.trustStorePassword]
-        }
-
-        project.tasks.test {
-            jvmArgs jvmArgsList
-            TestRunnerExtension testExtension = (TestRunnerExtension) project.extensions.getByName("testRunner")
-            Properties testProperties = testExtension.getProperties()
-            for (String key : testProperties.keySet())
-            {
-                systemProperty key, testProperties.get(key)
-            }
-            if (project.hasProperty('teamcity'))
-            {
-                systemProperty "teamcity.tests.recentlyFailedTests.file", project.teamcity['tests.recentlyFailedTests.file']
-                systemProperty "teamcity.build.changedFiles.file", project.teamcity['build.changedFiles.file']
-                systemProperty "testNewAndModified", "${((String) project.teamcity['tests.runRiskGroupTestsFirst']).contains("newAndModified")}"
-                systemProperty "testRecentlyFailed", "${((String) project.teamcity['tests.runRiskGroupTestsFirst']).contains("recentlyFailed")}"
-                systemProperty "teamcity.buildType.id", project.teamcity['buildType.id']
-
-            }
-            if (SystemUtils.IS_OS_WINDOWS)
-            {
-                if (SystemUtils.OS_ARCH.equals("amd64"))
-                    systemProperty "webdriver.ie.driver", "${project.projectDir}/bin/windows/amd64/IEDriverServer.exe"
-                else if (SystemUtils.OS_ARCH.equals("i386"))
-                    systemProperty "webdriver.ie.driver", "${project.projectDir}/bin/windows/i386/IEDriverServer.exe"
-                systemProperty "webdriver.chrome.driver", "${project.projectDir}/bin/windows/chromedriver.exe"
-            }
-            else if (SystemUtils.IS_OS_MAC)
-            {
-                systemProperty "webdriver.chrome.driver", "${project.projectDir}/bin/mac/chromedriver"
-            }
-            else if (SystemUtils.IS_OS_LINUX)
-            {
-                if (System.OS_ARCH.equals("amd64"))
-                {
-                    systemProperty "webdriver.chrome.driver", "${project.projectDir}/bin/linux/amd64/chromedriver"
-                }
-                else if (SystemUtils.OS_ARCH.equals("i386"))
-                    systemProperties "webdriver.chrome.driver", "${project.projectDir}/bin/linux/i386/chromedriver"
-            }
-
-            systemProperty "devMode", LabKeyExtension.isDevMode(project)
-            systemProperty "failure.output.dir", "${project.buildDir}/${project.testRunner.logDir}"
-            systemProperty "labkey.root", project.rootDir
-
-            systemProperty "user.home", System.getProperty('user.home')
-            systemProperty "tomcat.home", project.ext.tomcatDir
-            systemProperty "test.credentials.file", "${project.projectDir}/test.credentials.json"
-            scanForTestClasses = false
-            include "org/labkey/test/Runner.class"
-
-            reports {
-                junitXml.enabled = false
-                junitXml.setDestination( new File("${project.buildDir}/${project.testRunner.logDir}"))
-                html.enabled = true
-                html.setDestination(new File( "${project.buildDir}/${project.testRunner.logDir}"))
-            }
-
-            // listen to standard out and standard error of the test JVM(s)
-            onOutput { descriptor, event ->
-                logger.lifecycle("[" + descriptor.getName() + "] " + event.message )
-            }
-            dependsOn(project.tasks.writeSampleDataFile)
-            if (!project.getPlugins().hasPlugin(TeamCity.class))
-                dependsOn(project.tasks.packageChromeExtensions)
-            dependsOn(project.tasks.ensurePassword)
-            if (project.findProject(":tools:Rpackages:install") != null)
-                dependsOn(project.project(':tools:Rpackages:install'))
-            if (project.getPlugins().hasPlugin(TeamCity.class))
-            {
-                dependsOn(project.tasks.killChrome)
-                dependsOn(project.tasks.ensurePassword)
-            }
-        }
+        project.task("uiTest",
+                overwrite: true,
+                group: "Verification",
+                description: "Run a test suite",
+                type: RunTestSuite
+        )
     }
 
     private void addJarTask(Project project)
@@ -280,6 +202,19 @@ class TestRunnerExtension
         }
         // read test.properties file
         PropertiesUtils.readProperties(project.file(propertiesFile), this.properties)
+        for (String name : properties.propertyNames())
+        {
+            // two of the test.property names ('test' and 'clean') are the same as the
+            // names of default tasks that come with the Java plugin.  All tasks are also
+            // properties of a project, so we test for a String type (passed through the
+            // command line) and override the property in the file only if we have a new
+            // String.
+            if (project.hasProperty(name) && project.property(name) instanceof String)
+            {
+                properties.setProperty(name, project.property(name).toString())
+            }
+
+        }
     }
 
     Properties getProperties()
