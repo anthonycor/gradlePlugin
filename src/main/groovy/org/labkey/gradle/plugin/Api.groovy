@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.util.GroupNames
+
 /**
  * Add a sourceSet to create a module's api jar file
  */
@@ -14,7 +15,7 @@ class Api implements Plugin<Project>
     public static final String SOURCE_DIR = "api-src"
     private static final String MODULES_API_DIR = "modules-api"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(SOURCE_DIR).exists()
     }

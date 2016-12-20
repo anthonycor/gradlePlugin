@@ -22,7 +22,7 @@ class Antlr implements Plugin<Project>
         addTasks(project)
     }
 
-    public void addSourceSets(Project project)
+    void addSourceSets(Project project)
     {
         // add the generated source directory as part of the compile source
         project.sourceSets {
@@ -34,7 +34,7 @@ class Antlr implements Plugin<Project>
         }
     }
 
-    public void addTasks(Project project)
+    void addTasks(Project project)
     {
         FileTree antlrInput = project.fileTree(dir: project.projectDir, includes: ["**/*${EXTENSION}"])
 

@@ -10,7 +10,7 @@ class Distribution implements Plugin<Project>
 {
     public static final String DIRECTORY = "distributions"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(DIRECTORY).exists()
     }
@@ -18,12 +18,9 @@ class Distribution implements Plugin<Project>
     @Override
     void apply(Project project)
     {
+        DistributionExtension extension = project.extensions.create("dist", DistributionExtension)
+        extension.distModulesDir = "${project.rootProject.buildDir}/distModules"
 
-        project.extensions.create("dist", DistributionExtension)
-
-        project.dist {
-            distModulesDir = "${project.rootProject.buildDir}/distModules"
-        }
         addConfigurations(project)
         addTasks(project)
     }
@@ -38,7 +35,7 @@ class Distribution implements Plugin<Project>
 
     private static void addTasks(Project project)
     {
-        def Task dist = project.task(
+        Task dist = project.task(
                 "distribution",
                 group: GroupNames.DISTRIBUTION,
                 description: "Make LabKey distribution for a single module",
@@ -55,7 +52,7 @@ class Distribution implements Plugin<Project>
      * @param project the project that is to inherit dependencies
      * @param inheritedProjectPath the project whose dependencies are inherited
      */
-    public static void inheritDependencies(Project project, String inheritedProjectPath)
+    static void inheritDependencies(Project project, String inheritedProjectPath)
     {
         project.project(inheritedProjectPath).configurations.distribution.dependencies.each {
             project.dependencies.add("distribution", it)
@@ -66,16 +63,15 @@ class Distribution implements Plugin<Project>
 
 class DistributionExtension
 {
-    def String dir = "dist"
-    def String distModulesDir
-    def String type = "modules"
+    String dir = "dist"
+    String distModulesDir
+    String type = "modules"
 
     // properties used in the installer/build.xml file
-    def String subDirName
-    def String extraFileIdentifier
-    def Boolean skipWindowsInstaller
-    def Boolean skipZipDistribution
-    def Boolean skipTarGZDistribution
-    def Boolean versionPrefix
-
+    String subDirName
+    String extraFileIdentifier
+    Boolean skipWindowsInstaller
+    Boolean skipZipDistribution
+    Boolean skipTarGZDistribution
+    Boolean versionPrefix
 }

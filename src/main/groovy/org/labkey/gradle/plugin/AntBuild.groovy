@@ -14,7 +14,7 @@ class AntBuild implements Plugin<Project>
     private static final String ANT_BUILD_FILE = "build.xml"
     private static final String USE_GRADLE_PROPERTY = "useGradleBuild"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(ANT_BUILD_FILE).exists() && !project.file("build.gradle").exists() && !project.hasProperty(USE_GRADLE_PROPERTY)
     }

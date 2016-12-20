@@ -17,6 +17,7 @@ class XsdDoc implements Plugin<Project>
         project.extensions.create("xsdDoc", XsdDocExtension)
         project.xsdDoc.root = "${project.rootDir}/${project.xsdDoc.root}"
         project.xsdDoc.outputDir = "${project.rootProject.buildDir}/client-api/xml-schemas/docs"
+        // FIXME we need a more flexible way to specify these.  Is this a subset of xsds or can we find all?
         project.xsdDoc.xsdFiles = [
                 project.project(":schemas").file("apiTest.xsd"),
                 project.project(":server:modules:study").file("schemas/assayProvider.xsd"),
