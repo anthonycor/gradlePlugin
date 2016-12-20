@@ -22,7 +22,7 @@ class DeployApp extends DefaultTask
 
 
     @TaskAction
-    public void action()
+    void action()
     {
         deployWebappDir()
         deployModules()

@@ -11,7 +11,7 @@ class DatabaseProperties
     String jdbcURL
     String jdbcDatabase
     String jdbcPort
-    String jdbcHost
+    String jdbcHost = "localhost"
 
     DatabaseProperties(String dbTypeAndVersion, String shortType, version)
     {

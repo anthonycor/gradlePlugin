@@ -38,7 +38,7 @@ class ServerDeploy implements Plugin<Project>
 
     private static void addTasks(Project project)
     {
-        def Task deployAppTask = project.task(
+        Task deployAppTask = project.task(
                 "deployApp",
                 group: GroupNames.DEPLOY,
                 type: DeployApp,

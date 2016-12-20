@@ -26,7 +26,7 @@ class SqlUtils
         URLClassLoader loader = GroovyObject.class.classLoader
 
         project.configurations.driver.each {File file ->
-            loader.addURL(file.toURL())
+            loader.addURL(file.toURI().toURL())
         }
         Class driverClass = loader.loadClass(driverClassName)
 
@@ -45,24 +45,25 @@ class SqlUtils
 
     }
 
-    public static void dropDatabase(Task task)
+    static void dropDatabase(Task task, Map<String, Object> properties)
     {
         Project project = task.project
-        if (!project.ext.has("jdbcDatabase") || project.ext.jdbcDatabase.equals("labkey"))
+
+        if (!properties.containsKey("jdbcDatabase") || properties.get("jdbcDatabase").equals("labkey"))
         {
             throw new GradleException("Must specify a database that is not 'labkey'")
         }
         else
         {
-            project.logger.info("Attempting to drop database ${project.ext.jdbcDatabase}");
+            project.logger.info("Attempting to drop database ${properties.get("jdbcDatabase")}");
             Properties params = new Properties();
-            params.setProperty("tomcatHome", "${project.tomcatDir}");
-            params.setProperty("jdbcDatabase", "${project.ext.databaseMaster}");
+            params.setProperty("tomcatHome", project.tomcatDir);
+            params.setProperty("jdbcDatabase", (String) properties.get('databaseMaster'));
             params.setProperty("jdbcURLParameters", "");
-            params.setProperty("jdbcHost", "${project.ext.jdbcHost}");
-            params.setProperty("jdbcPort", "${project.ext.jdbcPort}");
+            params.setProperty("jdbcHost", (String) properties.get('jdbcHost'));
+            params.setProperty("jdbcPort", (String) properties.get("jdbcPort"));
 
-            execSql(project, params, "DROP DATABASE \"${project.ext.jdbcDatabase}\";");
+            execSql(project, params, "DROP DATABASE \"${properties.get('jdbcDatabase')}\";");
         }
     }
 }
