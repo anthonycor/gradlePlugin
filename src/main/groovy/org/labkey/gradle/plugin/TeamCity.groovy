@@ -11,16 +11,16 @@ import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
+import org.labkey.gradle.util.SqlUtils
 
 import java.util.regex.Matcher
-
 /**
  * Creates tasks for TeamCity to run its tests suites based on properties set in a build configuration (particularly for
  * the database properties)
  */
 class TeamCity extends Tomcat
 {
-    private static final String TEAMCITY_INFO_FILE = "teamcity-info.xml";
+    private static final String TEAMCITY_INFO_FILE = "teamcity-info.xml"
     private static final String TEST_CONFIGS_DIR = "configs/config-test"
     private static final String NLP_CONFIG_FILE = "nlpConfig.xml"
     private static final String PIPELINE_CONFIG_FILE =  "pipelineConfig.xml"
@@ -82,8 +82,9 @@ class TeamCity extends Tomcat
                 group: GroupNames.TEST_SERVER,
                 description: "Removes log files from Tomcat and TeamCity",
                 {
-                    dependsOn project.tasks.cleanLogs, project.tasks.cleanTemp
-                    doLast {
+                    Task task ->
+                    task.dependsOn project.tasks.cleanLogs, project.tasks.cleanTemp
+                    task.doLast {
                         project.delete "${project.projectDir}/${TEAMCITY_INFO_FILE}"
                     }
                 }
@@ -101,7 +102,8 @@ class TeamCity extends Tomcat
             group: GroupNames.TEST_SERVER,
             description: "Kill Chrome processes",
                 {
-                    doLast {
+                    Task task ->
+                    task.doLast {
                         killChrome(project)
                     }
                 }
@@ -111,7 +113,8 @@ class TeamCity extends Tomcat
                 group: GroupNames.TEST_SERVER,
                 description: "Kill Firefox processes",
                 {
-                    doLast {
+                    Task task ->
+                    task.doLast {
                         killFirefox(project)
                     }
                 }
@@ -127,8 +130,8 @@ class TeamCity extends Tomcat
                         from project.project(":server").file(TEST_CONFIGS_DIR)
                         include PIPELINE_CONFIG_FILE
                         filter({ String line ->
-                            Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
-                            String newLine = line;
+                            Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
+                            String newLine = line
                             while (matcher.find())
                             {
                                 if (matcher.group(1).equals("SEQUENCEANALYSIS_CODELOCATION") || matcher.group(1).equals("SEQUENCEANALYSIS_TOOLS"))
@@ -152,14 +155,14 @@ class TeamCity extends Tomcat
                     from project.project(":server").file(TEST_CONFIGS_DIR)
                     include NLP_CONFIG_FILE
                     filter ({String line ->
-                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
-                        String newLine = line;
+                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
+                        String newLine = line
                         while (matcher.find())
                         {
                             if (matcher.group(1).equals("enginePath"))
                                 newLine = newLine.replace(matcher.group(), new File((String) project.labkey.externalDir, "nlp/nlp_engine.py").getAbsolutePath())
                         }
-                        return newLine;
+                        return newLine
                     }
                     )
                     destinationDir = new File("${ServerDeployExtension.getServerDeployDirectory(project)}/config")
@@ -210,17 +213,23 @@ class TeamCity extends Tomcat
                         dbProperties = properties
                         doFirst
                         {
-                            Properties tempProperties = new Properties();
+                            Properties tempProperties = new Properties()
                             tempProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
 
                             project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(tempProperties, properties.jdbcURL)
-                            // This is probably not necessary, but will be accurate if someone looks at properties before
-                            // running this build.
+                            // This is necessary only for dropping the database, but will be accurate if someone looks
+                            // at properties before running this build.
                             project.ext.jdbcDatabase = properties.jdbcDatabase
+                            project.ext.jdbcPort = properties.jdbcPort
                             PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
                         }
                     }
             )
+
+            if (extension.dropDatabase)
+                ciTestTask.doFirst({
+                    SqlUtils.dropDatabase(ciTestTask, project.ext.properties)
+                })
             if (properties.shortType.equals('pg'))
                 ciTestTask.dependsOn(project.project(":server").tasks.pickPg)
             else if (properties.shortType.equals('mssql'))
@@ -271,7 +280,7 @@ class TeamCity extends Tomcat
         if (SystemUtils.IS_OS_WINDOWS)
         {
             project.exec({ ExecSpec spec ->
-                spec.commaneLine "taskkill", "/F /IM firefox.exe"
+                spec.commandLine "taskkill", "/F /IM firefox.exe"
             })
         }
         else if (SystemUtils.IS_OS_UNIX)
@@ -304,7 +313,7 @@ class TeamCityExtension
     List<String> validationMessages = new ArrayList<>()
     Project project
 
-    private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>();
+    private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>()
     static
     {
         SUPPORTED_DATABASES.put("postgres9.2", new DatabaseProperties("postgres9.2", "pg", "9.2"))
@@ -320,30 +329,8 @@ class TeamCityExtension
     TeamCityExtension(Project project)
     {
         this.project = project
-        setDatabaseNameFromTeamCityProperty()
-        setDatabaseTypesFromTeamCityProperty()
+        setDatabaseProperties()
         setValidationMessages()
-    }
-
-    private void setDatabaseTypesFromTeamCityProperty()
-    {
-        String databaseTypesProp = getTeamCityProperty("database.types")
-        if (!databaseTypesProp.isEmpty())
-        {
-            for (String type : databaseTypesProp.split(","))
-            {
-                if (SUPPORTED_DATABASES.containsKey(type) && (Boolean) getTeamCityProperty("database.${type}", false))
-                {
-                    DatabaseProperties props = SUPPORTED_DATABASES.get(type)
-                    props.jdbcDatabase = getDatabaseName()
-                    if (getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
-                        validationMessages.add("'database.${type}.jdbcURL' not specified")
-                    else
-                        props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
-                    this.databaseTypes.add(props)
-                }
-            }
-        }
     }
 
     static Boolean isDatabaseSupported(String database)
@@ -353,7 +340,7 @@ class TeamCityExtension
 
     Boolean isValidForTestRun()
     {
-        return validationMessages.isEmpty();
+        return validationMessages.isEmpty()
     }
 
     void setValidationMessages()
@@ -373,7 +360,7 @@ class TeamCityExtension
             validationMessages.add("'teamcity.projectName' property not specified")
     }
 
-    private void setDatabaseNameFromTeamCityProperty()
+    private void setDatabaseProperties()
     {
         if ((Boolean) getTeamCityProperty("build.is.personal", false))
         {
@@ -386,6 +373,27 @@ class TeamCityExtension
             if (!(Boolean) getTeamCityProperty("teamcity.build.branch.is_default", true))
                 name = "${getTeamCityProperty('teamcity.build.branch')}_${name}"
             this.databaseName = name.replaceAll("[/\\.\\s-]", "_")
+        }
+        String databaseTypesProp = getTeamCityProperty("database.types")
+        if (!databaseTypesProp.isEmpty())
+        {
+            for (String type : databaseTypesProp.split(","))
+            {
+                if (SUPPORTED_DATABASES.containsKey(type) && (Boolean) getTeamCityProperty("database.${type}", false))
+                {
+                    DatabaseProperties props = SUPPORTED_DATABASES.get(type)
+                    props.jdbcDatabase = getDatabaseName()
+                    if (getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
+                        validationMessages.add("'database.${type}.jdbcURL' not specified")
+                    else
+                        props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
+                    if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
+                        validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
+                    else
+                        props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
+                    this.databaseTypes.add(props)
+                }
+            }
         }
     }
 
@@ -409,6 +417,6 @@ class TeamCityExtension
         if (isOnTeamCity(project))
             return project.teamcity[name] != null ? project.teamcity[name] : defaultValue
         else
-            return defaultValue;
+            return defaultValue
     }
 }

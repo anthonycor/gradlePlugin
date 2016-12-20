@@ -17,6 +17,6 @@ class Bootstrap extends DoThenSetup
 
         project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(project.ext.properties, configProperties.getProperty("jdbcURL"));
 
-        SqlUtils.dropDatabase(this);
+        SqlUtils.dropDatabase(this, project.ext.properties);
     }
 }
