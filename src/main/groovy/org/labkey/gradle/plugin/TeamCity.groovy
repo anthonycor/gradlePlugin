@@ -5,16 +5,18 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
+import org.gradle.process.ExecSpec
+import org.gradle.process.JavaExecSpec
+import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
-import org.labkey.gradle.task.RunTestSuite
 
 import java.util.regex.Matcher
+
 /**
- * TODO:
- *  - unpack_dist
- *
+ * Creates tasks for TeamCity to run its tests suites based on properties set in a build configuration (particularly for
+ * the database properties)
  */
 class TeamCity extends Tomcat
 {
@@ -23,12 +25,13 @@ class TeamCity extends Tomcat
     private static final String NLP_CONFIG_FILE = "nlpConfig.xml"
     private static final String PIPELINE_CONFIG_FILE =  "pipelineConfig.xml"
 
+    private TeamCityExtension extension
 
     @Override
     void apply(Project project)
     {
         super.apply(project)
-        TeamCityExtension extension = project.extensions.create("teamCity", TeamCityExtension, project)
+        extension = project.extensions.create("teamCity", TeamCityExtension, project)
         if (project.file("${project.tomcatDir}/localhost.truststore").exists())
         {
             project.tomcat.trustStore = "-Djavax.net.ssl.trustStore=${project.tomcatDir}/localhost.truststore"
@@ -44,16 +47,16 @@ class TeamCity extends Tomcat
         project.task("setTeamCityAgentPassword",
                 group: GroupNames.TEST_SERVER,
                 description: "Set the password for use in running tests",
-                {
-                    dependsOn(project.tasks.testJar)
-                    doLast {
-                        project.javaexec({
-                            main = "org.labkey.test.util.PasswordUtil"
-                            classpath {
+                {   Task task ->
+                    task.dependsOn(project.tasks.testJar)
+                    task.doLast {
+                        project.javaexec({ JavaExecSpec spec ->
+                            spec.main = "org.labkey.test.util.PasswordUtil"
+                            spec.classpath {
                                 [project.configurations.testCompile, project.tasks.testJar ]
                             }
-                            systemProperties["labkey.server"] = project.labkey.server
-                            args = ["set", "teamcity@labkey.test", "yekbal1!"]
+                            spec.systemProperties["labkey.server"] = project.labkey.server
+                            spec.args = ["set", "teamcity@labkey.test", "yekbal1!"]
                         })
                     }
                 }
@@ -129,7 +132,7 @@ class TeamCity extends Tomcat
                             while (matcher.find())
                             {
                                 if (matcher.group(1).equals("SEQUENCEANALYSIS_CODELOCATION") || matcher.group(1).equals("SEQUENCEANALYSIS_TOOLS"))
-                                    newLine = newLine.replace(matcher.group(), TeamCityExtension.getTeamCityProperty("additional.pipeline.tools"))
+                                    newLine = newLine.replace(matcher.group(), extension.getTeamCityProperty("additional.pipeline.tools"))
                                 else if (matcher.group(1).equals("SEQUENCEANALYSIS_EXTERNALDIR"))
                                     newLine = newLine.replace(matcher.group(), project.project(":externalModules:labModules:SequenceAnalysis").file("pipeline_code/external").getAbsolutePath())
                             }
@@ -164,7 +167,6 @@ class TeamCity extends Tomcat
 
         project.tasks.startTomcat.doFirst(
                 {
-                    TeamCityExtension extension = project.getExtensions().getByType(TeamCityExtension.class)
                     String database = extension.getTeamCityProperty("database")
                     if (database.isEmpty())
                         throw new GradleException("${project.path} No database type provided")
@@ -188,12 +190,11 @@ class TeamCity extends Tomcat
                 {
                     doFirst
                             {
-                                TeamCityExtension extension = project.getExtensions().getByType(TeamCityExtension.class)
                                 if (!extension.isValidForTestRun())
                                     throw new GradleException("TeamCity configuration problem(s): ${messages.join('; ')}")
 
-                                project.logger.info("teamcity.build.branch.is_default: ${TeamCityExtension.getTeamCityProperty('teamcity.build.branch.is_default')}")
-                                project.logger.info("teamcity.build.branch: ${TeamCityExtension.getTeamCityProperty('teamcity.build.branch')}")
+                                project.logger.info("teamcity.build.branch.is_default: ${extension.getTeamCityProperty('teamcity.build.branch.is_default')}")
+                                project.logger.info("teamcity.build.branch: ${extension.getTeamCityProperty('teamcity.build.branch')}")
                             }
                 })
 
@@ -247,20 +248,20 @@ class TeamCity extends Tomcat
     {
         if (SystemUtils.IS_OS_WINDOWS)
         {
-            project.exec({
-                commandLine "taskkill", "/F /IM chromedriver.exe"
+            project.exec({ ExecSpec spec ->
+                spec.commandLine "taskkill", "/F /IM chromedriver.exe"
             })
         }
         else if (SystemUtils.IS_OS_UNIX)
         {
-            project.exec( {
-                commandLine "killall", "-q -KILL chromedriver"
+            project.exec( { ExecSpec spec ->
+                spec.commandLine "killall", "-q -KILL chromedriver"
             })
-            project.exec( {
-                commandLine "killall", "-q -KILL chrome"
+            project.exec( { ExecSpec spec ->
+                spec.commandLine "killall", "-q -KILL chrome"
             })
-            project.exec( {
-                commandLine "killall", "-q KILL BrowserBlocking"
+            project.exec( { ExecSpec spec ->
+                spec.commandLine "killall", "-q KILL BrowserBlocking"
             })
         }
     }
@@ -269,14 +270,14 @@ class TeamCity extends Tomcat
     {
         if (SystemUtils.IS_OS_WINDOWS)
         {
-            project.exec({
-                commaneLine "taskkill", "/F /IM firefox.exe"
+            project.exec({ ExecSpec spec ->
+                spec.commaneLine "taskkill", "/F /IM firefox.exe"
             })
         }
         else if (SystemUtils.IS_OS_UNIX)
         {
-            project.exec( {
-                commandLine "killall", "-q firefox"
+            project.exec( { ExecSpec spec ->
+                spec.commandLine "killall", "-q firefox"
             })
         }
     }
@@ -284,12 +285,12 @@ class TeamCity extends Tomcat
 
     private void ensureShutdown(Project project)
     {
-        if (!TeamCityExtension.getTeamCityProperty("tomcat.debug").isEmpty())
+        if (!extension.getTeamCityProperty("tomcat.debug").isEmpty())
         {
-            project.javaexec({
-                main = "org.labkey.test.debug.ThreadDumpAndKill"
-                classpath { [project.sourceSets.debug.output.classesDir, project.configurations.debugCompile] }
-                args = [project.teamcity['tomcat.debug']]
+            project.javaexec({ JavaExecSpec spec ->
+                spec.main = "org.labkey.test.debug.ThreadDumpAndKill"
+                spec.classpath { [project.sourceSets.debug.output.classesDir, project.configurations.debugCompile] }
+                spec.args = [project.teamcity['tomcat.debug']]
             })
         }
     }

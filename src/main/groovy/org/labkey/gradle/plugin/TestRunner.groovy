@@ -13,10 +13,12 @@ import org.labkey.gradle.util.PropertiesUtils
  */
 class TestRunner implements Plugin<Project>
 {
+    TestRunnerExtension testRunnerExt
+
     @Override
     void apply(Project project)
     {
-        project.extensions.create("testRunner", TestRunnerExtension, project)
+        testRunnerExt = project.extensions.create("testRunner", TestRunnerExtension, project)
 
         addTasks(project)
     }
@@ -153,7 +155,7 @@ class TestRunner implements Plugin<Project>
         project.task("uiTest",
                 overwrite: true,
                 group: "Verification",
-                description: "Run a test suite",
+                description: "Run a LabKey test suite as defined by ${project.file(testRunnerExt.propertiesFile)} and overridden on the command line by -P<prop>=<value>",
                 type: RunTestSuite
         )
     }

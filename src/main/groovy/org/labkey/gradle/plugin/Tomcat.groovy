@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.DeleteSpec
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.StartTomcat
 import org.labkey.gradle.task.StopTomcat
@@ -24,7 +25,7 @@ class Tomcat implements Plugin<Project>
     }
 
 
-    private void addTasks(Project project)
+    private static void addTasks(Project project)
     {
         project.task(
                 "startTomcat",
@@ -44,7 +45,7 @@ class Tomcat implements Plugin<Project>
                 description: "Delete logs from ${project.tomcatDir}",
                 type: Delete,
                 {
-                    delete project.fileTree("${project.tomcatDir}/logs")
+                    DeleteSpec spec -> spec.delete project.fileTree("${project.tomcatDir}/logs")
                 }
         )
         project.task(
@@ -53,21 +54,19 @@ class Tomcat implements Plugin<Project>
                 description: "Delete  temp files from ${project.tomcatDir}",
                 type: Delete,
                 {
-                    delete project.fileTree("${project.tomcatDir}/temp")
+                   DeleteSpec spec -> spec.delete project.fileTree("${project.tomcatDir}/temp")
                 }
         )
     }
 }
 
-public class TomcatExtension
+class TomcatExtension
 {
-    def boolean devMode = true
-    def String assertionFlag = "-ea" // set to -da to disable assertions
-    def String maxMemory = "1G"
-    def boolean recompileJsp = true
-    def boolean sequencePipelineEnabled = false
-    def String trustStore = ""
-    def String trustStorePassword = ""
-    def String catalinaOpts = ""
-
+    boolean devMode = true
+    String assertionFlag = "-ea" // set to -da to disable assertions
+    String maxMemory = "1G"
+    boolean recompileJsp = true
+    String trustStore = ""
+    String trustStorePassword = ""
+    String catalinaOpts = ""
 }
