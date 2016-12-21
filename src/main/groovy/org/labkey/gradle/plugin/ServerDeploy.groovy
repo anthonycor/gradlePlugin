@@ -11,6 +11,7 @@ import org.labkey.gradle.task.ConfigureLog4J
 import org.labkey.gradle.task.DeployApp
 import org.labkey.gradle.task.DoThenSetup
 import org.labkey.gradle.task.UndeployModules
+import org.labkey.gradle.task.StageDistribution
 import org.labkey.gradle.util.GroupNames
 
 import java.nio.file.Files
