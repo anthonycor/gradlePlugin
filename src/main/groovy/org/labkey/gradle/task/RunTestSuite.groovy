@@ -1,34 +1,53 @@
 package org.labkey.gradle.task
 
 import org.apache.commons.lang3.SystemUtils
-import org.gradle.api.tasks.testing.Test
+import org.gradle.api.file.CopySpec
 import org.labkey.gradle.plugin.LabKeyExtension
 import org.labkey.gradle.plugin.TeamCity
-import org.labkey.gradle.plugin.TestRunnerExtension
 import org.labkey.gradle.util.DatabaseProperties
-
 /**
  * Class that sets our test/Runner.class as the junit test suite and configures a bunch of system properties for
  * running these suites of tests.
  */
-class RunTestSuite extends Test
+class RunTestSuite extends RunUiTest
 {
     DatabaseProperties dbProperties
 
     RunTestSuite()
     {
-        TestRunnerExtension testExt = (TestRunnerExtension) project.getExtensions().getByName("testRunner")
-        List<String> jvmArgsList = ["-Xmx512m",
-                                    "-Xdebug",
-                                    "-Xrunjdwp:transport=dt_socket,server=y,suspend=${project.testRunner.debugSuspendSelenium},address=${testExt.getTestProperty("selenium.debug.port")}",
-                                    "-Dfile.encoding=UTF-8"]
-        if (!project.tomcat.trustStore.isEmpty() && !project.tomcat.trustStorePassword.isEmpty())
+        super()
+        setSystemProperties()
+
+        scanForTestClasses = false
+        include "org/labkey/test/Runner.class"
+
+        dependsOn(project.tasks.writeSampleDataFile)
+
+        dependsOn(project.tasks.ensurePassword)
+        if (project.findProject(":tools:Rpackages:install") != null)
+            dependsOn(project.project(':tools:Rpackages:install'))
+        if (!project.getPlugins().hasPlugin(TeamCity.class))
+            dependsOn(project.tasks.packageChromeExtensions)
+        if (project.findProject(":tools:Rpackages:install") != null)
+            dependsOn(project.project(':tools:Rpackages:install'))
+        if (project.getPlugins().hasPlugin(TeamCity.class))
         {
-            jvmArgsList += [project.tomcat.trustStore, project.tomcat.trustStorePassword]
+            dependsOn(project.tasks.killChrome)
+            dependsOn(project.tasks.ensurePassword)
         }
+        if (project.getPlugins().hasPlugin(TeamCity.class))
+        {
+            doLast( {
+                project.copy({ CopySpec copy ->
+                    copy.from "${project.tomcatDir}/logs"
+                    copy.into "${project.buildDir}/logs/${dbProperties.dbTypeAndVersion}"
+                })
+            })
+        }
+    }
 
-        jvmArgs jvmArgsList
-
+    private void setSystemProperties()
+    {
         Properties testProperties = testExt.getProperties()
         for (String key : testProperties.keySet())
         {
@@ -64,45 +83,11 @@ class RunTestSuite extends Test
         }
 
         systemProperty "devMode", LabKeyExtension.isDevMode(project)
-        systemProperty "failure.output.dir", "${project.buildDir}/${project.testRunner.logDir}"
+        systemProperty "failure.output.dir", "${project.buildDir}/${LOG_DIR}"
         systemProperty "labkey.root", project.rootDir
 
         systemProperty "user.home", System.getProperty('user.home')
         systemProperty "tomcat.home", project.ext.tomcatDir
         systemProperty "test.credentials.file", "${project.projectDir}/test.credentials.json"
-        scanForTestClasses = false
-        include "org/labkey/test/Runner.class"
-
-        reports {
-            junitXml.enabled = false
-            junitXml.setDestination( new File("${project.buildDir}/${project.testRunner.logDir}"))
-            html.enabled = true
-            html.setDestination(new File( "${project.buildDir}/${project.testRunner.logDir}"))
-        }
-
-        // listen to standard out and standard error of the test JVM(s)
-        onOutput { descriptor, event ->
-            logger.lifecycle("[" + descriptor.getName() + "] " + event.message )
-        }
-        dependsOn(project.tasks.writeSampleDataFile)
-        if (!project.getPlugins().hasPlugin(TeamCity.class))
-            dependsOn(project.tasks.packageChromeExtensions)
-        dependsOn(project.tasks.ensurePassword)
-        if (project.findProject(":tools:Rpackages:install") != null)
-            dependsOn(project.project(':tools:Rpackages:install'))
-        if (project.getPlugins().hasPlugin(TeamCity.class))
-        {
-            dependsOn(project.tasks.killChrome)
-            dependsOn(project.tasks.ensurePassword)
-        }
-        if (project.getPlugins().hasPlugin(TeamCity.class))
-        {
-            doLast( {
-                project.copy({
-                    from "${project.tomcatDir}/logs"
-                    into "${project.buildDir}/logs/${dbProperties.dbTypeAndVersion}"
-                })
-            })
-        }
     }
 }

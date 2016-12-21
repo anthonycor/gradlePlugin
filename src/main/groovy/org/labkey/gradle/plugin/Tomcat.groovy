@@ -18,7 +18,7 @@ class Tomcat implements Plugin<Project>
         project.extensions.create("tomcat",TomcatExtension)
         if (project.plugins.hasPlugin(TestRunner.class))
         {
-            TestRunnerExtension testEx = (TestRunnerExtension) project.getExtensions().getByName("testRunner")
+            UiTestExtension testEx = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
             project.tomcat.assertionFlag = testEx.getTestProperty("disableAssertions") ? "-da" : "-ea"
         }
         addTasks(project)

@@ -239,7 +239,6 @@ class TeamCity extends Tomcat
             ciTestTask.mustRunAfter(project.tasks.validateConfiguration)
         }
 
-        // gradlew :server:stopTomcat :server:test:clean :unpackDist server:test:setTeamCityAgentPassword ciTests
         project.task("ciTests",
             group: GroupNames.TEST_SERVER,
             dependsOn: ciTests + project.tasks.validateConfiguration,

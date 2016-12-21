@@ -30,7 +30,9 @@ class SimpleModule implements Plugin<Project>
     //   ext.skipBuild = true
     private static final String SKIP_BUILD_FILE = "skipBuild.txt"
 
-    def Project _project;
+    private static final String TEST_SRC_DIR = "test/src"
+
+    Project _project;
 
     @Override
     void apply(Project project)
@@ -42,6 +44,11 @@ class SimpleModule implements Plugin<Project>
         _project.build.onlyIf ({
             return shouldDoBuild(project)
         })
+
+        if (hasUiTests(_project))
+        {
+            _project.apply plugin: 'org.labkey.uiTest'
+        }
 
         project.extensions.create("lkModule", ModuleExtension, project)
         setJavaBuildProperties()
@@ -55,7 +62,7 @@ class SimpleModule implements Plugin<Project>
 
     static boolean shouldDoBuild(Project project)
     {
-        def List<String> indicators = new ArrayList<>();
+        List<String> indicators = new ArrayList<>();
         if (project.file(SKIP_BUILD_FILE).exists())
             indicators.add(SKIP_BUILD_FILE + " exists")
         if (!project.file(ModuleExtension.MODULE_PROPERTIES_FILE).exists())
@@ -158,14 +165,14 @@ class SimpleModule implements Plugin<Project>
                     exclude '**/*.jsp'
                 }
             }
-//            test {
-//                java {
-//                    srcDirs = ['test/src']
-//                }
-//                resources {
-//                    srcDirs = ["test/resources"]
-//                }
-//            }
+            uiTest {
+                java {
+                    srcDirs = ['test/src']
+                }
+                resources {
+                    srcDirs = ["test/resources"]
+                }
+            }
         }
     }
 
@@ -337,6 +344,12 @@ class SimpleModule implements Plugin<Project>
                        undeployModule(project)
                    }
                 })
+
+    }
+
+    static Boolean hasUiTests(Project project)
+    {
+        return project.file(TEST_SRC_DIR).exists()
     }
 
     static undeployModule(Project project)
@@ -354,27 +367,13 @@ class SimpleModule implements Plugin<Project>
     private void addDependencies()
     {
         BuildUtils.addLabKeyDependency(project: _project.project(":server"), config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
-        if (_project.file("test").exists())
+        if (hasUiTests(_project))
         {
-//            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":server:test")
-//            _project.dependencies {
-//
-//                testCompile "org.jetbrains:annotations:${_project.annotationsVersion}",
-//                            "commons-beanutils:commons-beanutils:${_project.commonsBeanutilsVersion}",
-//                            "org.apache.commons:commons-lang3:${_project.commonsLang3Version}",
-//                            "org.apache.commons:commons-collections4:${_project.commonsCollections4Version}",
-//                            "com.googlecode.json-simple:json-simple:${_project.jsonSimpleVersion}",
-//                            "junit:junit:${_project.junitVersion}",
-//                            "org.apache.tika:tika-app:${_project.tikaAppVersion}",
-//                            "log4j:log4j:${_project.log4jVersion}",
-//                            "org.apache.xmlbeans:xbean:${_project.xmlbeansVersion}",
-//                            "com.fasterxml.jackson.core:jackson-annotations:${_project.jacksonAnnotationsVersion}",
-//                            "com.fasterxml.jackson.core:jackson-core:${_project.jacksonVersion}",
-//                            "com.fasterxml.jackson.core:jackson-databind:${_project.jacksonVersion}"
-//            }
-            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":schemas")
-            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":server:api")
-            BuildUtils.addLabKeyDependency(project: _project, config: 'testCompile', depProjectPath: ":remoteapi:java")
+            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":server:test", depProjectConfig: "testCompile")
+
+            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":schemas")
+            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":server:api")
+            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":remoteapi:java")
         }
     }
 

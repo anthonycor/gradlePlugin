@@ -1,30 +1,21 @@
 package org.labkey.gradle.plugin
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.GroupNames
-import org.labkey.gradle.util.PropertiesUtils
 /**
  * Created by susanh on 12/7/16.
  */
-class TestRunner implements Plugin<Project>
+class TestRunner extends UiTest
 {
-    TestRunnerExtension testRunnerExt
 
-    @Override
-    void apply(Project project)
+    protected void addTasks(Project project)
     {
-        testRunnerExt = project.extensions.create("testRunner", TestRunnerExtension, project)
+        super.addTasks(project)
 
-        addTasks(project)
-    }
-
-    private void addTasks(Project project)
-    {
         addJarTask(project)
 
         addPasswordTasks(project)
@@ -152,9 +143,9 @@ class TestRunner implements Plugin<Project>
 
     private void addTestSuiteTask(Project project)
     {
-        project.task("uiTest",
+        project.task("uiTestSuite",
                 overwrite: true,
-                group: "Verification",
+                group: GroupNames.VERIFICATION,
                 description: "Run a LabKey test suite as defined by ${project.file(testRunnerExt.propertiesFile)} and overridden on the command line by -P<prop>=<value>",
                 type: RunTestSuite
         )
@@ -163,7 +154,7 @@ class TestRunner implements Plugin<Project>
     private void addJarTask(Project project)
     {
         project.task("testJar",
-                group: "Build",
+                group: GroupNames.BUILD,
                 type: Jar,
                 description: "produce jar file of test classes",
                 {
@@ -173,65 +164,4 @@ class TestRunner implements Plugin<Project>
                     destinationDir = new File("${project.buildDir}/libs")
                 })
     }
-}
-
-class TestRunnerExtension
-{
-    String propertiesFile = "test.properties"
-    String debugSuspendSelenium = "n"
-
-    private Properties properties = null
-    private Project project
-
-    String logDir = "test/logs"
-
-    TestRunnerExtension(Project project)
-    {
-        this.project = project
-        setProperties(project);
-    }
-
-    private void setProperties(Project project)
-    {
-        // read database configuration, but don't include jdbcUrl and other non-"database"
-        // properties because they "cause problems" (quite from the test/build.xml file)
-        Properties dbProperties = PropertiesUtils.readDatabaseProperties(project)
-        this.properties = new Properties();
-        for (String name : dbProperties.stringPropertyNames())
-        {
-            if (name.contains("database"))
-                this.properties.put(name, dbProperties.getProperty(name))
-        }
-        // read test.properties file
-        PropertiesUtils.readProperties(project.file(propertiesFile), this.properties)
-        for (String name : properties.propertyNames())
-        {
-            // two of the test.property names ('test' and 'clean') are the same as the
-            // names of default tasks that come with the Java plugin.  All tasks are also
-            // properties of a project, so we test for a String type (passed through the
-            // command line) and override the property in the file only if we have a new
-            // String.
-            if (project.hasProperty(name) && project.property(name) instanceof String)
-            {
-                properties.setProperty(name, project.property(name).toString())
-            }
-
-        }
-    }
-
-    Properties getProperties()
-    {
-        return this.properties;
-    }
-
-    Object getTestProperty(String name)
-    {
-        if (project.hasProperty(name))
-            return project.property(name)
-        else
-        {
-            return properties.get(name)
-        }
-    }
-
 }
