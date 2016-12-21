@@ -5,6 +5,7 @@ import org.gradle.api.file.CopySpec
 import org.labkey.gradle.plugin.LabKeyExtension
 import org.labkey.gradle.plugin.TeamCity
 import org.labkey.gradle.util.DatabaseProperties
+
 /**
  * Class that sets our test/Runner.class as the junit test suite and configures a bunch of system properties for
  * running these suites of tests.
@@ -55,11 +56,15 @@ class RunTestSuite extends RunUiTest
         }
         if (project.hasProperty('teamcity'))
         {
-            systemProperty "teamcity.tests.recentlyFailedTests.file", project.teamcity['tests.recentlyFailedTests.file']
-            systemProperty "teamcity.build.changedFiles.file", project.teamcity['build.changedFiles.file']
-            systemProperty "testNewAndModified", "${((String) project.teamcity['tests.runRiskGroupTestsFirst']).contains("newAndModified")}"
-            systemProperty "testRecentlyFailed", "${((String) project.teamcity['tests.runRiskGroupTestsFirst']).contains("recentlyFailed")}"
-            systemProperty "teamcity.buildType.id", project.teamcity['buildType.id']
+            systemProperty "teamcity.tests.recentlyFailedTests.file", project.teamcity['teamcity.tests.recentlyFailedTests.file']
+            systemProperty "teamcity.build.changedFiles.file", project.teamcity['teamcity.build.changedFiles.file']
+            String runRiskGroupTestsFirst = project.teamcity['tests.runRiskGroupTestsFirst']
+            if (runRiskGroupTestsFirst != null)
+            {
+                systemProperty "testNewAndModified", "${runRiskGroupTestsFirst.contains("newAndModified")}"
+                systemProperty "testRecentlyFailed", "${runRiskGroupTestsFirst.contains("recentlyFailed")}"
+            }
+            systemProperty "teamcity.buildType.id", project.teamcity['teamcity.buildType.id']
 
         }
         if (SystemUtils.IS_OS_WINDOWS)
