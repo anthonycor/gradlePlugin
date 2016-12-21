@@ -45,16 +45,18 @@ class StageDistribution extends DefaultTask
             throw new GradleException("${distDir} contains ${distFiles.length} files with extension ${extension}.  Only one is allowed.")
         distributionFile = distFiles[0]
 
+        Boolean isTar = extension.equals("tar.gz")
+
         project.copy({ CopySpec spec ->
-            spec.from project.tarTree(distributionFile).files
+            spec.from isTar ? project.tarTree(distributionFile).files : project.zipTree(distributionFile).files
             spec.into modulesStagingDir
             spec.include "**/*.module"
         })
 
-        String baseName = distributionFile.getName().substring(0, distributionFile.getName().length()-".tar.gz".length())
+        String baseName = distributionFile.getName().substring(0, distributionFile.getName().length()-extension.length())
 
         project.copy({ CopySpec spec ->
-            spec.from project.tarTree(distributionFile)
+            spec.from isTar ? project.tarTree(distributionFile) : project.zipTree(distributionFile)
             spec.into stagingDir
             spec.eachFile {
                 FileCopyDetails fcp ->
@@ -71,7 +73,7 @@ class StageDistribution extends DefaultTask
         })
 
         project.copy({ CopySpec spec ->
-            spec.from project.tarTree(distributionFile)
+            spec.from isTar ? project.tarTree(distributionFile) : project.zipTree(distributionFile)
             spec.into pipelineJarStagingDir
             spec.eachFile {
                 FileCopyDetails fcp ->
@@ -88,7 +90,7 @@ class StageDistribution extends DefaultTask
         })
 
         project.copy({ CopySpec spec ->
-            spec.from project.tarTree(distributionFile).files
+            spec.from isTar ? project.tarTree(distributionFile).files : project.zipTree(distributionFile).files
             spec.into tomcatJarStagingDir
             spec.include "labkeyBootstrap*.jar"
         })
