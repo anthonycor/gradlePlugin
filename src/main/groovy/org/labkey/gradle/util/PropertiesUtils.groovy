@@ -7,6 +7,7 @@ import java.util.regex.Pattern
 
 class PropertiesUtils
 {
+    private static final String DATABASE_CONFIG_FILE = "config.properties"
     public static final Pattern PROPERTY_PATTERN = Pattern.compile("@@([^@]+)@@")
     private static final Pattern VALUE_PATTERN = Pattern.compile("(\\\$\\{\\w*\\})")
 
@@ -38,7 +39,7 @@ class PropertiesUtils
     static void replaceDatabaseProperty(Project project, String name, String value)
     {
         project.ant.propertyfile(
-                file: "${project.project(":server")}/config.properties"
+                file: "${project.project(":server")}/${DATABASE_CONFIG_FILE}"
         )
                 {
                     entry( key: name, value: value)
@@ -48,8 +49,15 @@ class PropertiesUtils
     //Convenience method. Mimics ant's "<property file="${basedir}/config.properties"/>"
     static Properties readDatabaseProperties(Project project)
     {
-        Properties props = readFileProperties(project.project(":server"), "config.properties");
-        return props;
+        if (project.project(":server").file(DATABASE_CONFIG_FILE).exists())
+        {
+            Properties props = readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE);
+            return props;
+        }
+        else
+        {
+            return new Properties()
+        }
     }
 
     static String replaceProps(String line, Properties props)
