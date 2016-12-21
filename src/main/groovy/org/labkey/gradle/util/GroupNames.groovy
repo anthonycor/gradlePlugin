@@ -6,6 +6,7 @@ package org.labkey.gradle.util
 class GroupNames
 {
     public static final String API = "API"
+    public static final String BUILD = "Build"
     public static final String CLIENT_LIBRARIES = "Client libraries"
     public static final String CODE_GENERATION = "Code generation"
     public static final String DATABASE = "Database"
@@ -20,5 +21,6 @@ class GroupNames
     public static final String TEST = "Test"
     public static final String TEST_SERVER = "Test server"
     public static final String WEB_APPLICATION = "Web application"
+    public static final String VERIFICATION = "Verification"
     public static final String XML_SCHEMA = "xmlSchema"
 }
