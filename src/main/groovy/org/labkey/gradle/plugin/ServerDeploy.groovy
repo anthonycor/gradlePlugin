@@ -50,6 +50,13 @@ class ServerDeploy implements Plugin<Project>
 
         StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
 
+        project.task(
+                "stageDistribution",
+                group: GroupNames.DISTRIBUTION,
+                description: "Populate the staging directory using a LabKey distribution file from build/dist or directory specified with distDir property. Use property distType to specify zip or tar.gz (default).",
+                type: StageDistribution
+        )
+
         // FIXME staging step complicates things, but we currently depend on it for generating the
         // apiFilesList that determines which libraries to keep and which to remove from WEB-INF/lib
         // We need to put libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
