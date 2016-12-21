@@ -73,5 +73,6 @@ class DistributionExtension
     Boolean skipWindowsInstaller
     Boolean skipZipDistribution
     Boolean skipTarGZDistribution
+    Boolean includeMassSpecBinaries = false
     Boolean versionPrefix
 }

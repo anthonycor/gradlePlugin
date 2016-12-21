@@ -42,6 +42,8 @@ class LabKey implements Plugin<Project>
                     modules
                     jars
                     jspJars
+                    tomcatJars
+                    remotePipelineJars
                     external
                 }
     }
@@ -54,15 +56,17 @@ class StagingExtension
     public static final String STAGING_WEBAPP_DIR = "${STAGING_DIR}/labkeyWebapp"
     public static final String STAGING_WEBINF_DIR = "${STAGING_WEBAPP_DIR}/WEB-INF/"
 
-    def String dir
-    def String webappClassesDir
-    def String libDir
-    def String jspDir
-    def String webInfDir
-    def String webappDir
-    def String modulesDir
+    String dir
+    String webappClassesDir
+    String libDir
+    String jspDir
+    String webInfDir
+    String webappDir
+    String modulesDir
+    String tomcatLibDir
+    String pipelineLibDir
 
-    public void setDirectories(Project project)
+    void setDirectories(Project project)
     {
         dir = "${project.rootProject.buildDir}/${STAGING_DIR}"
         webappClassesDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}/classes"
@@ -71,6 +75,8 @@ class StagingExtension
         webInfDir =  "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}"
         webappDir =  "${project.rootProject.buildDir}/${STAGING_WEBAPP_DIR}"
         modulesDir = "${project.rootProject.buildDir}/${STAGING_MODULES_DIR}"
+        tomcatLibDir = "${dir}/tomcat-lib"
+        pipelineLibDir = "${dir}/pipelineLib"
     }
 }
 

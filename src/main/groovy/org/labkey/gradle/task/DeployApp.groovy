@@ -2,6 +2,7 @@ package org.labkey.gradle.task
 
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -14,11 +15,20 @@ class DeployApp extends DefaultTask
     @InputDirectory
     File stagingWebappDir = new File((String) project.staging.webappDir)
 
+    @InputDirectory
+    File stagingTomcatJarDir = new File((String) project.staging.tomcatLibDir)
+
+    @InputDirectory
+    File stagingPipelineJarDir = new File((String) project.staging.pipelineLibDir)
+
     @OutputDirectory
     File deployModulesDir = new File((String) project.serverDeploy.modulesDir)
 
     @OutputDirectory
     File deployWebappDir = new File((String) project.serverDeploy.webappDir)
+
+    @OutputDirectory
+    File deployPipelineLibDir = new File((String) project.serverDeploy.pipelineLibDir)
 
 
     @TaskAction
@@ -26,6 +36,8 @@ class DeployApp extends DefaultTask
     {
         deployWebappDir()
         deployModules()
+        deployTomcatJars()
+        deployPipelineJars()
         deployNlpEngine()
         deployPlatformBinaries()
     }
@@ -57,7 +69,7 @@ class DeployApp extends DefaultTask
 
     private void deployModules()
     {
-        ant.copy(
+        ant.copy (
                 todir: deployModulesDir,
                 preserveLastModified: true,
         )
@@ -67,6 +79,22 @@ class DeployApp extends DefaultTask
                                 include( name: "*")
                             }
                 }
+    }
+
+    private void deployTomcatJars()
+    {
+        project.copy( { CopySpec copy ->
+            copy.from  stagingTomcatJarDir
+            copy.into "${project.tomcatDir}/lib"
+        })
+    }
+
+    private void deployPipelineJars()
+    {
+        project.copy( { CopySpec copy ->
+            copy.from stagingPipelineJarDir
+            copy.into deployPipelineLibDir
+        })
     }
 
     private void deployPlatformBinaries()

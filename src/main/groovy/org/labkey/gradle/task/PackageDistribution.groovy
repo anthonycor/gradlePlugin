@@ -89,6 +89,8 @@ class PackageDistribution extends DefaultTask
             ant.properties['skip.tarGZDistribution'] = project.dist.skipTarGZDistribution
         if (project.dist.versionPrefix != null)
             ant.properties['versionPrefix'] = project.dist.versionPrefix
+        if (project.dist.includeMassSpecBinaries != null)
+            ant.properties['includeMassSpecBinaries'] = project.dist.includeMassSpecBinaries
     }
 
     private void packageRedistributables()

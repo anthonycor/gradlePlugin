@@ -2,10 +2,9 @@ package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
-
 import org.labkey.gradle.util.PropertiesUtils
-
 
 class DoThenSetup extends DefaultTask
 {
@@ -26,11 +25,11 @@ class DoThenSetup extends DefaultTask
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}");
         configProperties.setProperty("appDocBase", appDocBase);
         boolean isNextLineComment = false;
-        project.copy({
-            from "${project.rootProject.projectDir}${File.separator}webapps"
-            into "${project.rootProject.buildDir}"
-            include "labkey.xml"
-            filter ({ String line ->
+        project.copy({ CopySpec copy ->
+            copy.from "${project.rootProject.projectDir}/webapps"
+            copy.into "${project.rootProject.buildDir}"
+            copy.include "labkey.xml"
+            copy.filter ({ String line ->
                 String newLine = line;
 
                 if (project.ext.has('enableJms') && project.ext.enableJms)
@@ -54,6 +53,7 @@ class DoThenSetup extends DefaultTask
             include "labkey.xml"
         })
 
+        // TODO remove reliance on external/lib/tomcat here in favor of dependency declaration in server/build.gradle for tomcatJars config
         ant.copy(
                 todir: "${project.tomcatDir}/lib",
                 overwrite: true,
@@ -66,17 +66,6 @@ class DoThenSetup extends DefaultTask
                         }
         }
 
-        ant.copy(
-                todir: "${project.labkey.externalLibDir}/tomcat",
-                overwrite: true,
-                preservelastmodified: true
-        )
-        {
-                fileset(dir: project.rootProject.buildDir)
-                        {
-                            include(name: "labkeyBootstrap.jar")
-                        }
-        }
     }
 
     static void initDatabaseProperties(Project project)
