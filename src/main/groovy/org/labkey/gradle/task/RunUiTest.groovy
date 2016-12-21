@@ -1,6 +1,7 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.tasks.testing.Test
+import org.labkey.gradle.plugin.TomcatExtension
 import org.labkey.gradle.plugin.UiTestExtension
 
 /**
@@ -35,9 +36,12 @@ class RunUiTest extends Test
                                     "-Xdebug",
                                     "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestProperty("debugSuspendSelenium")},address=${testExt.getTestProperty("selenium.debug.port")}",
                                     "-Dfile.encoding=UTF-8"]
-        if (!project.tomcat.trustStore.isEmpty() && !project.tomcat.trustStorePassword.isEmpty())
+
+        TomcatExtension tomcat = project.extensions.findByType(TomcatExtension.class)
+
+        if (tomcat != null && !tomcat.trustStore.isEmpty() && !tomcat.trustStorePassword.isEmpty())
         {
-            jvmArgsList += [project.tomcat.trustStore, project.tomcat.trustStorePassword]
+            jvmArgsList += [tomcat.trustStore, tomcat.trustStorePassword]
         }
 
         jvmArgs jvmArgsList
