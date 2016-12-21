@@ -74,5 +74,5 @@ class DistributionExtension
     Boolean skipZipDistribution
     Boolean skipTarGZDistribution
     Boolean includeMassSpecBinaries = false
-    Boolean versionPrefix
+    String versionPrefix
 }
