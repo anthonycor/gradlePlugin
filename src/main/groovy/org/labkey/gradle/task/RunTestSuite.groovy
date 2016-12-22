@@ -81,7 +81,7 @@ class RunTestSuite extends RunUiTest
         }
         else if (SystemUtils.IS_OS_LINUX)
         {
-            if (System.OS_ARCH.equals("amd64"))
+            if (SystemUtils.OS_ARCH.equals("amd64"))
                 systemProperty "webdriver.chrome.driver", "${project.projectDir}/bin/linux/amd64/chromedriver"
             else if (SystemUtils.OS_ARCH.equals("i386"))
                 systemProperty "webdriver.chrome.driver", "${project.projectDir}/bin/linux/i386/chromedriver"
