@@ -21,7 +21,7 @@ class CoreScripts implements Plugin<Project>
 
     private void addTasks(Project project)
     {
-        def Task task = project.task("serverSideJS",
+        Task task = project.task("serverSideJS",
                 group: GroupNames.CODE_GENERATION,
                 description: "Concatenate javascript files for use on the server side",
                 type: ServerSideJS

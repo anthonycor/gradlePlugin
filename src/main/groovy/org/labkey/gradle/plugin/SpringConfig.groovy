@@ -9,10 +9,10 @@ import org.gradle.api.Project
 class SpringConfig implements Plugin<Project>
 {
     private static final DIR_PREFIX = "webapp/WEB-INF"
-    def Project _project;
-    def String _dirName;
+    Project _project;
+    String _dirName;
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file("${DIR_PREFIX}/${project.name}").exists()
     }

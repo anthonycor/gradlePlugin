@@ -56,12 +56,12 @@ class BuildUtils
      * This includes modules that are required for any LabKey server build (e.g., bootstrap, api, internal)
      * @param settings the settings
      */
-    public static void includeBaseModules(Settings settings)
+    static void includeBaseModules(Settings settings)
     {
         includeModules(settings, BASE_MODULES)
     }
 
-    public static void includeModules(Settings settings, List<String> modules)
+    static void includeModules(Settings settings, List<String> modules)
     {
         settings.include modules.toArray(new String[0])
     }
@@ -72,7 +72,7 @@ class BuildUtils
      * @param moduleDirs - the list of directories that are parents of module directories to be included
      * @param excludedModules - a list of directory names that are to be excluded from the build configuration (e.g., movies)
      */
-    public static void includeModules(Settings settings, File rootDir, List<String> moduleDirs, List<String> excludedModules)
+    static void includeModules(Settings settings, File rootDir, List<String> moduleDirs, List<String> excludedModules)
     {
         // find the directories in each of the moduleDirs that meet our selection criteria
         moduleDirs.each { String path ->
@@ -90,18 +90,18 @@ class BuildUtils
         }
     }
 
-    public static String convertDirToPath(File rootDir, File directory)
+    static String convertDirToPath(File rootDir, File directory)
     {
         String relativePath = directory.absolutePath - rootDir.absolutePath
         return  relativePath.replaceAll("[\\\\\\/]", ":")
     }
 
-    public static boolean shouldBuildFromSource(Project project)
+    static boolean shouldBuildFromSource(Project project)
     {
         return whyNotBuildFromSource(project, BUILD_FROM_SOURCE_PROP).isEmpty()
     }
 
-    public static List<String> whyNotBuildFromSource(Project project, String property)
+    static List<String> whyNotBuildFromSource(Project project, String property)
     {
         List<String> reasons = [];
         if (!project.hasProperty(property))
@@ -116,22 +116,22 @@ class BuildUtils
         return reasons;
     }
 
-    public static boolean shouldBuildClientLibsFromSource(Project project)
+    static boolean shouldBuildClientLibsFromSource(Project project)
     {
         return whyNotBuildFromSource(project, BUILD_CLIENT_LIBS_FROM_SOURCE_PROP).isEmpty()
     }
 
-    public static boolean isGitModule(Project project)
+    static boolean isGitModule(Project project)
     {
         return project.file(".git").exists();
     }
 
-    public static boolean isSvnModule(Project project)
+    static boolean isSvnModule(Project project)
     {
         return !isGitModule(project);
     }
 
-    public static String getVersionNumber(Project project)
+    static String getVersionNumber(Project project)
     {
         if (project.hasProperty("versioning"))
         {
@@ -147,7 +147,7 @@ class BuildUtils
         return project.labkeyVersion
     }
 
-    public static String getLabKeyModuleVersion(Project project)
+    static String getLabKeyModuleVersion(Project project)
     {
         String version = project.version
         // matches to a.b.c.d_rfb_123-SNAPSHOT or a.b.c.d-SNAPSHOT
@@ -157,7 +157,7 @@ class BuildUtils
         return version
     }
 
-    public static void addLabKeyDependency(Map<String, Object> config)
+    static void addLabKeyDependency(Map<String, Object> config)
     {
         addLabKeyDependency(
                 (Project) config.get("project"),
@@ -170,7 +170,7 @@ class BuildUtils
         )
     }
 
-    public static void addLabKeyDependency(Project parentProject,
+    static void addLabKeyDependency(Project parentProject,
                                            String parentProjectConfig,
                                            String depProjectPath,
                                            String depProjectConfig,
@@ -179,7 +179,7 @@ class BuildUtils
         addLabKeyDependency(parentProject, parentProjectConfig, depProjectPath, depProjectConfig, depVersion, depExtension, null)
     }
 
-    public static void addLabKeyDependency(Project parentProject,
+    static void addLabKeyDependency(Project parentProject,
                                            String parentProjectConfig,
                                            String depProjectPath,
                                            String depProjectConfig,
@@ -223,7 +223,7 @@ class BuildUtils
         }
     }
 
-    public static String getLabKeyArtifactName(String projectPath, String projectConfig, String version, String extension)
+    static String getLabKeyArtifactName(String projectPath, String projectConfig, String version, String extension)
     {
         String classifier = ''
         if (projectConfig != null)

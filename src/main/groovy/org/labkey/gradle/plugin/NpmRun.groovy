@@ -20,7 +20,7 @@ class NpmRun implements Plugin<Project>
 
     private static final String EXTENSION_NAME = "npmRun"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(NPM_PROJECT_FILE).exists()
     }

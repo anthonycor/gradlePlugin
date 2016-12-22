@@ -8,7 +8,6 @@ import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.task.GzipAction
 import org.labkey.gradle.util.GroupNames
-
 /**
  * Used to compile GWT source files into Javascript
  */
@@ -26,7 +25,7 @@ class Gwt implements Plugin<Project>
 
     private static final String GWT_EXTENSION = ".gwt.xml"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(SOURCE_DIR).exists()
     }
@@ -99,16 +98,16 @@ class Gwt implements Plugin<Project>
                         group: GroupNames.GWT,
                         type: JavaExec,
                         description: "compile GWT source files for " + gwtModuleClass.getKey()  + " into JS",
-                        {
+                        { JavaExec java ->
                             def extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
                             def outputDir = project.labkey.explodedModuleWebDir
 
-                            inputs.file(project.sourceSets.gwt.java.srcDirs)
+                            java.inputs.file(project.sourceSets.gwt.java.srcDirs)
 
-                            outputs.dir outputDir
+                            java.outputs.dir outputDir
 
                             // Workaround for incremental build (GRADLE-1483)
-                            outputs.upToDateSpec = new AndSpec()
+                            java.outputs.upToDateSpec = new AndSpec()
 
                             doFirst {
                                 project.file(extrasDir).mkdirs()
@@ -120,12 +119,12 @@ class Gwt implements Plugin<Project>
                                 doLast new GzipAction()
                             }
 
-                            main = 'com.google.gwt.dev.Compiler'
+                            java.main = 'com.google.gwt.dev.Compiler'
 
                             // TODO remove repeated code here
                             if (project.gwt.allBrowserCompile)
                             {
-                                classpath {
+                                java.classpath {
                                     [
                                             project.sourceSets.gwt.compileClasspath,       // Dep
                                             project.sourceSets.gwt.java.srcDirs,           // Java source
@@ -135,7 +134,7 @@ class Gwt implements Plugin<Project>
                             }
                             else
                             {
-                                classpath {
+                                java.classpath {
                                     [
                                             // TODO get value from environment variable perhaps
                                             "${project.rootProject.rootDir}/external/lib/build/gwt-user-firefox",
@@ -156,14 +155,14 @@ class Gwt implements Plugin<Project>
                                             gwtModuleClass.getValue()
                                     ]
                             if (project.gwt.draftCompile)
-                                args.add('-draftCompile')
-                            jvmArgs =
+                                java.args.add('-draftCompile')
+                            java.jvmArgs =
                                     [
                                             '-Xss1024k',
                                             '-Djava.awt.headless=true'
                                     ]
 
-                            maxHeapSize = '512m'
+                            java.maxHeapSize = '512m'
                         }
                 )
                 gwtTasks.add(compileTask)
@@ -197,10 +196,10 @@ class Gwt implements Plugin<Project>
 
 class GwtExtension
 {
-    def String srcDir = Gwt.SOURCE_DIR
-    def String style = "OBF"
-    def String logLevel = "INFO"
-    def String extrasDir = "gwtExtras"
-    def Boolean draftCompile = false
-    def Boolean allBrowserCompile = true
+    String srcDir = Gwt.SOURCE_DIR
+    String style = "OBF"
+    String logLevel = "INFO"
+    String extrasDir = "gwtExtras"
+    Boolean draftCompile = false
+    Boolean allBrowserCompile = true
 }

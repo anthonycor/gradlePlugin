@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
@@ -30,9 +31,9 @@ class JsDoc implements Plugin<Project>
         Task jsdocTemplateTask = project.task('jsdocTemplate',
                 type: Copy,
                 description: "insert the proper version number into the JavaScript documentation",
-                {
-                    from project.file("${project.jsDoc.root}/templates/jsdoc")
-                    filter( { String line ->
+                { CopySpec copy ->
+                    copy.from project.file("${project.jsDoc.root}/templates/jsdoc")
+                    copy.filter( { String line ->
                         Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
                         String newLine = line;
                         while (matcher.find())
@@ -51,16 +52,16 @@ class JsDoc implements Plugin<Project>
                 group: GroupNames.DOCUMENTATION,
                 type: JavaExec,
                 description: 'Generating Client API docs',
-                {
-                    inputs.files project.jsDoc.paths
-                    outputs.dir project.jsDoc.outputDir
+                { JavaExec java ->
+                    java.inputs.files project.jsDoc.paths
+                    java.outputs.dir project.jsDoc.outputDir
 
                     // Workaround for incremental build (GRADLE-1483)
-                    outputs.upToDateSpec = new AndSpec()
+                    java.outputs.upToDateSpec = new AndSpec()
 
-                    main = "-jar"
+                    java.main = "-jar"
                     // FIXME not sure why the project.jsDoc.paths can't be included progammatically here.
-                    args = ["${project.jsDoc.root}/jsrun.jar",
+                    java.args = ["${project.jsDoc.root}/jsrun.jar",
                             "${project.jsDoc.root}/app/run.js",
                             "--template=${jsdocTemplateTask.destinationDir}",
                             "--directory=${project.jsDoc.outputDir}",

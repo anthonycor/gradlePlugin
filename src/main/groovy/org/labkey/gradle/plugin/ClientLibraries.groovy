@@ -11,7 +11,7 @@ import org.labkey.gradle.util.GroupNames
  */
 class ClientLibraries implements Plugin<Project>
 {
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         def FileTree libXmlFiles = project.fileTree(dir: project.projectDir,
                 includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"]
@@ -43,6 +43,6 @@ class ClientLibrariesExtension
 {
     // the directory into which the catenated, compressed js and css files will be created; also (confusingly) the directory in which
     // the .lib.xml file will have been copied before conversion.  This copying happens before this task in the processResources task.
-    def File workingDir
+    File workingDir
 }
 

@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
@@ -105,26 +106,26 @@ class Jsp implements Plugin<Project>
                 }
 
         Task copyJsps = project.task('copyJsp', group: GroupNames.JSP, type: Copy, description: "Copy jsp files to jsp compile directory",
-                {
-                    from 'src'
-                    into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
-                    include '**/*.jsp'
+                { CopySpec copy ->
+                    copy.from 'src'
+                    copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
+                    copy.include '**/*.jsp'
                 })
 
         Task copyResourceJsps = project.task('copyResourceJsp', group: GroupNames.JSP, type: Copy, description: "Copy resource jsp files to jsp compile directory",
-                {
-                    from 'resources'
-                    into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/org/labkey/${project.name}"
-                    include '**/*.jsp'
+                { CopySpec copy ->
+                    copy.from 'resources'
+                    copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/org/labkey/${project.name}"
+                    copy.include '**/*.jsp'
                 })
 
         Task copyTags = project.task('copyTagLibs', group: GroupNames.JSP, type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
-                {
-                    from project.staging.webInfDir
-                    into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
-                    include 'web.xml'
-                    include '*.tld'
-                    include 'tags/**'
+                { CopySpec copy ->
+                    copy.from project.staging.webInfDir
+                    copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
+                    copy.include 'web.xml'
+                    copy.include '*.tld'
+                    copy.include 'tags/**'
                 })
 
         Task jspCompileTask = project.task('jsp2Java',
@@ -150,10 +151,10 @@ class Jsp implements Plugin<Project>
                 group: GroupNames.JSP,
                 type: Jar,
                 description: "produce jar file of jsps",
-                {
-                    classifier CLASSIFIER
-                    from "${project.buildDir}/${project.jspCompile.classDir}"
-                    baseName "${project.name}${BASE_NAME_EXTENSION}"
+                { Jar jar ->
+                    jar.classifier CLASSIFIER
+                    jar.from "${project.buildDir}/${project.jspCompile.classDir}"
+                    jar.baseName "${project.name}${BASE_NAME_EXTENSION}"
                     destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 }
         )

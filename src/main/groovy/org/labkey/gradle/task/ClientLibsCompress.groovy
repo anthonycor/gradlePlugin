@@ -17,7 +17,7 @@ class ClientLibsCompress extends DefaultTask
     @OutputFile
     File upToDateFile = new File(workingDir, ".clientlibrary.uptodate")
 
-    public ClientLibsCompress()
+    ClientLibsCompress()
     {
         // TODO get rid of this in favor of porting to Gradle.
         ant.taskdef(

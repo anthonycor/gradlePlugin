@@ -18,7 +18,7 @@ class UndeployModules extends DefaultTask
 
 
     @TaskAction
-    public void action()
+    void action()
     {
         undeployModules()
     }

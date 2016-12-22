@@ -102,36 +102,36 @@ class LabKeyExtension
         }
     }
 
-    def String sourceCompatibility = '1.8'
-    def String targetCompatibility = '1.8'
-    def Boolean skipBuild = false // set this to true in an individual module's build.gradle file to skip building
+    String sourceCompatibility = '1.8'
+    String targetCompatibility = '1.8'
+    Boolean skipBuild = false // set this to true in an individual module's build.gradle file to skip building
 
-    def String explodedModuleDir
-    def String explodedModuleWebDir
-    def String explodedModuleConfigDir
-    def String explodedModuleLibDir
+    String explodedModuleDir
+    String explodedModuleWebDir
+    String explodedModuleConfigDir
+    String explodedModuleLibDir
 
-    def String srcGenDir
-    def String externalDir
-    def String externalLibDir
-    def String ext3Dir = "ext-3.4.1"
-    def String ext4Dir = "ext-4.2.1"
+    String srcGenDir
+    String externalDir
+    String externalLibDir
+    String ext3Dir = "ext-3.4.1"
+    String ext4Dir = "ext-4.2.1"
 
-    def String server = "http://localhost"
-    def String port = "8080"
-    def String contextPath = "/labkey"
+    String server = "http://localhost"
+    String port = "8080"
+    String contextPath = "/labkey"
 
     /**
      * @param project the project in question
      * @return  true if the project given is one of the modules whose jar file needs to be in the labkeyWebapp/WEB-INF/lib directory
      * at startup
      */
-    public static Boolean isBootstrapModule(Project project)
+    static Boolean isBootstrapModule(Project project)
     {
         return [":server:internal", ":server:api", ":schemas", ":remoteapi:java"].contains(project.path)
     }
 
-    public static String getDeployModeName(Project project)
+    static String getDeployModeName(Project project)
     {
         if (!project.hasProperty(DEPLOY_MODE_PROPERTY))
             return DeployMode.dev.getDisplayName()
@@ -139,12 +139,12 @@ class LabKeyExtension
             return DeployMode.valueOf(project.property(DEPLOY_MODE_PROPERTY).toString().toLowerCase()).getDisplayName()
     }
 
-    public static boolean isDevMode(Project project)
+    static boolean isDevMode(Project project)
     {
         return project.hasProperty(DEPLOY_MODE_PROPERTY) && DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY));
     }
 
-    public void setDirectories(Project project)
+    void setDirectories(Project project)
     {
         explodedModuleDir = "${project.buildDir}/explodedModule"
         explodedModuleWebDir = "${explodedModuleDir}/web"

@@ -37,7 +37,7 @@ class PackageDistribution extends DefaultTask
     ]
 
     @TaskAction
-    public void action()
+    void action()
     {
         setUpModuleDistDirectories()
         // TODO enum would be better for these types
@@ -116,14 +116,6 @@ class PackageDistribution extends DefaultTask
         setAntPropertiesForInstaller()
         ant.ant(dir: "${project.project(':server').projectDir}/installer", antFile: "${project.project(':server').projectDir}/installer/build.xml", target: "client-apis")
     }
-
-    // TODO this is called only by the teamcity targets
-    private void unpackDist()
-    {
-        setAntPropertiesForInstaller()
-        ant.ant(dir: "${project.project(':server').projectDir}/installer", antFile: "${project.project(':server').projectDir}/installer/build.xml", target: "bin-untar")
-    }
-
 
     private void setUpModuleDistDirectories()
     {

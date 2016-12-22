@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 class StopTomcat extends DefaultTask
 {
     @TaskAction
-    public void exec()
+    void exec()
     {
         project.javaexec( {
             main = "org.apache.catalina.startup.Bootstrap"

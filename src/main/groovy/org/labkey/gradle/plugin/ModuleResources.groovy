@@ -11,7 +11,7 @@ class ModuleResources implements Plugin<Project>
 {
     private static final String DIR_NAME = "resources"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(DIR_NAME).exists()
     }

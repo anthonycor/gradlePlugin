@@ -15,7 +15,8 @@ class XmlBeans implements Plugin<Project>
 {
     public static final String CLASSIFIER = "schemas"
 
-    def void apply(Project project)
+    @Override
+    void apply(Project project)
     {
         project.extensions.create("xmlBeans", XmlBeansExtension)
 
@@ -25,7 +26,7 @@ class XmlBeans implements Plugin<Project>
 
     }
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return !AntBuild.isApplicable(project) && project.file(project.xmlBeans.schemasDir).exists()
     }
