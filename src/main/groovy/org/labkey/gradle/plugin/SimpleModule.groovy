@@ -349,7 +349,8 @@ class SimpleModule implements Plugin<Project>
 
     static Boolean hasUiTests(Project project)
     {
-        return project.file(TEST_SRC_DIR).exists()
+        return false
+//        return project.file(TEST_SRC_DIR).exists()
     }
 
     static undeployModule(Project project)
