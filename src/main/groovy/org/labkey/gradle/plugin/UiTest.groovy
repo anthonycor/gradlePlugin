@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.labkey.gradle.task.RunUiTest
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
 
@@ -13,11 +14,55 @@ class UiTest implements Plugin<Project>
 {
     UiTestExtension testRunnerExt
 
+    public static final String TEST_SRC_DIR = "test/src"
+
+    static Boolean isApplicable(Project project)
+    {
+        // TODO for now, we return false.  Most of the machinery is in place, but we need to work out the chrome extensions
+        // Error: The driver executable does not exist: /Users/susanh/Development/labkey/trunk/server/modules/server/test/bin/mac/chromedriver
+        return false
+//        return project.file(TEST_SRC_DIR).exists()
+    }
+
     @Override
     void apply(Project project)
     {
         testRunnerExt = project.extensions.create("uiTest", UiTestExtension, project)
+        addSourceSets(project)
+        addConfigurations(project)
+        addDependencies(project)
         addTasks(project)
+        addArtifacts(project)
+    }
+
+    protected void addConfigurations(Project project)
+    {
+        project.configurations {
+            uiTestCompile.extendsFrom(compile)
+        }
+    }
+
+    protected void addSourceSets(Project project)
+    {
+        project.sourceSets {
+            uiTest {
+                java {
+                    srcDirs = ['test/src']
+                }
+                resources {
+                    srcDirs = ["test/resources"]
+                }
+            }
+        }
+    }
+
+    protected void addDependencies(Project project)
+    {
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:test", depProjectConfig: "uiTestCompile")
+
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":schemas")
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:api")
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":remoteapi:java")
     }
 
     protected void addTasks(Project project)
@@ -27,6 +72,11 @@ class UiTest implements Plugin<Project>
                 description: "Run UI (Selenium) tests for this module",
                 type: RunUiTest
         )
+    }
+
+    protected void addArtifacts(Project project)
+    {
+        // nothing to do here for the base case.
     }
 }
 

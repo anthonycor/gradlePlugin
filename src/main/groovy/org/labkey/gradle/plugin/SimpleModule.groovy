@@ -45,11 +45,6 @@ class SimpleModule implements Plugin<Project>
             return shouldDoBuild(project)
         })
 
-        if (hasUiTests(_project))
-        {
-            _project.apply plugin: 'org.labkey.uiTest'
-        }
-
         project.extensions.create("lkModule", ModuleExtension, project)
         setJavaBuildProperties()
         applyPlugins()
@@ -124,6 +119,11 @@ class SimpleModule implements Plugin<Project>
                 _project.apply plugin: 'com.moowork.node'
                 _project.apply plugin: 'org.labkey.npmRun'
             }
+
+            if (UiTest.isApplicable(_project))
+            {
+                _project.apply plugin: 'org.labkey.uiTest'
+            }
         }
     }
 
@@ -163,14 +163,6 @@ class SimpleModule implements Plugin<Project>
                     srcDirs = ['src'] // src is included because it contains some sql scripts
                     exclude '**/*.java'
                     exclude '**/*.jsp'
-                }
-            }
-            uiTest {
-                java {
-                    srcDirs = ['test/src']
-                }
-                resources {
-                    srcDirs = ["test/resources"]
                 }
             }
         }
@@ -333,24 +325,18 @@ class SimpleModule implements Plugin<Project>
                 }
 
         _project.task('undeployModule',
-            group: GroupNames.MODULE,
-            description: "remove a project's .module file and the unjarred file from the deploy directory",
-            type: Delete,
+                group: GroupNames.MODULE,
+                description: "remove a project's .module file and the unjarred file from the deploy directory",
+                type: Delete,
                 {
                     inputs.file "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${project.tasks.module.outputs.getFiles().getAt(0).getName()}"
                     inputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(project.tasks.module.outputs.getFiles().getAt(0).getName())}"
                     outputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
-                   doFirst {
-                       undeployModule(project)
-                   }
+                    doFirst {
+                        undeployModule(project)
+                    }
                 })
 
-    }
-
-    static Boolean hasUiTests(Project project)
-    {
-        return false
-//        return project.file(TEST_SRC_DIR).exists()
     }
 
     static undeployModule(Project project)
@@ -368,14 +354,6 @@ class SimpleModule implements Plugin<Project>
     private void addDependencies()
     {
         BuildUtils.addLabKeyDependency(project: _project.project(":server"), config: 'modules', depProjectPath: _project.path, depProjectConfig: 'published', depExtension: 'module')
-        if (hasUiTests(_project))
-        {
-            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":server:test", depProjectConfig: "testCompile")
-
-            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":schemas")
-            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":server:api")
-            BuildUtils.addLabKeyDependency(project: _project, config: 'uiTestCompile', depProjectPath: ":remoteapi:java")
-        }
     }
 
     protected void addArtifacts()

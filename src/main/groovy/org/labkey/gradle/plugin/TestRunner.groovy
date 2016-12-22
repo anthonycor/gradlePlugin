@@ -6,6 +6,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.GroupNames
+
 /**
  * Created by susanh on 12/7/16.
  */
@@ -26,6 +27,61 @@ class TestRunner extends UiTest
 
         addTestSuiteTask(project)
 
+        addAspectJ(project)
+
+    }
+
+    @Override
+    protected void addSourceSets(Project project)
+    {
+        project.sourceSets {
+            uiTest {
+                java {
+                    srcDirs = []
+                    // we add the test/src directories from all projects because the test suites encompass tests
+                    // across modules.
+                    project.rootProject.allprojects { Project otherProj ->
+                        if (otherProj.file("test/src").exists())
+                        {
+                            srcDirs += otherProj.file("test/src")
+                        }
+                    }
+                }
+                output.classesDir = "${project.buildDir}/classes"
+            }
+        }
+
+    }
+
+    @Override
+    protected void addConfigurations(Project project)
+    {
+        super.addConfigurations(project)
+        project.configurations {
+            aspectj
+        }
+    }
+
+    @Override
+    protected void addDependencies(Project project)
+    {
+        super.addDependencies(project)
+        project.dependencies {
+            aspectj "org.aspectj:aspectjtools:${project.aspectjVersion}"
+
+            compile project.files("${System.properties['java.home']}/../lib/tools.jar")
+            compile "org.seleniumhq.selenium:selenium-server:${project.seleniumVersion}"
+            compile "com.googlecode.sardine:sardine:${project.sardineVersion}"
+            compile "junit:junit:${project.junitVersion}"
+        }
+    }
+
+    @Override
+    protected void addArtifacts(Project project)
+    {
+        project.artifacts {
+            uiTestCompile project.tasks.testJar
+        }
     }
 
     private void addPasswordTasks(Project project)
@@ -40,7 +96,7 @@ class TestRunner extends UiTest
                         project.javaexec({
                             main = "org.labkey.test.util.PasswordUtil"
                             classpath {
-                                [project.configurations.compile, project.tasks.testJar]
+                                [project.configurations.uiTestCompile, project.tasks.testJar]
                             }
                             systemProperties["labkey.server"] = project.labkey.server
                             args = ["set"]
@@ -61,7 +117,7 @@ class TestRunner extends UiTest
                                 project.javaexec({
                                     main = "org.labkey.test.util.PasswordUtil"
                                     classpath {
-                                        [project.configurations.compile, project.tasks.testJar]
+                                        [project.configurations.uiTestCompile, project.tasks.testJar]
                                     }
                                     systemProperties["labkey.server"] = project.labkey.server
                                     args = ["ensure"]
@@ -143,8 +199,8 @@ class TestRunner extends UiTest
 
     private void addTestSuiteTask(Project project)
     {
-        project.task("uiTestSuite",
-                overwrite: true,
+        project.task("uiTests",
+                overwrite: true, // replace the task that would run all of the tests
                 group: GroupNames.VERIFICATION,
                 description: "Run a LabKey test suite as defined by ${project.file(testRunnerExt.propertiesFile)} and overridden on the command line by -P<prop>=<value>",
                 type: RunTestSuite
@@ -158,10 +214,31 @@ class TestRunner extends UiTest
                 type: Jar,
                 description: "produce jar file of test classes",
                 {
-                    from project.sourceSets.test.output
+                    from project.sourceSets.uiTest.output
                     baseName "labkeyTest"
                     version project.version
                     destinationDir = new File("${project.buildDir}/libs")
                 })
+    }
+
+    private void addAspectJ(Project project)
+    {
+        project.tasks.compileUiTestJava.doLast {
+            ant.taskdef(
+                    resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties",
+                    classpath: project.configurations.aspectj.asPath
+            )
+            ant.iajc(
+                    destdir: "${project.buildDir}/classes",
+                    source: project.labkey.sourceCompatibility,
+                    target: project.labkey.targetCompatibility,
+                    classpath: project.configurations.uiTestCompile.asPath,
+                    {
+                        project.sourceSets.uiTest.java.srcDirs.each {
+                            src(path: it)
+                        }
+                    }
+            )
+        }
     }
 }

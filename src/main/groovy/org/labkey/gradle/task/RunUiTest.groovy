@@ -23,6 +23,8 @@ class RunUiTest extends Test
             html.enabled = true
             html.setDestination(new File( "${project.buildDir}/${LOG_DIR}"))
         }
+        classpath = project.sourceSets.uiTest.runtimeClasspath
+        testClassesDir = project.sourceSets.uiTest.output.classesDir
 
         // listen to standard out and standard error of the test JVM(s)
         onOutput { descriptor, event ->
