@@ -24,6 +24,7 @@ class PropertiesUtils
         while (valMatcher.find())
         {
             String p = valMatcher.group(1).replace("\${", "").replace("}", "");
+            println("replacing ${valMatcher.group(1)} with property ${p}")
             prop = prop.replace(valMatcher.group(1), (String)(props.getProperty(p)));
         }
         return prop;

@@ -224,11 +224,13 @@ class TeamCity extends Tomcat
                             configProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
                             configProperties.setProperty("jdbcHost", configProperties.getProperty("databaseDefaultHost"))
                             configProperties.setProperty("jdbcParameters", "")
+
                             if (properties.jdbcPort != null)
                             {
                                 project.ext.jdbcPort = properties.jdbcPort // not strictly necessary but useful for consistency
                                 configProperties.setProperty("jdbcPort", properties.jdbcPort)
                             }
+                            println("after substitution configProperties are ${configProperties}")
 
                             project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(configProperties, configProperties.getProperty("jdbcURL"))
                             // This is necessary only for dropping the database, but will be accurate if someone looks
