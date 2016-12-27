@@ -213,16 +213,25 @@ class TeamCity extends Tomcat
                         dbProperties = properties
                         doFirst
                         {
-                            Properties tempProperties = new Properties()
-                            tempProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
+                            if (properties.jdbcURL != null)
+                            {
+                                // replace the jdbcURL property in the config.properties file
+                                PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
+                            }
+                            // read the config.properties file
+                            Properties configProperties = PropertiesUtils.readDatabaseProperties(project)
+                            // override properties from the config.properties file with values set in TeamCity configuration
+                            configProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
+                            if (properties.jdbcPort != null)
+                            {
+                                project.ext.jdbcPort = properties.jdbcPort // not strictly necessary but useful for consistency
+                                configProperties.setProperty("jdbcPort", properties.jdbcPort)
+                            }
 
-                            project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(tempProperties, properties.jdbcURL)
+                            project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(configProperties, configProperties.getProperty("jdbcURL"))
                             // This is necessary only for dropping the database, but will be accurate if someone looks
                             // at properties before running this build.
                             project.ext.jdbcDatabase = properties.jdbcDatabase
-                            project.ext.jdbcPort = properties.jdbcPort
-                            if (properties.jdbcURL != null)
-                                PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
                         }
                     }
             )
