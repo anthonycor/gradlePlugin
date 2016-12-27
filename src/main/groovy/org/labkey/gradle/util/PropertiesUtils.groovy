@@ -52,10 +52,12 @@ class PropertiesUtils
         if (project.project(":server").file(DATABASE_CONFIG_FILE).exists())
         {
             Properties props = readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE);
+            println("readDatabaseProperties: database properties are ${props}")
             return props;
         }
         else
         {
+            println("${project.project(':server').file(DATABASE_CONFIG_FILE)}: no such file or directory")
             return new Properties()
         }
     }
