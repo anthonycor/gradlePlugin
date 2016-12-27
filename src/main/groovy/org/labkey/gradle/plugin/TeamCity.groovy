@@ -216,7 +216,7 @@ class TeamCity extends Tomcat
                             if (properties.jdbcURL != null)
                             {
                                 // replace the jdbcURL property in the config.properties file
-                                PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
+                                PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", properties.jdbcURL)
                             }
                             // read the config.properties file
                             Properties configProperties = PropertiesUtils.readDatabaseProperties(project)
