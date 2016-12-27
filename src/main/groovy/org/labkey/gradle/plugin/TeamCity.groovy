@@ -221,7 +221,8 @@ class TeamCity extends Tomcat
                             // at properties before running this build.
                             project.ext.jdbcDatabase = properties.jdbcDatabase
                             project.ext.jdbcPort = properties.jdbcPort
-                            PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
+                            if (properties.jdbcURL != null)
+                                PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", project.ext.jdbcURL)
                         }
                     }
             )
@@ -382,10 +383,10 @@ class TeamCityExtension
                 {
                     DatabaseProperties props = SUPPORTED_DATABASES.get(type)
                     props.jdbcDatabase = getDatabaseName()
-                    if (getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
-                        validationMessages.add("'database.${type}.jdbcURL' not specified")
-                    else
+                    if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
+                    {
                         props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
+                    }
                     if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
                         validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
                     else
