@@ -222,6 +222,8 @@ class TeamCity extends Tomcat
                             Properties configProperties = PropertiesUtils.readDatabaseProperties(project)
                             // override properties from the config.properties file with values set in TeamCity configuration
                             configProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
+                            configProperties.setProperty("jdbcHost", configProperties.getProperty("databaseDefaultHost"))
+                            configProperties.setProperty("jdbcParameters", "")
                             if (properties.jdbcPort != null)
                             {
                                 project.ext.jdbcPort = properties.jdbcPort // not strictly necessary but useful for consistency
