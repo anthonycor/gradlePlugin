@@ -53,7 +53,7 @@ class TeamCity extends Tomcat
                         project.javaexec({ JavaExecSpec spec ->
                             spec.main = "org.labkey.test.util.PasswordUtil"
                             spec.classpath {
-                                [project.configurations.uiTestCompile, project.tasks.testJar ]
+                                [project.configurations.uiTestCompile, project.tasks.testJar]
                             }
                             spec.systemProperties["labkey.server"] = project.labkey.server
                             spec.args = ["set", "teamcity@labkey.test", "yekbal1!"]
@@ -194,7 +194,7 @@ class TeamCity extends Tomcat
                     doFirst
                             {
                                 if (!extension.isValidForTestRun())
-                                    throw new GradleException("TeamCity configuration problem(s): ${messages.join('; ')}")
+                                    throw new GradleException("TeamCity configuration problem(s): ${extension.validationMessages.join('; ')}")
 
                                 project.logger.info("teamcity.build.branch.is_default: ${extension.getTeamCityProperty('teamcity.build.branch.is_default')}")
                                 project.logger.info("teamcity.build.branch: ${extension.getTeamCityProperty('teamcity.build.branch')}")
