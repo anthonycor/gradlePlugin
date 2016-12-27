@@ -223,7 +223,7 @@ class TeamCity extends Tomcat
                             // override properties from the config.properties file with values set in TeamCity configuration
                             configProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
                             configProperties.setProperty("jdbcHost", configProperties.getProperty("databaseDefaultHost"))
-                            configProperties.setProperty("jdbcParameters", "")
+                            configProperties.setProperty("jdbcURLParameters", "")
 
                             if (properties.jdbcPort != null)
                             {
