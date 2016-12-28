@@ -17,19 +17,21 @@ class RunUiTest extends Test
         testExt = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
         setJvmArgs()
 
-        reports {
-            junitXml.enabled = false
-            junitXml.setDestination( new File("${project.buildDir}/${LOG_DIR}"))
-            html.enabled = true
-            html.setDestination(new File( "${project.buildDir}/${LOG_DIR}"))
+        reports { TestTaskReports -> reports
+            reports.junitXml.enabled = false
+            reports.junitXml.setDestination( new File("${project.buildDir}/${LOG_DIR}"))
+            reports.html.enabled = true
+            reports.html.setDestination(new File( "${project.buildDir}/${LOG_DIR}"))
         }
-        classpath = project.sourceSets.uiTest.runtimeClasspath
-        testClassesDir = project.sourceSets.uiTest.output.classesDir
+        setClasspath (project.sourceSets.uiTest.runtimeClasspath)
+        setTestClassesDir (project.sourceSets.uiTest.output.classesDir)
 
         // listen to standard out and standard error of the test JVM(s)
         onOutput { descriptor, event ->
             logger.lifecycle("[" + descriptor.getName() + "] " + event.message )
         }
+
+        outputs.upToDateWhen( { return false })
     }
 
     void setJvmArgs()
