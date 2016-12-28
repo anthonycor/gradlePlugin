@@ -48,25 +48,11 @@ class DoThenSetup extends DefaultTask
             })
         })
 
-        project.copy({
-            from "${project.rootProject.buildDir}"
-            into "${project.ext.tomcatConfDir}"
-            include "labkey.xml"
+        project.copy({ CopySpec copy ->
+            copy.from "${project.rootProject.buildDir}"
+            copy.into "${project.ext.tomcatConfDir}"
+            copy.include "labkey.xml"
         })
-
-        // TODO remove reliance on external/lib/tomcat here in favor of dependency declaration in server/build.gradle for tomcatJars config
-        ant.copy(
-                todir: "${project.tomcatDir}/lib",
-                overwrite: true,
-                preservelastmodified: true
-        )
-        {
-                fileset(dir:"${project.labkey.externalLibDir}/tomcat")
-                        {
-                            include(name:"*.jar")
-                        }
-        }
-
     }
 
     static void initDatabaseProperties(Project project)
