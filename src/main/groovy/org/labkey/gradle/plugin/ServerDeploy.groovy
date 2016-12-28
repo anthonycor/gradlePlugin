@@ -188,6 +188,9 @@ class ServerDeploy implements Plugin<Project>
                 description: "Removes the deploy directory (${serverDeploy.dir})",
                 { DeleteSpec spec ->
                     spec.delete serverDeploy.dir
+                    Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
+                        spec.delete path.toString()
+                    }
                 }
         )
 
@@ -199,6 +202,9 @@ class ServerDeploy implements Plugin<Project>
         )
         cleanAndDeploy.doFirst{
             project.delete(serverDeploy.dir)
+            Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
+                project.delete path.toString()
+            }
         }
 
         project.task(
