@@ -14,7 +14,7 @@ class SqlUtils
     //additionally, it is always called with inheritAll=false, so we should explicitly pass in parameters.
     static void execSql(Project project, Properties params, String sql)
     {
-        Properties configProperties = PropertiesUtils.readDatabaseProperties(project);
+        Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
         configProperties.putAll(params); //overrides configProperties in case of duplicates
 
         String url = PropertiesUtils.parseCompositeProp(configProperties, configProperties.getProperty("jdbcURL"));

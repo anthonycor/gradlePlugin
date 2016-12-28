@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.PropertiesUtils
 
 class DoThenSetup extends DefaultTask
@@ -20,7 +21,7 @@ class DoThenSetup extends DefaultTask
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
-        Properties configProperties = PropertiesUtils.readDatabaseProperties(project);
+        Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
         configProperties.putAll(project.ext.properties);
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}");
         configProperties.setProperty("appDocBase", appDocBase);
@@ -70,7 +71,7 @@ class DoThenSetup extends DefaultTask
 
     static void initDatabaseProperties(Project project)
     {
-        Properties configProperties = PropertiesUtils.readDatabaseProperties(project);
+        Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
         for (String key : configProperties.keySet())
         {
             if (key.contains("database"))
@@ -82,8 +83,9 @@ class DoThenSetup extends DefaultTask
 
     static void setJDBCDefaultProps(Project project)
     {
-        Properties tempProperties = PropertiesUtils.readDatabaseProperties(project);
+        Properties tempProperties = DatabaseProperties.readDatabaseProperties(project);
 
+        project.ext.databaseProps = tempProperties
         project.ext.jdbcDatabase = project.ext.databaseDefault;
         project.ext.jdbcHost = project.ext.databaseDefaultHost;
         project.ext.jdbcPort = project.ext.databaseDefaultPort;

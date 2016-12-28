@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.labkey.gradle.task.RunUiTest
 import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
 
@@ -97,7 +98,7 @@ class UiTestExtension
     {
         // read database configuration, but don't include jdbcUrl and other non-"database"
         // properties because they "cause problems" (quote from the test/build.xml file)
-        Properties dbProperties = PropertiesUtils.readDatabaseProperties(project)
+        Properties dbProperties = DatabaseProperties.readDatabaseProperties(project)
         this.properties = new Properties();
         this.properties.setProperty("debugSuspendSelenium", "n")
         for (String name : dbProperties.stringPropertyNames())
