@@ -6,7 +6,6 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.ExecSpec
 
 class DeployApp extends DefaultTask
 {
@@ -117,18 +116,19 @@ class DeployApp extends DefaultTask
                             }
                 }
         if (SystemUtils.IS_OS_MAC)
-            deployBinariesViaCp("osx")
+            deployBinariesViaProjectCopy("osx")
         else if (SystemUtils.IS_OS_LINUX)
-            deployBinariesViaCp("linux")
+            deployBinariesViaProjectCopy("linux")
         else if (SystemUtils.IS_OS_WINDOWS)
             deployBinariesViaAntCopy("windows")
     }
 
-    // Use this method to preserve file permissions, since ant.copy does not
-    private void deployBinariesViaCp(String osDirectory)
+    // Use this method to preserve file permissions, since ant.copy does not, but this does not preserve last modified times
+    private void deployBinariesViaProjectCopy(String osDirectory)
     {
-        project.exec { ExecSpec exec ->
-            exec.commandLine "cp", "-Rn", "${project.labkey.externalDir}/${osDirectory}/bin/", "${project.serverDeploy.binDir}"
+        project.copy { CopySpec copy ->
+            copy.from "${project.labkey.externalDir}/${osDirectory}/bin/"
+            copy.into "${project.serverDeploy.binDir}"
         }
     }
 
