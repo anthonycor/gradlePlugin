@@ -35,9 +35,7 @@ class RunTestSuite extends RunUiTest
         {
             dependsOn(project.tasks.killChrome)
             dependsOn(project.tasks.ensurePassword)
-        }
-        if (project.getPlugins().hasPlugin(TeamCity.class))
-        {
+
             doLast( {
                 project.copy({ CopySpec copy ->
                     copy.from "${project.tomcatDir}/logs"
