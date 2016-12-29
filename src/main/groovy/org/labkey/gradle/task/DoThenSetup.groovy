@@ -10,7 +10,6 @@ class DoThenSetup extends DefaultTask
 {
     protected DatabaseProperties dbProperties
 
-    //default value is init_database_properties, so dependsOn relationship with setup is preserved.
     Closure<Void> fn = {
         setDatabaseProperties();
     }
@@ -20,7 +19,7 @@ class DoThenSetup extends DefaultTask
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
-        Properties configProperties = dbProperties.getProperties()
+        Properties configProperties = dbProperties.getConfigProperties()
         configProperties.putAll(project.ext.properties);
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}");
         configProperties.setProperty("appDocBase", appDocBase);

@@ -38,7 +38,7 @@ class RunUiTest extends Test
     {
         List<String> jvmArgsList = ["-Xmx512m",
                                     "-Xdebug",
-                                    "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestProperty("debugSuspendSelenium")},address=${testExt.getTestProperty("selenium.debug.port")}",
+                                    "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestConfig("debugSuspendSelenium")},address=${testExt.getTestConfig("selenium.debug.port")}",
                                     "-Dfile.encoding=UTF-8"]
 
         TomcatExtension tomcat = project.extensions.findByType(TomcatExtension.class)

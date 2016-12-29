@@ -23,7 +23,7 @@ class DatabaseProperties
     String shortType // pg or mssql
     String version // database version, e.g. 9.2
 
-    Properties properties
+    Properties configProperties
     Project project
 
     DatabaseProperties(String dbTypeAndVersion, String shortType, version)
@@ -31,14 +31,20 @@ class DatabaseProperties
         this.dbTypeAndVersion = dbTypeAndVersion
         this.shortType = shortType
         this.version = version
-        this.properties = new Properties()
+        this.configProperties = new Properties()
     }
 
     DatabaseProperties(Project project, Boolean useBootstrap)
     {
         this.project = project
-        this.properties = readDatabaseProperties(project)
-        setJdbcProperties(useBootstrap)
+        this.configProperties = readDatabaseProperties(project)
+        if (!this.configProperties.isEmpty())
+            setJdbcProperties(useBootstrap)
+    }
+
+    static Boolean hasConfigFile(Project project)
+    {
+        return project.project(":server").file(DATABASE_CONFIG_FILE).exists()
     }
 
     void setProject(Project project)
@@ -48,46 +54,46 @@ class DatabaseProperties
 
     void setJdbcURL(String jdbcURL)
     {
-        this.properties.setProperty(JDBC_URL_PROP, jdbcURL)
+        this.configProperties.setProperty(JDBC_URL_PROP, jdbcURL)
     }
 
     String getJdbcURL()
     {
-        return this.properties.get(JDBC_URL_PROP)
+        return this.configProperties.get(JDBC_URL_PROP)
     }
 
     void setJdbcDatabase(String database)
     {
-        this.properties.setProperty(JDBC_DATABASE_PROP, database)
+        this.configProperties.setProperty(JDBC_DATABASE_PROP, database)
     }
 
     String getJdbcDatabase()
     {
-        return this.properties.get(JDBC_DATABASE_PROP)
+        return this.configProperties.get(JDBC_DATABASE_PROP)
     }
 
 
     void setJdbcPort(String port)
     {
-        this.properties.setProperty(JDBC_PORT_PROP, port)
+        this.configProperties.setProperty(JDBC_PORT_PROP, port)
     }
 
     String getJdbcPort()
     {
-        return this.properties.get(JDBC_PORT_PROP)
+        return this.configProperties.get(JDBC_PORT_PROP)
     }
 
     private void setJdbcProperties(Boolean bootstrap)
     {
         if (bootstrap)
-            this.properties.setProperty(JDBC_DATABASE_PROP, (String) this.properties.get(BOOTSTRAP_DB_PROP))
+            this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(BOOTSTRAP_DB_PROP))
         else
-            this.properties.setProperty(JDBC_DATABASE_PROP, (String) this.properties.get(DEFAULT_DB_PROP))
-        this.properties.setProperty(JDBC_HOST_PROP, (String) this.properties.get(DEFAULT_HOST_PROP))
-        this.properties.setProperty(JDBC_PORT_PROP, (String) this.properties.get(DEFAULT_PORT_PROP))
-        this.properties.setProperty(JDBC_URL_PARAMS_PROP, "")
-        this.properties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(this.properties, this.properties.getProperty(JDBC_URL_PROP)))
-        this.project.ext.dbProperties = this.properties
+            this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(DEFAULT_DB_PROP))
+        this.configProperties.setProperty(JDBC_HOST_PROP, (String) this.configProperties.get(DEFAULT_HOST_PROP))
+        this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
+        this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
+        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        this.project.ext.dbProperties = this.configProperties
     }
 
     void mergePropertiesFromFile()
@@ -95,19 +101,19 @@ class DatabaseProperties
         Properties fileProperties = readDatabaseProperties(project)
         for (String name : fileProperties.propertyNames())
         {
-            if (!this.properties.hasProperty(name))
+            if (!this.configProperties.hasProperty(name))
             {
-                this.properties.setProperty(name, fileProperties.getProperty(name))
+                this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
         }
-        this.properties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(this.properties, this.properties.getProperty(JDBC_URL_PROP)))
-        this.ext.dbProperties = this.properties
+        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        this.ext.dbProperties = this.configProperties
     }
 
 
     static Properties readDatabaseProperties(Project project)
     {
-        if (project.project(":server").file(DATABASE_CONFIG_FILE).exists())
+        if (hasConfigFile(project))
         {
             Properties props = PropertiesUtils.readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE);
             return props;
