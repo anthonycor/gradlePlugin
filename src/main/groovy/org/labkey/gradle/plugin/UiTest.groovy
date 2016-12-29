@@ -98,13 +98,13 @@ class UiTestExtension
     {
         // read database configuration, but don't include jdbcUrl and other non-"database"
         // properties because they "cause problems" (quote from the test/build.xml file)
-        Properties dbProperties = DatabaseProperties.readDatabaseProperties(project)
-        this.properties = new Properties();
+        DatabaseProperties dbProperties = new DatabaseProperties(project, false)
+        this.properties = new Properties()
         this.properties.setProperty("debugSuspendSelenium", "n")
-        for (String name : dbProperties.stringPropertyNames())
+        for (String name : dbProperties.getProperties().stringPropertyNames())
         {
             if (name.contains("database"))
-                this.properties.put(name, dbProperties.getProperty(name))
+                this.properties.put(name, dbProperties.getProperties().getProperty(name))
         }
         // read test.properties file
         PropertiesUtils.readProperties(project.file(propertiesFile), this.properties)

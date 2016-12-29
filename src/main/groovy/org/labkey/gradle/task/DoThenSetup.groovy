@@ -1,7 +1,6 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.util.DatabaseProperties
@@ -9,11 +8,11 @@ import org.labkey.gradle.util.PropertiesUtils
 
 class DoThenSetup extends DefaultTask
 {
+    protected DatabaseProperties dbProperties
 
     //default value is init_database_properties, so dependsOn relationship with setup is preserved.
     Closure<Void> fn = {
-        initDatabaseProperties(project);
-        setJDBCDefaultProps(project);
+        setDatabaseProperties();
     }
 
     @TaskAction
@@ -21,7 +20,7 @@ class DoThenSetup extends DefaultTask
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
-        Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
+        Properties configProperties = dbProperties.getProperties()
         configProperties.putAll(project.ext.properties);
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}");
         configProperties.setProperty("appDocBase", appDocBase);
@@ -55,30 +54,8 @@ class DoThenSetup extends DefaultTask
         })
     }
 
-    static void initDatabaseProperties(Project project)
+    protected void setDatabaseProperties()
     {
-        Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
-        for (String key : configProperties.keySet())
-        {
-            if (key.contains("database"))
-            {
-                project.ext[key] = configProperties.getProperty(key);
-            }
-        }
+        dbProperties = new DatabaseProperties(project, false)
     }
-
-    static void setJDBCDefaultProps(Project project)
-    {
-        Properties tempProperties = DatabaseProperties.readDatabaseProperties(project);
-
-        project.ext.databaseProps = tempProperties
-        project.ext.jdbcDatabase = project.ext.databaseDefault;
-        project.ext.jdbcHost = project.ext.databaseDefaultHost;
-        project.ext.jdbcPort = project.ext.databaseDefaultPort;
-        project.ext.jdbcURLParameters = "";
-
-        tempProperties.putAll(project.ext.properties);
-        project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(tempProperties, tempProperties.getProperty("jdbcURL"));
-    }
-
 }

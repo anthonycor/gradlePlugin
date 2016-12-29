@@ -14,6 +14,7 @@ class SqlUtils
     //additionally, it is always called with inheritAll=false, so we should explicitly pass in parameters.
     static void execSql(Project project, Properties params, String sql)
     {
+        // read in a clean (unsubstituted) set of properties from the file
         Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
         configProperties.putAll(params); //overrides configProperties in case of duplicates
 
@@ -33,19 +34,26 @@ class SqlUtils
         Driver driverInstance = (Driver) driverClass.newInstance()
         DriverManager.registerDriver(driverInstance)
 
+        Sql db = null
         try
         {
-            Sql db = Sql.newInstance(url, user, password);
+            db = Sql.newInstance(url, user, password);
             db.execute(sql);
+
         }
         catch (Exception e)
         {
             project.logger.error(e.toString());
         }
+        finally
+        {
+            if (db != null)
+                db.close()
+        }
 
     }
 
-    static void dropDatabase(Task task, Map<String, Object> properties)
+    static void dropDatabase(Task task, Properties properties)
     {
         Project project = task.project
 
@@ -55,15 +63,15 @@ class SqlUtils
         }
         else
         {
-            project.logger.info("Attempting to drop database ${properties.get("jdbcDatabase")}");
-            Properties params = new Properties();
-            params.setProperty("tomcatHome", project.tomcatDir);
-            params.setProperty("jdbcDatabase", (String) properties.get('databaseMaster'));
-            params.setProperty("jdbcURLParameters", "");
-            params.setProperty("jdbcHost", (String) properties.get('jdbcHost'));
-            params.setProperty("jdbcPort", (String) properties.get("jdbcPort"));
+            Properties params = new Properties()
+            // need to connect to the master database in order to drop the database
+            params.setProperty("jdbcDatabase", (String) properties.get('databaseMaster'))
+            params.setProperty("jdbcURLParameters", "")
+            params.setProperty("jdbcHost", (String) properties.get('jdbcHost'))
+            params.setProperty("jdbcPort", (String) properties.get("jdbcPort"))
 
-            execSql(project, params, "DROP DATABASE \"${properties.get('jdbcDatabase')}\";");
+            project.logger.info("Attempting to drop database ${properties.get("jdbcDatabase")}")
+            execSql(project, params, "DROP DATABASE \"${properties.get('jdbcDatabase')}\";")
         }
     }
 }

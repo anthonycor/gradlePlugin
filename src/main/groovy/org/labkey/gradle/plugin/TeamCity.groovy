@@ -209,39 +209,18 @@ class TeamCity extends Tomcat
                     group: GroupNames.TEST_SERVER,
                     description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
                     type: RunTestSuite,
-                    {
-                        dbProperties = properties
-                        doFirst
+                    { RunTestSuite task ->
+                        task.dbProperties = properties
+                        task.doFirst
                         {
-                            if (properties.jdbcURL != null)
-                            {
-                                // replace the jdbcURL property in the config.properties file
-                                PropertiesUtils.replaceDatabaseProperty(project, "jdbcURL", properties.jdbcURL)
-                            }
-                            // read the config.properties file
-                            Properties configProperties = DatabaseProperties.readDatabaseProperties(project)
-                            // override properties from the config.properties file with values set in TeamCity configuration
-                            configProperties.setProperty("jdbcDatabase", properties.getJdbcDatabase())
-                            configProperties.setProperty("jdbcHost", configProperties.getProperty("databaseDefaultHost"))
-                            configProperties.setProperty("jdbcURLParameters", "")
-
-                            if (properties.jdbcPort != null)
-                            {
-                                project.ext.jdbcPort = properties.jdbcPort // not strictly necessary but useful for consistency
-                                configProperties.setProperty("jdbcPort", properties.jdbcPort)
-                            }
-
-                            project.ext.jdbcURL = PropertiesUtils.parseCompositeProp(configProperties, configProperties.getProperty("jdbcURL"))
-                            // This is necessary only for dropping the database, but will be accurate if someone looks
-                            // at properties before running this build.
-                            project.ext.jdbcDatabase = properties.jdbcDatabase
+                            task.dbProperties.mergePropertiesFromFile()
                         }
                     }
             )
 
             if (extension.dropDatabase)
                 ciTestTask.doFirst({
-                    SqlUtils.dropDatabase(ciTestTask, project.ext.properties)
+                    SqlUtils.dropDatabase(ciTestTask, ciTestTask.dbProperties)
                 })
             if (properties.shortType.equals('pg'))
                 ciTestTask.dependsOn(project.project(":server").tasks.pickPg)
@@ -397,14 +376,17 @@ class TeamCityExtension
                     if ((Boolean) getTeamCityProperty("database.${type}", false))
                     {
                         DatabaseProperties props = SUPPORTED_DATABASES.get(type)
+                        props.setProject(project)
                         props.jdbcDatabase = getDatabaseName()
                         if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
                         {
                             props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
+                            if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
+                                validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
                         }
-                        if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
-                            validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
-                        else
+                        else if (getTeamCityProperty("database.${type}.port").isEmpty())
+                            validationMessages.add("database.${type}.jdbcURL and database.${type}.port not specified. Connection not possible.")
+                        if (!getTeamCityProperty("database.${type}.port").isEmpty())
                             props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
                         this.databaseTypes.add(props)
                         databaseAvailable = true

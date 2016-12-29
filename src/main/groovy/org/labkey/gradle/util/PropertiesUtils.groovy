@@ -35,18 +35,6 @@ class PropertiesUtils
         return parseCompositeProp(propWrapper, prop);
     }
 
-    static void replaceDatabaseProperty(Project project, String name, String value)
-    {
-        project.ant.propertyfile(
-                file: "${project.project(":server")}/${DatabaseProperties.DATABASE_CONFIG_FILE}"
-        )
-                {
-                    entry( key: name, value: value)
-                }
-    }
-
-    //Convenience method. Mimics ant's "<property file="${basedir}/config.properties"/>"
-
     static String replaceProps(String line, Properties props)
     {
         Matcher matcher = PROPERTY_PATTERN.matcher(line);
