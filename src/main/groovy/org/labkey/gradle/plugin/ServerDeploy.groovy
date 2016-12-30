@@ -176,7 +176,7 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
-        project.task(
+        Task cleanDeploy = project.task(
                 'cleanDeploy',
                 group: GroupNames.DEPLOY,
                 type: Delete,
@@ -184,32 +184,33 @@ class ServerDeploy implements Plugin<Project>
                 dependsOn: project.tasks.stopTomcat,
                 { DeleteSpec spec ->
                     spec.delete serverDeploy.dir
-                    deleteTomcatLibs(project)
                 }
         )
-
-        Task cleanAndDeploy = project.task(
-                "cleanAndDeploy",
-                group: GroupNames.DEPLOY,
-                type: DeployApp,
-                description: "Removes the deploy directory ${serverDeploy.dir} then deploys the application locally",
-                dependsOn: project.tasks.stopTomcat
-        )
-        cleanAndDeploy.doFirst{
-            project.delete(serverDeploy.dir)
+        cleanDeploy.doLast {
             deleteTomcatLibs(project)
         }
 
         project.task(
+                "cleanAndDeploy",
+                group: GroupNames.DEPLOY,
+                type: DeployApp,
+                description: "Removes the deploy directory ${serverDeploy.dir} then deploys the application locally",
+                dependsOn: project.tasks.cleanDeploy
+        )
+
+        Task cleanBuild = project.task(
                 "cleanBuild",
                 group: GroupNames.DEPLOY,
                 type: Delete,
                 description: "Remove the build directory ${project.rootProject.buildDir}",
                 { DeleteSpec spec ->
                     spec.delete project.rootProject.buildDir
-                    deleteTomcatLibs(project)
                 }
         )
+        cleanBuild.doLast {
+            deleteTomcatLibs(project)
+        }
+
     }
 
     private static void deleteTomcatLibs(Project project)
