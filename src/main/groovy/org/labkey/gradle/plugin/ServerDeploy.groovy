@@ -7,17 +7,12 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.DeleteSpec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
-import org.labkey.gradle.task.ConfigureLog4J
-import org.labkey.gradle.task.DeployApp
-import org.labkey.gradle.task.DoThenSetup
-import org.labkey.gradle.task.UndeployModules
-import org.labkey.gradle.task.StageDistribution
+import org.labkey.gradle.task.*
 import org.labkey.gradle.util.GroupNames
 
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-
 /**
  * First stages then deploys the application locally to the tomcat directory
  */
@@ -60,7 +55,7 @@ class ServerDeploy implements Plugin<Project>
 
         // FIXME staging step complicates things, but we currently depend on it for generating the
         // apiFilesList that determines which libraries to keep and which to remove from WEB-INF/lib
-        // We need to put libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
+        // We also need to put libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
         // for recompiling JSP's.
         Task stageModulesTask = project.task(
                 "stageModules",
@@ -73,6 +68,9 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
+        // N.B. It might be preferable to not have the stageApiTask and declare
+        // dependencies or exclusions such that we can pull the :server:api transitive
+        // dependencies but exclude the jars from the tomcat lib.
         Task stageApiTask = project.task(
                 "stageApi",
                 group: GroupNames.DEPLOY,
@@ -84,9 +82,6 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
-        // N.B. It might be preferable to not have the stageApiTask and declare
-        // dependencies or exclusions such that we can pull the :server:api transitive
-        // dependencies but exclude the jars from the tomcat lib.
         Task stageJarsTask = project.task(
                 "stageJars",
                 group: GroupNames.DEPLOY,
@@ -185,12 +180,11 @@ class ServerDeploy implements Plugin<Project>
                 'cleanDeploy',
                 group: GroupNames.DEPLOY,
                 type: Delete,
-                description: "Removes the deploy directory (${serverDeploy.dir})",
+                description: "Removes the deploy directory ${serverDeploy.dir}",
+                dependsOn: project.tasks.stopTomcat,
                 { DeleteSpec spec ->
                     spec.delete serverDeploy.dir
-                    Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
-                        spec.delete path.toString()
-                    }
+                    deleteTomcatLibs(project)
                 }
         )
 
@@ -199,12 +193,11 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 type: DeployApp,
                 description: "Removes the deploy directory ${serverDeploy.dir} then deploys the application locally",
+                dependsOn: project.tasks.stopTomcat
         )
         cleanAndDeploy.doFirst{
             project.delete(serverDeploy.dir)
-            Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
-                project.delete path.toString()
-            }
+            deleteTomcatLibs(project)
         }
 
         project.task(
@@ -214,11 +207,21 @@ class ServerDeploy implements Plugin<Project>
                 description: "Remove the build directory ${project.rootProject.buildDir}",
                 { DeleteSpec spec ->
                     spec.delete project.rootProject.buildDir
-                    Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
-                      spec.delete path.toString()
-                    }
+                    deleteTomcatLibs(project)
                 }
         )
+    }
+
+    private static void deleteTomcatLibs(Project project)
+    {
+        Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
+            project.delete path.toString()
+        }
+        project.configurations.tomcatJars.files.each {File jarFile ->
+            File libFile = new File("${project.tomcatDir}/lib/${jarFile.getName()}")
+            if (libFile.exists())
+                project.delete libFile.getAbsolutePath()
+        }
     }
 }
 
@@ -234,7 +237,7 @@ class ServerDeployExtension
 
     static String getServerDeployDirectory(Project project)
     {
-        return "${project.rootProject.buildDir}/deploy";
+        return "${project.rootProject.buildDir}/deploy"
     }
 }
 
