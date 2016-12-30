@@ -1,6 +1,9 @@
 package org.labkey.gradle.task
 
+import org.apache.commons.lang3.SystemUtils
+import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
+import org.labkey.gradle.plugin.LabKeyExtension
 import org.labkey.gradle.plugin.TomcatExtension
 import org.labkey.gradle.plugin.UiTestExtension
 
@@ -15,6 +18,7 @@ class RunUiTest extends Test
     RunUiTest()
     {
         testExt = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
+        setSystemProperties()
         setJvmArgs()
 
         reports { TestTaskReports -> reports
@@ -38,6 +42,7 @@ class RunUiTest extends Test
     {
         List<String> jvmArgsList = ["-Xmx512m",
                                     "-Xdebug",
+                                    "-Dlabkey.root=${project.rootProject.projectDir.absolutePath}",
                                     "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestConfig("debugSuspendSelenium")},address=${testExt.getTestConfig("selenium.debug.port")}",
                                     "-Dfile.encoding=UTF-8"]
 
@@ -50,4 +55,44 @@ class RunUiTest extends Test
 
         jvmArgs jvmArgsList
     }
+
+    private void setSystemProperties()
+    {
+        Properties testConfig = testExt.getConfig()
+        for (String key : testConfig.keySet())
+        {
+            systemProperty key, testConfig.get(key)
+        }
+        systemProperty "devMode", LabKeyExtension.isDevMode(project)
+        systemProperty "failure.output.dir", "${project.buildDir}/${LOG_DIR}"
+        systemProperty "labkey.root", project.rootProject.projectDir
+
+        systemProperty "user.home", System.getProperty('user.home')
+        systemProperty "tomcat.home", project.ext.tomcatDir
+        systemProperty "test.credentials.file", "${project.projectDir}/test.credentials.json"
+        if (project.findProject(":server:test") != null)
+        {
+            Project testProject = project.project(":server:test")
+            if (SystemUtils.IS_OS_WINDOWS)
+            {
+                if (SystemUtils.OS_ARCH.equals("amd64"))
+                    systemProperty "webdriver.ie.driver", "${testProject.projectDir}/bin/windows/amd64/IEDriverServer.exe"
+                else if (SystemUtils.OS_ARCH.equals("i386"))
+                    systemProperty "webdriver.ie.driver", "${testProject.projectDir}/bin/windows/i386/IEDriverServer.exe"
+                systemProperty "webdriver.chrome.driver", "${testProject.projectDir}/bin/windows/chromedriver.exe"
+            }
+            else if (SystemUtils.IS_OS_MAC)
+            {
+                systemProperty "webdriver.chrome.driver", "${testProject.projectDir}/bin/mac/chromedriver"
+            }
+            else if (SystemUtils.IS_OS_LINUX)
+            {
+                if (SystemUtils.OS_ARCH.equals("amd64"))
+                    systemProperty "webdriver.chrome.driver", "${testProject.projectDir}/bin/linux/amd64/chromedriver"
+                else if (SystemUtils.OS_ARCH.equals("i386"))
+                    systemProperty "webdriver.chrome.driver", "${testProject.projectDir}/bin/linux/i386/chromedriver"
+            }
+        }
+    }
+
 }

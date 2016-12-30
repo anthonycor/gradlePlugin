@@ -19,10 +19,7 @@ class UiTest implements Plugin<Project>
 
     static Boolean isApplicable(Project project)
     {
-        // TODO for now, we return false.  Most of the machinery is in place, but we need to work out the chrome extensions
-        // Error: The driver executable does not exist: /Users/susanh/Development/labkey/trunk/server/modules/server/test/bin/mac/chromedriver
-        return false
-//        return project.file(TEST_SRC_DIR).exists()
+        return project.file(TEST_SRC_DIR).exists()
     }
 
     @Override
@@ -93,7 +90,7 @@ class UiTestExtension
         this.project = project
     }
 
-    private void setProperties(Project project)
+    private void setConfig()
     {
         // read database configuration, but don't include jdbcUrl and other non-"database"
         // properties because they "cause problems" (quote from the test/build.xml file)
@@ -105,8 +102,10 @@ class UiTestExtension
             if (name.contains("database"))
                 this.config.put(name, dbProperties.getConfigProperties().getProperty(name))
         }
-        // read test.properties file
-        PropertiesUtils.readProperties(project.file(propertiesFile), this.config)
+        if (project.findProject(":server:test") != null)
+            // read test.properties file
+            PropertiesUtils.readProperties(project.project(":server:test").file(propertiesFile), this.config)
+        // if the test.properties file is not available, all properties will need to be provided via project properties
         for (String name : config.propertyNames())
         {
             // two of the test.property names ('test' and 'clean') are the same as the
@@ -125,7 +124,7 @@ class UiTestExtension
     Properties getConfig()
     {
         if (this.config == null)
-            setProperties(this.project)
+            setConfig()
         return this.config;
     }
 
