@@ -19,7 +19,7 @@ class UiTest implements Plugin<Project>
 
     static Boolean isApplicable(Project project)
     {
-        // For now we return false here because the server/test project references the test/sr directory as well
+        // For now we return false here because the server/test project references the test/src directory as well
         // and IntelliJ doesn't like it when two projects reference the same source.
         return false;
         // TODO we might be able to get rid of the dependency on the :server:test project if we publish the test jar,
@@ -50,7 +50,7 @@ class UiTest implements Plugin<Project>
         project.sourceSets {
             uiTest {
                 java {
-                    srcDirs = ['test/src']
+                    srcDirs = [TEST_SRC_DIR]
                 }
                 resources {
                     srcDirs = ["test/resources"]

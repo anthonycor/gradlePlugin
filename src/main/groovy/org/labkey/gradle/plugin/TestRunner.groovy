@@ -41,9 +41,9 @@ class TestRunner extends UiTest
                     // we add the test/src directories from all projects because the test suites encompass tests
                     // across modules.
                     project.rootProject.allprojects { Project otherProj ->
-                        if (otherProj.file("test/src").exists())
+                        if (otherProj.file(UiTest.TEST_SRC_DIR).exists())
                         {
-                            srcDirs += otherProj.file("test/src")
+                            srcDirs += otherProj.file(UiTest.TEST_SRC_DIR)
                         }
                     }
                 }

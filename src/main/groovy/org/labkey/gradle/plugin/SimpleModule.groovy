@@ -30,8 +30,6 @@ class SimpleModule implements Plugin<Project>
     //   ext.skipBuild = true
     private static final String SKIP_BUILD_FILE = "skipBuild.txt"
 
-    private static final String TEST_SRC_DIR = "test/src"
-
     Project _project;
 
     @Override
