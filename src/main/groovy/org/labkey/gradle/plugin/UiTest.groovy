@@ -19,12 +19,13 @@ class UiTest implements Plugin<Project>
 
     static Boolean isApplicable(Project project)
     {
-        // For now we return false here because the server/test project references the test/src directory as well
+        // For now we return rely on the enableUiTests property here to allow use of individual test running
+        // from the command line because the server/test project references the test/src directory as well
         // and IntelliJ doesn't like it when two projects reference the same source.
-        return false;
+
         // TODO we might be able to get rid of the dependency on the :server:test project if we publish the test jar,
         // but some modules probably reach into the server/test directory in undocumented ways.
-//        return project.file(TEST_SRC_DIR).exists() && project.findProject(":server:test") != null
+        return project.hasProperty("enableUiTests") && project.file(TEST_SRC_DIR).exists() && project.findProject(":server:test") != null
     }
 
     @Override
