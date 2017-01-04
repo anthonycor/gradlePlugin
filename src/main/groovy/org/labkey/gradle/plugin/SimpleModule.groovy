@@ -398,7 +398,7 @@ class ModuleExtension
 {
     private static final String ENLISTMENT_PROPERTIES = "enlistment.properties"
     protected static final String MODULE_PROPERTIES_FILE = "module.properties"
-    private Properties properties
+    private Properties modProperties
     private Project project
 
     ModuleExtension(Project project)
@@ -414,7 +414,7 @@ class ModuleExtension
 
     String getPropertyValue(String propertyName, String defaultValue)
     {
-        String value = properties.getProperty(propertyName)
+        String value = modProperties.getProperty(propertyName)
         return value == null ? defaultValue : value;
 
     }
@@ -425,18 +425,19 @@ class ModuleExtension
 
     Object get(String propertyName)
     {
-        return properties.get(propertyName)
+        return modProperties.get(propertyName)
     }
 
     void setModuleProperties(Project project)
     {
         File propertiesFile = project.file(MODULE_PROPERTIES_FILE)
-        this.properties = new Properties()
-        PropertiesUtils.readProperties(propertiesFile, this.properties)
+        this.modProperties = new Properties()
+        PropertiesUtils.readProperties(propertiesFile, this.modProperties)
 
-        // remove -SNAPSHOT and any feature branch prefix from the module version number
-        // because the module loader does not expect or handle decorated version numbers
-        properties.setProperty("Version", BuildUtils.getLabKeyModuleVersion(project))
+        if (modProperties.getProperty("Version") == null)
+            // remove -SNAPSHOT and any feature branch prefix from the module version number
+            // because the module loader does not expect or handle decorated version numbers
+            modProperties.setProperty("Version", BuildUtils.getLabKeyModuleVersion(project))
 
         setBuildInfoProperties()
         setModuleInfoProperties()
@@ -449,15 +450,15 @@ class ModuleExtension
     {
         if (project.plugins.hasPlugin("org.labkey.versioning"))
         {
-            properties.setProperty("VcsURL", project.versioning.info.url)
-            properties.setProperty("VcsRevision", project.versioning.info.commit)
-            properties.setProperty("BuildNumber",  System.hasProperty("build.number") ? System.getProperty("build.number") : project.versioning.info.build)
+            modProperties.setProperty("VcsURL", project.versioning.info.url)
+            modProperties.setProperty("VcsRevision", project.versioning.info.commit)
+            modProperties.setProperty("BuildNumber",  System.hasProperty("build.number") ? System.getProperty("build.number") : project.versioning.info.build)
         }
         else
         {
-            properties.setProperty("VcsURL", "Unknown")
-            properties.setProperty("VcsRevision", "Unknown")
-            properties.setProperty("BuildNumber", "Unknown")
+            modProperties.setProperty("VcsURL", "Unknown")
+            modProperties.setProperty("VcsRevision", "Unknown")
+            modProperties.setProperty("BuildNumber", "Unknown")
         }
     }
 
@@ -475,31 +476,31 @@ class ModuleExtension
         {
             PropertiesUtils.readProperties(enlistmentFile, enlistmentProperties)
         }
-        properties.setProperty("EnlistmentId", enlistmentProperties.getProperty("enlistment.id"))
+        modProperties.setProperty("EnlistmentId", enlistmentProperties.getProperty("enlistment.id"))
     }
 
     private void setBuildInfoProperties()
     {
-        properties.setProperty("RequiredServerVersion", "0.0")
-        if (properties.getProperty("BuildType") == null)
-            properties.setProperty("BuildType", project.labkey.getDeployModeName(project))
-        properties.setProperty("BuildUser", System.getProperty("user.name"))
-        properties.setProperty("BuildOS", System.getProperty("os.name"))
-        properties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
-        properties.setProperty("BuildPath", project.buildDir.getAbsolutePath() )
-        properties.setProperty("SourcePath", project.projectDir.getAbsolutePath() )
-        properties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
-        if (properties.getProperty("ConsolidateScripts") == null)
-            properties.setProperty("ConsolidateScripts", "")
-        if (properties.getProperty("ManageVersion") == null)
-            properties.setProperty("ManageVersion", "")
+        modProperties.setProperty("RequiredServerVersion", "0.0")
+        if (modProperties.getProperty("BuildType") == null)
+            modProperties.setProperty("BuildType", project.labkey.getDeployModeName(project))
+        modProperties.setProperty("BuildUser", System.getProperty("user.name"))
+        modProperties.setProperty("BuildOS", System.getProperty("os.name"))
+        modProperties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
+        modProperties.setProperty("BuildPath", project.buildDir.getAbsolutePath() )
+        modProperties.setProperty("SourcePath", project.projectDir.getAbsolutePath() )
+        modProperties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
+        if (modProperties.getProperty("ConsolidateScripts") == null)
+            modProperties.setProperty("ConsolidateScripts", "")
+        if (modProperties.getProperty("ManageVersion") == null)
+            modProperties.setProperty("ManageVersion", "")
     }
 
     private void setModuleInfoProperties()
     {
-        if (properties.getProperty("Name") == null)
-            properties.setProperty("Name", project.name)
-        if (properties.getProperty("ModuleClass") == null)
-            properties.setProperty("ModuleClass", "org.labkey.api.module.SimpleModule")
+        if (modProperties.getProperty("Name") == null)
+            modProperties.setProperty("Name", project.name)
+        if (modProperties.getProperty("ModuleClass") == null)
+            modProperties.setProperty("ModuleClass", "org.labkey.api.module.SimpleModule")
     }
 }
