@@ -13,11 +13,12 @@ class Api implements Plugin<Project>
 {
     public static final String CLASSIFIER = "api"
     public static final String SOURCE_DIR = "api-src"
+    public static final String ALT_SOURCE_DIR = "src/api-src"
     private static final String MODULES_API_DIR = "modules-api"
 
     static boolean isApplicable(Project project)
     {
-        return project.file(SOURCE_DIR).exists()
+        return project.file(SOURCE_DIR).exists() || project.file(ALT_SOURCE_DIR).exists()
     }
 
     @Override
@@ -38,7 +39,7 @@ class Api implements Plugin<Project>
                 {
                     api {
                         java {
-                            srcDirs = [SOURCE_DIR, 'intenral/gwtsrc']
+                            srcDirs = [project.file(SOURCE_DIR).exists() ? SOURCE_DIR : ALT_SOURCE_DIR, 'intenral/gwtsrc']
                         }
                         output.classesDir = "${project.buildDir}/api-classes"
                     }
