@@ -21,11 +21,14 @@ class BuildUtils
     public static final String OPTIONAL_MODULES_DIR = "server/optionalModules"
     public static final String EXTERNAL_MODULES_DIR = "externalModules"
 
-    public static final List<String> BASE_MODULES = ["server:bootstrap",
-                                                     "server:api",
-                                                     "schemas",
-                                                     "server:internal",
-                                                     'remoteapi:java'
+    public static final String TEST_MODULE = ":server:test"
+    public static final String TEST_MODULES_DIR = "server/test/modules"
+
+    public static final List<String> BASE_MODULES = [":server:bootstrap",
+                                                     ":server:api",
+                                                     ":schemas",
+                                                     ":server:internal",
+                                                     ':remoteapi:java'
     ]
 
     public static final List<String> EHR_MODULE_NAMES = [
@@ -59,6 +62,17 @@ class BuildUtils
     static void includeBaseModules(Settings settings)
     {
         includeModules(settings, BASE_MODULES)
+    }
+
+    /**
+     * This includes the :server:test project as well as the modules in the server/test/modules directory
+     * @param settings
+     * @param rootDir root directory of the project
+     */
+    static void includeTestModules(Settings settings, File rootDir)
+    {
+        settings.include TEST_MODULE
+        includeModules(settings, rootDir, [TEST_MODULES_DIR], [])
     }
 
     static void includeModules(Settings settings, List<String> modules)
