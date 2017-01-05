@@ -3,9 +3,8 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 /**
- * Defines a set of extension properties for ease of reference. This also and adds a labkey extension
- * for some basic properties.  Other plugins can derive from this class to trigger the creation of the
- * labkey extension for the project.
+ * Defines a set of extension properties for ease of reference. This also adds a two extensions
+ * for some basic properties.
  * Created by susanh on 4/13/16.
  */
 class LabKey implements Plugin<Project>
