@@ -87,6 +87,10 @@ class DeployApp extends DefaultTask
             copy.from  stagingTomcatJarDir
             copy.into "${project.tomcatDir}/lib"
         })
+        project.copy ( { CopySpec copy ->
+            copy.from project.project(":server:bootstrap").tasks.jar
+            copy.into "${project.tomcatDir}/lib"
+        })
     }
 
     private void deployPipelineJars()
