@@ -17,22 +17,18 @@ class PropertiesUtils
         return props;
     }
 
-    static String parseCompositeProp(Properties props, String prop)
+    static String parseCompositeProp(Project project, Properties props, String prop)
     {
         Matcher valMatcher = VALUE_PATTERN.matcher(prop);
         while (valMatcher.find())
         {
             String p = valMatcher.group(1).replace("\${", "").replace("}", "");
-            prop = prop.replace(valMatcher.group(1), (String)(props.getProperty(p)));
+            if (props.getProperty(p) != null)
+                prop = prop.replace(valMatcher.group(1), (String)(props.getProperty(p)))
+            else
+                project.logger.error("Unable to find value for ${p} in ${props}")
         }
         return prop;
-    }
-
-    static String parseCompositeProp(Map<String, Object> props, String prop)
-    {
-        Properties propWrapper = new Properties();
-        propWrapper.putAll(props);
-        return parseCompositeProp(propWrapper, prop);
     }
 
     static String replaceProps(String line, Properties props)

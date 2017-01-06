@@ -18,7 +18,7 @@ class SqlUtils
         Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
         configProperties.putAll(params); //overrides configProperties in case of duplicates
 
-        String url = PropertiesUtils.parseCompositeProp(configProperties, configProperties.getProperty("jdbcURL"));
+        String url = PropertiesUtils.parseCompositeProp(project, configProperties, configProperties.getProperty("jdbcURL"));
         String user = configProperties.getProperty("jdbcUser");
         String password = configProperties.getProperty("jdbcPassword");
         String driverClassName = configProperties.getProperty("jdbcDriverClassName");

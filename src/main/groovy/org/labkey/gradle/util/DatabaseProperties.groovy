@@ -92,7 +92,7 @@ class DatabaseProperties
         this.configProperties.setProperty(JDBC_HOST_PROP, (String) this.configProperties.get(DEFAULT_HOST_PROP))
         this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
         this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
-        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
         this.project.ext.dbProperties = this.configProperties
     }
 
@@ -106,7 +106,7 @@ class DatabaseProperties
                 this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
         }
-        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
         this.ext.dbProperties = this.configProperties
     }
 
