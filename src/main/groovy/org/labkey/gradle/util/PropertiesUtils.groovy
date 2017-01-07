@@ -19,14 +19,19 @@ class PropertiesUtils
 
     static String parseCompositeProp(Project project, Properties props, String prop)
     {
-        Matcher valMatcher = VALUE_PATTERN.matcher(prop);
-        while (valMatcher.find())
+        if (props == null)
+            project.logger.error("${project.path} Properties is null")
+        else
         {
-            String p = valMatcher.group(1).replace("\${", "").replace("}", "");
-            if (props.getProperty(p) != null)
-                prop = prop.replace(valMatcher.group(1), (String)(props.getProperty(p)))
-            else
-                project.logger.error("Unable to find value for ${p} in ${props}")
+            Matcher valMatcher = VALUE_PATTERN.matcher(prop);
+            while (valMatcher.find())
+            {
+                String p = valMatcher.group(1).replace("\${", "").replace("}", "")
+                if (props.getProperty(p) != null)
+                    prop = prop.replace(valMatcher.group(1), (String) (props.getProperty(p)))
+                else
+                    project.logger.error("Unable to find value for ${p} in ${props}")
+            }
         }
         return prop;
     }
