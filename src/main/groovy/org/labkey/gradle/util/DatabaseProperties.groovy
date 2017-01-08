@@ -39,7 +39,7 @@ class DatabaseProperties
         this.project = project
         this.configProperties = readDatabaseProperties(project)
         if (!this.configProperties.isEmpty())
-            setJdbcProperties(useBootstrap)
+            setDefaultJdbcProperties(useBootstrap)
     }
 
     static Boolean hasConfigFile(Project project)
@@ -83,7 +83,7 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_PORT_PROP)
     }
 
-    private void setJdbcProperties(Boolean bootstrap)
+    void setDefaultJdbcProperties(Boolean bootstrap)
     {
         if (bootstrap)
             this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(BOOTSTRAP_DB_PROP))
@@ -93,7 +93,6 @@ class DatabaseProperties
         this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
         this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
         this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
-        this.project.ext.dbProperties = this.configProperties
     }
 
     void mergePropertiesFromFile()
@@ -107,7 +106,6 @@ class DatabaseProperties
             }
         }
         this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
-        this.ext.dbProperties = this.configProperties
     }
 
 
