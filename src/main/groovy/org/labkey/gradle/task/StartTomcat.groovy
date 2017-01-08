@@ -4,7 +4,6 @@ import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.TeamCityExtension
-
 /**
  * Created by susanh on 11/15/16.
  */
@@ -61,14 +60,14 @@ class StartTomcat extends DefaultTask
                         key: "R_LIBS_USER",
                         value: System.getProperty("R_LIBS_USER") != null ? System.getProperty("R_LIBS_USER") : project.rootProject.file("sampledata/rlabkey")
                 )
-                env (
-                        key: "JAVA_HOME",
-                        value: System.getProperty("JAVA_HOME")
-                )
-                env (
-                        key: "JRE_HOME",
-                        value: System.getProperty("JAVA_HOME")
-                )
+//                env (
+//                        key: "JAVA_HOME",
+//                        value: System.getProperty("JAVA_HOME")
+//                )
+//                env (
+//                        key: "JRE_HOME",
+//                        value: System.getProperty("JAVA_HOME")
+//                )
             }
 
             if (SystemUtils.IS_OS_WINDOWS)
@@ -88,6 +87,9 @@ class StartTomcat extends DefaultTask
             }
 
         }
+        println("System properties: ${System.properties}")
+        if (project.hasProperty("env"))
+            println("project.env: ${project.env}")
         println("Waiting 5 seconds for tomcat to start...")
         project.ant.sleep(seconds: 5)
         println("Tomcat started.")
