@@ -377,8 +377,6 @@ class TeamCityExtension
                     {
                         DatabaseProperties props = SUPPORTED_DATABASES.get(type)
                         props.setProject(project)
-                        props.configProperties = DatabaseProperties.readDatabaseProperties(project)
-                        props.setDefaultJdbcProperties(false)
                         props.jdbcDatabase = getDatabaseName()
                         if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
                         {

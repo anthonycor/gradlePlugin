@@ -85,13 +85,19 @@ class DatabaseProperties
 
     void setDefaultJdbcProperties(Boolean bootstrap)
     {
-        if (bootstrap)
-            this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(BOOTSTRAP_DB_PROP))
-        else
-            this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(DEFAULT_DB_PROP))
-        this.configProperties.setProperty(JDBC_HOST_PROP, (String) this.configProperties.get(DEFAULT_HOST_PROP))
-        this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
-        this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
+        if (this.configProperties.getProperty(JDBC_DATABASE_PROP) == null)
+        {
+            if (bootstrap)
+                this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(BOOTSTRAP_DB_PROP))
+            else
+                this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(DEFAULT_DB_PROP))
+        }
+        if (this.configProperties.getProperty(JDBC_HOST_PROP) == null)
+            this.configProperties.setProperty(JDBC_HOST_PROP, (String) this.configProperties.get(DEFAULT_HOST_PROP))
+        if (this.configProperties.getProperty(JDBC_PORT_PROP) == null)
+            this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
+        if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
+            this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
         this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
     }
 
@@ -105,7 +111,7 @@ class DatabaseProperties
                 this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
         }
-        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        setDefaultJdbcProperties(false)
     }
 
 
