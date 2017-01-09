@@ -12,11 +12,13 @@ class StartTomcat extends DefaultTask
     @TaskAction
     void action()
     {
+        if (!project.file("${project.tomcatDir}/logs").exists())
+            project.mkdir("${project.tomcatDir}/logs")
         if (SystemUtils.IS_OS_UNIX)
         {
             project.ant.chmod(dir: "${project.tomcatDir}/bin", includes: "**/*.sh", perm: "ug+rx")
         }
-        ant.exec(
+        project.ant.exec(
                 spawn: true,
                 dir: SystemUtils.IS_OS_WINDOWS ? "${project.tomcatDir}/bin" : project.tomcatDir,
                 executable: SystemUtils.IS_OS_WINDOWS ? "cmd" : "bin/catalina.sh"
