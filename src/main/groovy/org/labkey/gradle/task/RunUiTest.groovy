@@ -35,7 +35,7 @@ class RunUiTest extends Test
             logger.lifecycle("[" + descriptor.getName() + "] " + event.message )
         }
 
-        outputs.upToDateWhen( { return false })
+        outputs.upToDateWhen( { return false }) // always run tests when asked to
     }
 
     void setJvmArgs()
