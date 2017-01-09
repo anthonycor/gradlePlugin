@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.bundling.Jar
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 /**
@@ -51,8 +52,8 @@ class Api implements Plugin<Project>
         project.dependencies
                 {
                     apiCompile  project.project(":server:api"),
-                        project.project(":server:internal"),
-                        "org.labkey:labkey-client-api:${project.version}"
+                        project.project(":server:internal")
+                    BuildUtils.addLabKeyDependency(project: project, config: "apiCompile", depProjectPath: ":remoteapi:java")
                 }
     }
 
