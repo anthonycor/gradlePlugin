@@ -20,8 +20,6 @@ class DoThenSetup extends DefaultTask
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
         Properties configProperties = dbProperties.getConfigProperties()
-        project.logger.info("adding properties ${project.ext.properties} to ${configProperties}")
-        configProperties.putAll(project.ext.properties)
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}")
         configProperties.setProperty("appDocBase", appDocBase);
         boolean isNextLineComment = false;
@@ -57,6 +55,5 @@ class DoThenSetup extends DefaultTask
     protected void setDatabaseProperties()
     {
         dbProperties = new DatabaseProperties(project, false)
-        project.logger.info("Set dbProperties with configProperties ${dbProperties.configProperties}")
     }
 }

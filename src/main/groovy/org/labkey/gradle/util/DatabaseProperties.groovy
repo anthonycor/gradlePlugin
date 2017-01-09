@@ -124,6 +124,7 @@ class DatabaseProperties
         }
         else
         {
+            project.logger.warn("No file ${DATABASE_CONFIG_FILE} found.  Returning empty properties.")
             return new Properties()
         }
     }
