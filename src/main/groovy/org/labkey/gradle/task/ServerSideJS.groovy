@@ -64,7 +64,7 @@ class ServerSideJS extends DefaultTask
                     fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/String.js"))
                     fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/Error.js"))
                     fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/JSON.js"))
+                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/misc/JSON.js"))
                     footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
                 }
 
