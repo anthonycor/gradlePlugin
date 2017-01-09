@@ -28,7 +28,7 @@ class StartTomcat extends DefaultTask
                 {
                     env(
                         key: "PATH",
-                        path: "${project.rootDir}/external/windows/core${File.pathSeparator}${System.getProperty("PATH")}"
+                        path: "${project.rootDir}/external/windows/core${File.pathSeparator}${System.getenv("PATH")}"
                     )
                 }
             }
@@ -36,7 +36,7 @@ class StartTomcat extends DefaultTask
             {
                 env(
                         key: "PATH",
-                        path: "${project.project(":server").serverDeploy.binDir}${File.pathSeparator}${System.getProperty("PATH")}"
+                        path: "${project.project(":server").serverDeploy.binDir}${File.pathSeparator}${System.getenv("PATH")}"
                 )
             }
 
@@ -58,16 +58,16 @@ class StartTomcat extends DefaultTask
             {
                 env(
                         key: "R_LIBS_USER",
-                        value: System.getProperty("R_LIBS_USER") != null ? System.getProperty("R_LIBS_USER") : project.rootProject.file("sampledata/rlabkey")
+                        value: System.getenv("R_LIBS_USER") != null ? System.getenv("R_LIBS_USER") : project.rootProject.file("sampledata/rlabkey")
                 )
-//                env (
-//                        key: "JAVA_HOME",
-//                        value: System.getProperty("JAVA_HOME")
-//                )
-//                env (
-//                        key: "JRE_HOME",
-//                        value: System.getProperty("JAVA_HOME")
-//                )
+                env (
+                        key: "JAVA_HOME",
+                        value: System.getenv("JAVA_HOME")
+                )
+                env (
+                        key: "JRE_HOME",
+                        value: System.getenv("JAVA_HOME")
+                )
             }
 
             if (SystemUtils.IS_OS_WINDOWS)
