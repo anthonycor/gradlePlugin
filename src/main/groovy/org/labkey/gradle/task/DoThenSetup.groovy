@@ -15,7 +15,7 @@ class DoThenSetup extends DefaultTask
     }
 
     @TaskAction
-    def setup() {
+    setup() {
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
@@ -56,5 +56,6 @@ class DoThenSetup extends DefaultTask
     protected void setDatabaseProperties()
     {
         dbProperties = new DatabaseProperties(project, false)
+        project.logger.info("Set dbProperties with configProperties ${dbProperties.configProperties}")
     }
 }
