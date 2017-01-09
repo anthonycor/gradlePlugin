@@ -452,7 +452,7 @@ class ModuleExtension
         {
             modProperties.setProperty("VcsURL", project.versioning.info.url)
             modProperties.setProperty("VcsRevision", project.versioning.info.commit)
-            modProperties.setProperty("BuildNumber",  System.hasProperty("build.number") ? System.getProperty("build.number") : project.versioning.info.build)
+            modProperties.setProperty("BuildNumber", (String) TeamCityExtension.getTeamCityProperty(project, "build.number", project.versioning.info.build))
         }
         else
         {
