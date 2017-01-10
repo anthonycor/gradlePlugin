@@ -3,7 +3,6 @@ package org.labkey.gradle.util
 import groovy.sql.Sql
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.Task
 
 import java.sql.Driver
 import java.sql.DriverManager
@@ -53,10 +52,8 @@ class SqlUtils
 
     }
 
-    static void dropDatabase(Task task, Properties properties)
+    static void dropDatabase(Project project, Properties properties)
     {
-        Project project = task.project
-
         if (!properties.containsKey("jdbcDatabase") || properties.get("jdbcDatabase").equals("labkey"))
         {
             throw new GradleException("Must specify a database that is not 'labkey'")

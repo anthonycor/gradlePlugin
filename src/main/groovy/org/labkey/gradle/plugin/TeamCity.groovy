@@ -7,6 +7,7 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.process.ExecSpec
 import org.gradle.process.JavaExecSpec
+import org.labkey.gradle.task.DoThenSetup
 import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.GroupNames
@@ -205,27 +206,38 @@ class TeamCity extends Tomcat
         List<Task> ciTests = new ArrayList<>()
         for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
+            String suffix = properties.dbTypeAndVersion.capitalize()
+            Task setUpDbTask = project.task("setUp${suffix}",
+                group: GroupNames.TEST_SERVER,
+                description: "Get database properties set up for running tests for ${suffix}",
+                type: DoThenSetup,
+                    {DoThenSetup task ->
+                        task.dbProperties = properties
+                        task.fn = {
+                            properties.mergePropertiesFromFile()
+                            if (extension.dropDatabase)
+                                SqlUtils.dropDatabase(project, properties)
+                        }
+                    }
+            )
             Task ciTestTask = project.task("ciTests" + properties.dbTypeAndVersion.capitalize(),
                     group: GroupNames.TEST_SERVER,
                     description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
                     type: RunTestSuite,
+                    dependsOn: setUpDbTask,
                     { RunTestSuite task ->
                         task.dbProperties = properties
-                        task.doFirst
-                        {
-                            task.dbProperties.mergePropertiesFromFile()
-                        }
                     }
             )
 
-            if (extension.dropDatabase)
-                ciTestTask.doFirst({
-                    SqlUtils.dropDatabase(ciTestTask, ciTestTask.dbProperties)
-                })
-            if (properties.shortType.equals('pg'))
-                ciTestTask.dependsOn(project.project(":server").tasks.pickPg)
-            else if (properties.shortType.equals('mssql'))
-                ciTestTask.dependsOn(project.project(":server").tasks.pickMSSQL)
+//            if (extension.dropDatabase)
+//                ciTestTask.doFirst({
+//                    SqlUtils.dropDatabase(ciTestTask, ciTestTask.dbProperties)
+//                })
+//            if (properties.shortType.equals('pg'))
+//                ciTestTask.dependsOn(project.project(":server").tasks.pickPg)
+//            else if (properties.shortType.equals('mssql'))
+//                ciTestTask.dependsOn(project.project(":server").tasks.pickMSSQL)
 
             ciTests.add(ciTestTask)
             ciTestTask.mustRunAfter(project.tasks.validateConfiguration)

@@ -8,7 +8,7 @@ class Bootstrap extends DoThenSetup
     Closure<Void> fn = {
         setDatabaseProperties()
 
-        SqlUtils.dropDatabase(this, dbProperties.getConfigProperties());
+        SqlUtils.dropDatabase(this.project, dbProperties.getConfigProperties());
     }
 
     @Override
