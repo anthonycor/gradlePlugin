@@ -12,6 +12,8 @@ class StartTomcat extends DefaultTask
     @TaskAction
     void action()
     {
+        // we need to create the logs directory if it doesn't exist because Tomcat won't start without it,
+        // and, annoyingly, this is not seen as an error for this action.
         if (!project.file("${project.tomcatDir}/logs").exists())
             project.mkdir("${project.tomcatDir}/logs")
         if (SystemUtils.IS_OS_UNIX)
