@@ -65,6 +65,7 @@ class RunTestSuite extends RunUiTest
             systemProperty "tomcat.home", project.teamcity["tomcat.home"]
             systemProperty "tomcat.port", project.teamcity["tomcat.port"]
             systemProperty "tomcat.debug", project.teamcity["tomcat.debug"]
+            systemProperty "labkey.port", project.teamcity['tomcat.port']
         }
     }
 }
