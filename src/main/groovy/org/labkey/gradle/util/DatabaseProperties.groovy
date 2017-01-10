@@ -112,6 +112,7 @@ class DatabaseProperties
             }
         }
         setDefaultJdbcProperties(false)
+        writeDatabaseProperty(project, JDBC_URL_PROP, this.configProperties.getProperty(JDBC_URL_PROP))
     }
 
 
@@ -127,5 +128,15 @@ class DatabaseProperties
             project.logger.warn("No file ${DATABASE_CONFIG_FILE} found.  Returning empty properties.")
             return new Properties()
         }
+    }
+
+    private void writeDatabaseProperty(Project project, String name, String value)
+    {
+        project.ant.propertyfile(
+                file: "${project.project(":server")}/${DATABASE_CONFIG_FILE}"
+        )
+                {
+                    entry( key: name, value: value)
+                }
     }
 }
