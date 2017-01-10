@@ -6,7 +6,6 @@ import org.gradle.api.tasks.testing.Test
 import org.labkey.gradle.plugin.LabKeyExtension
 import org.labkey.gradle.plugin.TomcatExtension
 import org.labkey.gradle.plugin.UiTestExtension
-
 /**
  * Class that sets up jvmArgs and our standard output options
  */
@@ -38,12 +37,17 @@ class RunUiTest extends Test
         outputs.upToDateWhen( { return false }) // always run tests when asked to
     }
 
+    protected String getDebugPort()
+    {
+        return testExt.getTestConfig("selenium.debug.port")
+    }
+
     void setJvmArgs()
     {
         List<String> jvmArgsList = ["-Xmx512m",
                                     "-Xdebug",
                                     "-Dlabkey.root=${project.rootProject.projectDir.absolutePath}",
-                                    "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestConfig("debugSuspendSelenium")},address=${testExt.getTestConfig("selenium.debug.port")}",
+                                    "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestConfig("debugSuspendSelenium")},address=${getDebugPort()}",
                                     "-Dfile.encoding=UTF-8"]
 
         TomcatExtension tomcat = project.extensions.findByType(TomcatExtension.class)
