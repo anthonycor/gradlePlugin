@@ -3,7 +3,6 @@ package org.labkey.gradle.task
 import org.gradle.api.file.CopySpec
 import org.labkey.gradle.plugin.TeamCity
 import org.labkey.gradle.plugin.TeamCityExtension
-import org.labkey.gradle.plugin.UiTestExtension
 import org.labkey.gradle.util.DatabaseProperties
 /**
  * Class that sets our test/Runner.class as the junit test suite and configures a bunch of system properties for
@@ -12,13 +11,10 @@ import org.labkey.gradle.util.DatabaseProperties
 class RunTestSuite extends RunUiTest
 {
     DatabaseProperties dbProperties
-    TeamCityExtension tcExtension = null
 
     RunTestSuite()
     {
         super()
-        if (TeamCityExtension.isOnTeamCity(project))
-            tcExtension  = (UiTestExtension) project.getExtensions().getByType(TeamCityExtension.class)
         setSystemProperties()
 
         scanForTestClasses = false
@@ -49,7 +45,7 @@ class RunTestSuite extends RunUiTest
 
     protected String getDebugPort()
     {
-        return tcExtension == null ? super.getDebugPort() : tcExtension.getTeamCityProperty("tomcat.debug")
+        return !TeamCityExtension.isOnTeamCity(project) ? super.getDebugPort() : project.teamcity["tomcat.debug"]
     }
 
     private void setSystemProperties()
@@ -57,18 +53,18 @@ class RunTestSuite extends RunUiTest
         super.setSystemProperties()
         if (TeamCityExtension.isOnTeamCity(project))
         {
-            systemProperty "teamcity.tests.recentlyFailedTests.file", tcExtension.getTeamCityProperty('teamcity.tests.recentlyFailedTests.file')
-            systemProperty "teamcity.build.changedFiles.file", tcExtension.getTeamCityProperty('teamcity.build.changedFiles.file')
-            String runRiskGroupTestsFirst = tcExtension.getTeamCityProperty('tests.runRiskGroupTestsFirst')
+            systemProperty "teamcity.tests.recentlyFailedTests.file", project.teamcity['teamcity.tests.recentlyFailedTests.file']
+            systemProperty "teamcity.build.changedFiles.file", project.teamcity['teamcity.build.changedFiles.file']
+            String runRiskGroupTestsFirst = project.teamcity['tests.runRiskGroupTestsFirst']
             if (runRiskGroupTestsFirst != null)
             {
                 systemProperty "testNewAndModified", "${runRiskGroupTestsFirst.contains("newAndModified")}"
                 systemProperty "testRecentlyFailed", "${runRiskGroupTestsFirst.contains("recentlyFailed")}"
             }
-            systemProperty "teamcity.buildType.id", tcExtension.getTeamCityProperty('teamcity.buildType.id')
-            systemProperty "tomcat.home", tcExtension.getTeamCityProperty("tomcat.home")
-            systemProperty "tomcat.port", tcExtension.getTeamCityProperty("tomcat.port")
-            systemProperty "tomcat.debug", tcExtension.getTeamCityProperty("tomcat.debug")
+            systemProperty "teamcity.buildType.id", project.teamcity['teamcity.buildType.id']
+            systemProperty "tomcat.home", project.teamcity["tomcat.home"]
+            systemProperty "tomcat.port", project.teamcity["tomcat.port"]
+            systemProperty "tomcat.debug", project.teamcity["tomcat.debug"]
         }
     }
 }
