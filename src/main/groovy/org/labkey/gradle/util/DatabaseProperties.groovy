@@ -42,9 +42,14 @@ class DatabaseProperties
             setDefaultJdbcProperties(useBootstrap)
     }
 
+    static File getConfigFile(Project project)
+    {
+        return project.project(":server").file(DATABASE_CONFIG_FILE)
+    }
+
     static Boolean hasConfigFile(Project project)
     {
-        return project.project(":server").file(DATABASE_CONFIG_FILE).exists()
+        return getConfigFile(project).exists()
     }
 
     void setProject(Project project)
@@ -133,7 +138,7 @@ class DatabaseProperties
     private void writeDatabaseProperty(Project project, String name, String value)
     {
         project.ant.propertyfile(
-                file: "${project.project(":server")}/${DATABASE_CONFIG_FILE}"
+                file: getConfigFile(project)
         )
                 {
                     entry( key: name, value: value)
