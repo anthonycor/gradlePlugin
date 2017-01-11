@@ -220,6 +220,7 @@ class TeamCity extends Tomcat
                         }
                     }
             )
+            project.project(":server").tasks.startTomcat.mustRunAfter(setUpDbTask)
             Task ciTestTask = project.task("ciTests" + properties.dbTypeAndVersion.capitalize(),
                     group: GroupNames.TEST_SERVER,
                     description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
@@ -229,16 +230,6 @@ class TeamCity extends Tomcat
                         task.dbProperties = properties
                     }
             )
-
-//            if (extension.dropDatabase)
-//                ciTestTask.doFirst({
-//                    SqlUtils.dropDatabase(ciTestTask, ciTestTask.dbProperties)
-//                })
-//            if (properties.shortType.equals('pg'))
-//                ciTestTask.dependsOn(project.project(":server").tasks.pickPg)
-//            else if (properties.shortType.equals('mssql'))
-//                ciTestTask.dependsOn(project.project(":server").tasks.pickMSSQL)
-
             ciTests.add(ciTestTask)
             ciTestTask.mustRunAfter(project.tasks.validateConfiguration)
             ciTestTask.mustRunAfter(project.tasks.cleanTestLogs)
@@ -254,7 +245,9 @@ class TeamCity extends Tomcat
                         killFirefox(project)
                     }
                 })
+        project.tasks.ciTests.dependsOn(project.project(":server").tasks.startTomcat)
         project.tasks.ciTests.dependsOn(project.tasks.cleanTestLogs)
+        project.project(":server").tasks.startTomcat.mustRunAfter(project.tasks.cleanTestLogs)
     }
 
     private static void killChrome(Project project)
