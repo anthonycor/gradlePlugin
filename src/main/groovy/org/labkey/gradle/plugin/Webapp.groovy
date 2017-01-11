@@ -12,7 +12,7 @@ class Webapp implements Plugin<Project>
 {
     private static final String DIR_NAME = "webapp"
 
-    public static boolean isApplicable(Project project)
+    static boolean isApplicable(Project project)
     {
         return project.file(DIR_NAME).exists()
     }
@@ -34,7 +34,13 @@ class Webapp implements Plugin<Project>
                             // The spring configuration files are copied by the SpringConfig plugin
                             exclude "WEB-INF/${project.name}/**"
                             // when in dev mode, the webapp files will be picked up from their original locations
-                            if (!LabKeyExtension.isDevMode(project))
+                            if (LabKeyExtension.isDevMode(project))
+                            {
+                                include 'share/**'
+                                include 'WEB-INF/**'
+                                include '**/*.lib.xml'
+                            }
+                            else
                             {
                                 // We should only redistribute the ExtJS resource files, not the full dev kit
                                 exclude "${project.labkey.ext3Dir}/src/**"
@@ -44,11 +50,6 @@ class Webapp implements Plugin<Project>
                                 exclude "${project.labkey.ext4Dir}/src/**"
                                 exclude "d3/examples/**"
                                 exclude "d3/test/**"
-                            }
-                            else
-                            {
-                                include 'share/**'
-                                include 'WEB-INF/**'
                             }
                         }
                         output.resourcesDir = project.labkey.explodedModuleWebDir
