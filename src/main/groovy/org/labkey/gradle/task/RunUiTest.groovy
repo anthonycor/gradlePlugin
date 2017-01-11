@@ -1,5 +1,6 @@
 package org.labkey.gradle.task
 
+import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
@@ -65,7 +66,8 @@ class RunUiTest extends Test
         Properties testConfig = testExt.getConfig()
         for (String key : testConfig.keySet())
         {
-            systemProperty key, testConfig.get(key)
+            if (!StringUtils.isEmpty(testConfig.get(key)))
+                systemProperty key, testConfig.get(key)
         }
         systemProperty "devMode", LabKeyExtension.isDevMode(project)
         systemProperty "failure.output.dir", "${project.buildDir}/${LOG_DIR}"

@@ -1,5 +1,6 @@
 package org.labkey.gradle.task
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.file.CopySpec
 import org.labkey.gradle.plugin.TeamCity
 import org.labkey.gradle.plugin.TeamCityExtension
@@ -70,7 +71,7 @@ class RunTestSuite extends RunUiTest
             Properties testConfig = testExt.getConfig()
             for (String key : testConfig.keySet())
             {
-                if (project.teamcity[key] != null)
+                if (!StringUtils.isEmpty(project.teamcity[key]))
                     systemProperty key, project.teamcity[key]
             }
         }
