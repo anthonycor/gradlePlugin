@@ -66,12 +66,6 @@ class RunTestSuite extends RunUiTest
             systemProperty "tomcat.port", project.teamcity["tomcat.port"]
             systemProperty "tomcat.debug", project.teamcity["tomcat.debug"]
             systemProperty "labkey.port", project.teamcity['tomcat.port']
-//            if (project.teamcity['selenium.browser'] != null)
-//                systemProperty "selenium.browser", project.teamcity['selenium.browser']
-//            if (project.teamcity['selenium.firefox.binary'] != null)
-//                systemProperty 'selenium.firefox.binary', project.teamcity['selenium.firefox.binary']
-//            if (project.teamcity['close.on.fail'] != null)
-//                systemProperty 'close.on.fail', project.teamcity['close.on.fail']
 
             Properties testConfig = testExt.getConfig()
             for (String key : testConfig.keySet())
