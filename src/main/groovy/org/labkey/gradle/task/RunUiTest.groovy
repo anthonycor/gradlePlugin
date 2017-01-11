@@ -60,7 +60,7 @@ class RunUiTest extends Test
         jvmArgs jvmArgsList
     }
 
-    private void setSystemProperties()
+    protected void setSystemProperties()
     {
         Properties testConfig = testExt.getConfig()
         for (String key : testConfig.keySet())

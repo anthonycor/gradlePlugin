@@ -48,7 +48,7 @@ class RunTestSuite extends RunUiTest
         return !TeamCityExtension.isOnTeamCity(project) ? super.getDebugPort() : project.teamcity["tomcat.debug"]
     }
 
-    private void setSystemProperties()
+    protected void setSystemProperties()
     {
         super.setSystemProperties()
         if (TeamCityExtension.isOnTeamCity(project))
@@ -66,6 +66,19 @@ class RunTestSuite extends RunUiTest
             systemProperty "tomcat.port", project.teamcity["tomcat.port"]
             systemProperty "tomcat.debug", project.teamcity["tomcat.debug"]
             systemProperty "labkey.port", project.teamcity['tomcat.port']
+//            if (project.teamcity['selenium.browser'] != null)
+//                systemProperty "selenium.browser", project.teamcity['selenium.browser']
+//            if (project.teamcity['selenium.firefox.binary'] != null)
+//                systemProperty 'selenium.firefox.binary', project.teamcity['selenium.firefox.binary']
+//            if (project.teamcity['close.on.fail'] != null)
+//                systemProperty 'close.on.fail', project.teamcity['close.on.fail']
+
+            Properties testConfig = testExt.getConfig()
+            for (String key : testConfig.keySet())
+            {
+                if (project.teamcity[key] != null)
+                    systemProperty key, project.teamcity[key]
+            }
         }
     }
 }

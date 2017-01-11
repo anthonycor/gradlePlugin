@@ -123,7 +123,6 @@ class UiTestExtension
             {
                 config.setProperty(name, project.property(name).toString())
             }
-
         }
     }
 
