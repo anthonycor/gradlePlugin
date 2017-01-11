@@ -71,7 +71,7 @@ class RunTestSuite extends RunUiTest
             Properties testConfig = testExt.getConfig()
             for (String key : testConfig.keySet())
             {
-                if (!StringUtils.isEmpty(project.teamcity[key]))
+                if (!StringUtils.isEmpty((String) project.teamcity[key]))
                     systemProperty key, project.teamcity[key]
             }
         }
