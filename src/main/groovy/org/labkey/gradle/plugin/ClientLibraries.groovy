@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileTree
 import org.labkey.gradle.task.ClientLibsCompress
 import org.labkey.gradle.util.GroupNames
@@ -13,7 +14,7 @@ class ClientLibraries implements Plugin<Project>
 {
     static boolean isApplicable(Project project)
     {
-        def FileTree libXmlFiles = project.fileTree(dir: project.projectDir,
+        FileTree libXmlFiles = project.fileTree(dir: project.projectDir,
                 includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"]
         )
         return !libXmlFiles.isEmpty()
@@ -29,7 +30,7 @@ class ClientLibraries implements Plugin<Project>
 
     private void addTasks(Project project)
     {
-        def compressLibsTask = project.task("compressClientLibs",
+        Task compressLibsTask = project.task("compressClientLibs",
                 group: GroupNames.CLIENT_LIBRARIES,
                 type: ClientLibsCompress,
                 description: 'create minified, compressed javascript file using .lib.xml sources',
