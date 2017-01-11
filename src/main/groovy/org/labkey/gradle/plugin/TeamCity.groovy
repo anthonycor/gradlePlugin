@@ -241,6 +241,7 @@ class TeamCity extends Tomcat
 
             ciTests.add(ciTestTask)
             ciTestTask.mustRunAfter(project.tasks.validateConfiguration)
+            ciTestTask.mustRunAfter(project.tasks.cleanTestLogs)
         }
 
         project.task("ciTests",
