@@ -281,7 +281,7 @@ class SimpleModule implements Plugin<Project>
         {
             _project.task("zipWebDir",
                     group: GroupNames.MODULE,
-                    description: "Create a zip file form the exploded module web directory",
+                    description: "Create a zip file from the exploded module web directory",
                     type: Zip,
                     {
                         baseName = _project.name
