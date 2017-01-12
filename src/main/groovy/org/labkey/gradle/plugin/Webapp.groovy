@@ -38,7 +38,6 @@ class Webapp implements Plugin<Project>
                             {
                                 include 'share/**'
                                 include 'WEB-INF/**'
-                                include '**/*.lib.xml'
                             }
                             else
                             {
