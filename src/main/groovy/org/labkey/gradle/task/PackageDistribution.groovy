@@ -2,6 +2,10 @@ package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.plugin.DistributionExtension
+
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class PackageDistribution extends DefaultTask
 {
@@ -40,9 +44,11 @@ class PackageDistribution extends DefaultTask
     void action()
     {
         setUpModuleDistDirectories()
+
         // TODO enum would be better for these types
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
+            writeDistributionFile()
             gatherModules()
             packageRedistributables()
         }
@@ -122,5 +128,13 @@ class PackageDistribution extends DefaultTask
         File distDir = new File((String) project.dist.distModulesDir)
         distDir.deleteDir();
         distDir.mkdirs();
+    }
+
+    private void writeDistributionFile()
+    {
+        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR);
+        if (!distExtraDir.exists())
+            distExtraDir.mkdirs()
+        Files.write(Paths.get(distExtraDir.absolutePath, DistributionExtension.DIST_FILE_NAME), project.name.getBytes())
     }
 }

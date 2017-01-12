@@ -63,6 +63,9 @@ class Distribution implements Plugin<Project>
 
 class DistributionExtension
 {
+    public static final String DIST_FILE_DIR = "distExtra/labkeywebapp/WEB-INF/classes"
+    public static final String DIST_FILE_NAME = "distribution"
+
     String dir = "dist"
     String distModulesDir
     String type = "modules"
