@@ -53,7 +53,7 @@ class StageDistribution extends DefaultTask
             spec.include "**/*.module"
         })
 
-        String baseName = distributionFile.getName().substring(0, distributionFile.getName().length()-extension.length())
+        String baseName = distributionFile.getName().substring(0, distributionFile.getName().length()-(extension.length()+1))
 
         project.copy({ CopySpec spec ->
             spec.from isTar ? project.tarTree(distributionFile) : project.zipTree(distributionFile)
