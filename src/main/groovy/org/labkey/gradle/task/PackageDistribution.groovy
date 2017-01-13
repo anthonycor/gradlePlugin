@@ -12,6 +12,8 @@ class PackageDistribution extends DefaultTask
     public static final String ALL_DISTRIBUTIONS = "all"
 
     public static final String[] STANDARD_MODULES = [
+            ':server:modules:internal',
+            ':server:api',
             ':server:modules:announcements',
             ':server:modules:audit',
             ':server:modules:bigiron',
