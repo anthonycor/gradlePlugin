@@ -68,6 +68,7 @@ class TestRunner extends UiTest
         super.addDependencies(project)
         project.dependencies {
             aspectj "org.aspectj:aspectjtools:${project.aspectjVersion}"
+            compile "org.aspectj:aspectjrt:${project.aspectjVersion}"
             compile "org.aspectj:aspectjtools:${project.aspectjVersion}"
 
             compile project.files("${System.properties['java.home']}/../lib/tools.jar")
