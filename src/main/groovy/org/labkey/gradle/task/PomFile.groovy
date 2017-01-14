@@ -12,6 +12,7 @@ import org.gradle.api.tasks.TaskAction
 class PomFile extends DefaultTask
 {
     String artifactCategory = "libs"
+    Properties pomProperties = null
 
     @OutputFile
     File pomFile = new File(project.buildDir, "publications/${artifactCategory}/pom-default.xml")
@@ -21,6 +22,7 @@ class PomFile extends DefaultTask
     {
             project.pom {
                 withXml {
+                    asNode().get('artifactId').first().setValue((String) pomProperties.getProperty("ArtifactId", project.name))
                     // remove the tomcat dependencies with no version specified because we cannot know which version of tomcat is in use
                     List<Node> toRemove = []
                     asNode().dependencies.first().each {
@@ -44,25 +46,25 @@ class PomFile extends DefaultTask
                         depNode.appendNode("version", it.version)
                         depNode.appendNode("scope", "compile")
                     }
-                    if (project.lkModule.getPropertyValue("Organization") != null || project.lkModule.getPropertyValue("OrganizationURL") != null)
+                    if (pomProperties.getProperty("Organization") != null || pomProperties.getProperty("OrganizationURL") != null)
                     {
                         def orgNode = asNode().appendNode("organization")
-                        if (project.lkModule.getPropertyValue("Organization") != null)
-                            orgNode.appendNode("name", project.lkModule.getPropertyValue("Organization"))
-                        if (project.lkModule.getPropertyValue("OrganizationURL") != null)
-                            orgNode.appendNode("url", project.lkModule.getPropertyValue("OrganizationURL"))
+                        if (pomProperties.getProperty("Organization") != null)
+                            orgNode.appendNode("name", pomProperties.getProperty("Organization"))
+                        if (pomProperties.getProperty("OrganizationURL") != null)
+                            orgNode.appendNode("url", pomProperties.getProperty("OrganizationURL"))
                     }
-                    if (project.lkModule.getPropertyValue("Description") != null)
-                        asNode().appendNode("description", project.lkModule.getPropertyValue("Description"))
-                    if (project.lkModule.getPropertyValue("URL") != null)
-                        asNode().appendNode("url", project.lkModule.getPropertyValue("URL"))
-                    if (project.lkModule.getPropertyValue("License") != null || project.lkModule.getPropertyValue("LicenseURL") != null)
+                    if (pomProperties.getProperty("Description") != null)
+                        asNode().appendNode("description", pomProperties.getProperty("Description"))
+                    if (pomProperties.getProperty("URL") != null)
+                        asNode().appendNode("url", pomProperties.getProperty("URL"))
+                    if (pomProperties.getProperty("License") != null || pomProperties.getProperty("LicenseURL") != null)
                     {
                         def licenseNode = asNode().appendNode("licenses").appendNode("license")
-                        if (project.lkModule.getPropertyValue("License") != null)
-                            licenseNode.appendNode("name", project.lkModule.getPropertyValue("License"))
-                        if (project.lkModule.getPropertyValue("LicenseURL") != null)
-                            licenseNode.appendNode("url", project.lkModule.getPropertyValue("LicenseURL"))
+                        if (pomProperties.getProperty("License") != null)
+                            licenseNode.appendNode("name", pomProperties.getProperty("License"))
+                        if (pomProperties.getProperty("LicenseURL") != null)
+                            licenseNode.appendNode("url", pomProperties.getProperty("LicenseURL"))
                         licenseNode.appendNode("distribution", "repo")
                     }
                 }

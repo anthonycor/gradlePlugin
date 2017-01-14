@@ -362,7 +362,10 @@ class SimpleModule implements Plugin<Project>
                 Task pomFileTask = _project.task("pomFile",
                         group: GroupNames.PUBLISHING,
                         description: "create the pom file for this project",
-                        type: PomFile
+                        type: PomFile,
+                        {PomFile pomFile ->
+                            pomFile.pomProperties = _project.lkModule.modProperties
+                        }
                 )
                 _project.publishing {
                     publications {
@@ -412,12 +415,18 @@ class ModuleExtension
         return project
     }
 
+    Properties getModProperties()
+    {
+        return modProperties
+    }
+
     String getPropertyValue(String propertyName, String defaultValue)
     {
         String value = modProperties.getProperty(propertyName)
         return value == null ? defaultValue : value;
 
     }
+
     String getPropertyValue(String propertyName)
     {
         return getPropertyValue(propertyName, null)
