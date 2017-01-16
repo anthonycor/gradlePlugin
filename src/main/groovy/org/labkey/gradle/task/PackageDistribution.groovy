@@ -1,6 +1,7 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.DistributionExtension
 
@@ -51,6 +52,7 @@ class PackageDistribution extends DefaultTask
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
             writeDistributionFile()
+            gatherBootstrapJar()
             gatherModules()
             packageRedistributables()
         }
@@ -65,6 +67,15 @@ class PackageDistribution extends DefaultTask
         else if ("clientApis".equalsIgnoreCase(project.dist.type))
         {
             packageClientApis()
+        }
+    }
+
+    private void gatherBootstrapJar()
+    {
+        // TODO when converted to Gradle, we should be able to eliminate this copy
+        project.copy { CopySpec copy ->
+            copy.from project.project(":server:bootstrap").tasks.jar
+            copy.into project.rootProject.buildDir
         }
     }
 
@@ -128,13 +139,13 @@ class PackageDistribution extends DefaultTask
     private void setUpModuleDistDirectories()
     {
         File distDir = new File((String) project.dist.distModulesDir)
-        distDir.deleteDir();
-        distDir.mkdirs();
+        distDir.deleteDir()
+        distDir.mkdirs()
     }
 
     private void writeDistributionFile()
     {
-        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR);
+        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
         if (!distExtraDir.exists())
             distExtraDir.mkdirs()
         Files.write(Paths.get(distExtraDir.absolutePath, DistributionExtension.DIST_FILE_NAME), project.name.getBytes())

@@ -38,10 +38,11 @@ class Distribution implements Plugin<Project>
         Task dist = project.task(
                 "distribution",
                 group: GroupNames.DISTRIBUTION,
-                description: "Make LabKey distribution for a single module",
+                description: "Make a LabKey distribution",
                 type: PackageDistribution
         )
         dist.dependsOn(project.configurations.distribution)
+        dist.dependsOn(project.project(":server:bootstrap").tasks.jar)
         if (project.rootProject.hasProperty("distAll"))
             project.rootProject.tasks.distAll.dependsOn(dist)
     }
