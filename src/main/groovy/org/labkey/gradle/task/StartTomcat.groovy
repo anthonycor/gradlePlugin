@@ -89,11 +89,7 @@ class StartTomcat extends DefaultTask
             {
                 arg(value: "start")
             }
-
         }
-        println("System properties: ${System.properties}")
-        if (project.hasProperty("env"))
-            println("project.env: ${project.env}")
         println("Waiting 5 seconds for tomcat to start...")
         project.ant.sleep(seconds: 5)
         println("Tomcat started.")
