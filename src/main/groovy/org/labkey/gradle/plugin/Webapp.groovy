@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.labkey.gradle.task.GzipAction
+import org.labkey.gradle.util.BuildUtils
 
 /**
  * Declares a webapp sourceSet to capture the resource files that are copied into the webapp directory.
@@ -34,7 +35,7 @@ class Webapp implements Plugin<Project>
                             // The spring configuration files are copied by the SpringConfig plugin
                             exclude "WEB-INF/${project.name}/**"
                             // when in dev mode, the webapp files will be picked up from their original locations
-                            if (LabKeyExtension.isDevMode(project))
+                            if (LabKeyExtension.isDevMode(project) && BuildUtils.shouldBuildFromSource(project))
                             {
                                 include 'share/**'
                                 include 'WEB-INF/**'
