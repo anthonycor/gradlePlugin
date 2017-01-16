@@ -160,10 +160,12 @@ class ServerDeploy implements Plugin<Project>
 
         Task deployDistTask = project.task(
                 "deployDistribution",
+                type: DeployApp,
                 group: GroupNames.DISTRIBUTION,
                 description: "Deploy a LabKey distribution file from build/dist or directory specified with distDir property.  Use property distType to specify zip or tar.gz (default).",
         )
         deployDistTask.dependsOn(project.tasks.stageDistribution)
+        deployDistTask.dependsOn(log4jTask)
         deployDistTask.dependsOn(setup)
 
         project.task(
