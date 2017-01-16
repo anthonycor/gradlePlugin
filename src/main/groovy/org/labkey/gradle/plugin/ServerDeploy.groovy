@@ -212,6 +212,7 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 type: Delete,
                 description: "Remove the build directory ${project.rootProject.buildDir}",
+                dependsOn: project.tasks.stopTomcat,
                 { DeleteSpec spec ->
                     spec.delete project.rootProject.buildDir
                 }
