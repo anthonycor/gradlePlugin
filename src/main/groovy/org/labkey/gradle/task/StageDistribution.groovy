@@ -100,6 +100,17 @@ class StageDistribution extends DefaultTask
             spec.from isTar ? project.tarTree(distributionFile).files : project.zipTree(distributionFile).files
             spec.into tomcatJarStagingDir
             spec.include "labkeyBootstrap*.jar"
+            spec.include "mail.jar"
+            spec.include "postgresql.jar"
+            spec.include "mysql.jar"
+            spec.include "jtds.jar"
+            spec.include "ant.jar"
+            // FIXME once we've converted the installer build, we can update to something like below for non-specific jar name
+//            project.project(":server").configurations.tomcatJars.files.each {
+//                File file ->
+//                    spec.include file.getName()
+//            }
+
         })
     }
 }
