@@ -46,17 +46,9 @@ class ServerDeploy implements Plugin<Project>
 
         StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
 
-        project.task(
-                "stageDistribution",
-                group: GroupNames.DISTRIBUTION,
-                description: "Populate the staging directory using a LabKey distribution file from build/dist or directory specified with distDir property. Use property distType to specify zip or tar.gz (default).",
-                type: StageDistribution
-        )
-
         // FIXME staging step complicates things, but we currently depend on it for generating the
         // apiFilesList that determines which libraries to keep and which to remove from WEB-INF/lib
         // We also need to put libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
-        // for recompiling JSP's.
         Task stageModulesTask = project.task(
                 "stageModules",
                 group: GroupNames.DEPLOY,
@@ -158,6 +150,21 @@ class ServerDeploy implements Plugin<Project>
                 description: "Edit and copy log4j.xml file",
         )
         deployAppTask.dependsOn(log4jTask)
+
+        project.task(
+                "stageDistribution",
+                group: GroupNames.DISTRIBUTION,
+                description: "Populate the staging directory using a LabKey distribution file from build/dist or directory specified with distDir property. Use property distType to specify zip or tar.gz (default).",
+                type: StageDistribution
+        )
+
+        Task deployDistTask = project.task(
+                "deployDistribution",
+                group: GroupNames.DISTRIBUTION,
+                description: "Deploy a LabKey distribution file from build/dist or directory specified with distDir property.  Use property distType to specify zip or tar.gz (default).",
+        )
+        deployDistTask.dependsOn(project.tasks.stageDistribution)
+        deployDistTask.dependsOn(setup)
 
         project.task(
                 'undeployModules',
