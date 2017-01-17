@@ -172,21 +172,6 @@ class TeamCity extends Tomcat
                     destinationDir = new File("${ServerDeployExtension.getServerDeployDirectory(project)}/config")
                 })
 
-        project.tasks.startTomcat.doFirst(
-                {
-                    String database = extension.getTeamCityProperty("database")
-                    if (database.isEmpty())
-                        throw new GradleException("${project.path} No database type provided")
-                    else if (!extension.isDatabaseSupported(database))
-                        throw new GradleException("${project.path} Database ${database} not supported")
-                    project.rootProject.allprojects.each {Project p ->
-                        if (!SimpleModule.shouldDoBuild(project) || !SimpleModule.isDatabaseSupported(p, database))
-                        {
-                            SimpleModule.undeployModule(project)
-                        }
-                    }
-                }
-        )
         if (project.findProject(":externalModules:labModules:SequenceAnalysis") != null)
         {
             project.tasks.startTomcat.dependsOn(project.tasks.createPipelineConfig)
@@ -215,7 +200,7 @@ class TeamCity extends Tomcat
                 description: "Get database properties set up for running tests for ${suffix}",
                 type: DoThenSetup,
                     {DoThenSetup task ->
-                        task.dbProperties = properties
+                        task.setDatabaseProperties(properties)
                         task.fn = {
                             properties.mergePropertiesFromFile()
                             if (extension.dropDatabase)
@@ -223,12 +208,35 @@ class TeamCity extends Tomcat
                         }
                     }
             )
+
+            String undeployTaskName = "undeployNon${properties.shortType.capitalize()}Modules"
+            Task undeployTask = project.tasks.findByName(undeployTaskName)
+            if (undeployTask == null)
+            {
+                undeployTask = project.task(undeployTaskName,
+                        group: GroupNames.TEST_SERVER,
+                        description: "Undeploy modules that do not support the chosen database ${properties.dbTypeAndVersion}")
+                        { Task task ->
+                            task.doFirst
+                                    {
+                                        project.rootProject.allprojects.each { Project p ->
+                                            if (!SimpleModule.shouldDoBuild(
+                                                    project) || !SimpleModule.isDatabaseSupported(p, properties.getShortType()))
+                                            {
+                                                SimpleModule.undeployModule(project)
+                                            }
+                                        }
+                                    }
+                        }
+            }
+            project.tasks.startTomcat.mustRunAfter(undeployTask)
+
             project.project(":server:test").tasks.startTomcat.mustRunAfter(setUpDbTask)
             Task ciTestTask = project.task("ciTests" + properties.dbTypeAndVersion.capitalize(),
                     group: GroupNames.TEST_SERVER,
                     description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
                     type: RunTestSuite,
-                    dependsOn: setUpDbTask,
+                    dependsOn: [setUpDbTask, undeployTask],
                     { RunTestSuite task ->
                         task.dbProperties = properties
                     }

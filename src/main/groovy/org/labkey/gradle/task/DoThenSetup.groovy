@@ -8,7 +8,7 @@ import org.labkey.gradle.util.PropertiesUtils
 
 class DoThenSetup extends DefaultTask
 {
-    protected DatabaseProperties dbProperties
+    protected DatabaseProperties databaseProperties
 
     Closure<Void> fn = {
         setDatabaseProperties();
@@ -19,7 +19,7 @@ class DoThenSetup extends DefaultTask
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
-        Properties configProperties = dbProperties.getConfigProperties()
+        Properties configProperties = databaseProperties.getConfigProperties()
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}")
         configProperties.setProperty("appDocBase", appDocBase);
         boolean isNextLineComment = false;
@@ -54,6 +54,16 @@ class DoThenSetup extends DefaultTask
 
     protected void setDatabaseProperties()
     {
-        dbProperties = new DatabaseProperties(project, false)
+        databaseProperties = new DatabaseProperties(project, false)
+    }
+
+    void setDatabaseProperties(DatabaseProperties dbProperties)
+    {
+        this.databaseProperties = dbProperties
+    }
+
+    DatabaseProperties getDatabaseProperties()
+    {
+        return databaseProperties
     }
 }
