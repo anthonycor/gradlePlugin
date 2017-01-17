@@ -38,7 +38,10 @@ class TeamCity extends Tomcat
             project.tomcat.trustStore = "-Djavax.net.ssl.trustStore=${project.tomcatDir}/localhost.truststore"
             project.tomcat.trustStorePassword = "-Djavax.net.ssl.trustStorePassword=changeit"
         }
-        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootDir} -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.getTeamCityProperty("tomcat.debug")} "
+        project.tomcat.recompileJsp = false
+        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.getTeamCityProperty("tomcat.debug")} "
+
+        println("in TeamCity.apply: Catalina opts is ${project.tomcat.catalinaOpts}")
 
         addTasks(project)
     }
@@ -220,7 +223,7 @@ class TeamCity extends Tomcat
                         }
                     }
             )
-            project.project(":server").tasks.startTomcat.mustRunAfter(setUpDbTask)
+            project.project(":server:test").tasks.startTomcat.mustRunAfter(setUpDbTask)
             Task ciTestTask = project.task("ciTests" + properties.dbTypeAndVersion.capitalize(),
                     group: GroupNames.TEST_SERVER,
                     description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
@@ -245,9 +248,9 @@ class TeamCity extends Tomcat
                         killFirefox(project)
                     }
                 })
-        project.tasks.ciTests.dependsOn(project.project(":server").tasks.startTomcat)
+        project.tasks.ciTests.dependsOn(project.project(":server:test").tasks.startTomcat)
         project.tasks.ciTests.dependsOn(project.tasks.cleanTestLogs)
-        project.project(":server").tasks.startTomcat.mustRunAfter(project.tasks.cleanTestLogs)
+        project.project(":server:test").tasks.startTomcat.mustRunAfter(project.tasks.cleanTestLogs)
     }
 
     private static void killChrome(Project project)
