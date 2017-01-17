@@ -1,5 +1,6 @@
 package org.labkey.gradle.plugin
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 /**
@@ -144,6 +145,9 @@ class LabKeyExtension
 
     static boolean isDevMode(Project project)
     {
+        String sysPropDevMode = System.getProperty("devMode")
+        if (!StringUtils.isEmpty(sysPropDevMode))
+            return Boolean.valueOf(sysPropDevMode)
         return project.hasProperty(DEPLOY_MODE_PROPERTY) && DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY));
     }
 

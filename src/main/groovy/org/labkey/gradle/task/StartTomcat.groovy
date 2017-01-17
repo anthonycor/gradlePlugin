@@ -3,6 +3,7 @@ package org.labkey.gradle.task
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.plugin.LabKeyExtension
 import org.labkey.gradle.plugin.TeamCityExtension
 /**
  * Created by susanh on 11/15/16.
@@ -44,15 +45,16 @@ class StartTomcat extends DefaultTask
                 )
             }
 
-            String catalinaOpts = "${project.tomcat.assertionFlag} -Ddevmode=${project.tomcat.devMode} ${project.tomcat.catalinaOpts} " +
+            String catalinaOpts = "${project.tomcat.assertionFlag} -Ddevmode=${LabKeyExtension.isDevMode(project)} ${project.tomcat.catalinaOpts} " +
                         "-Xmx${TeamCityExtension.getTeamCityProperty(project, "Xmx", project.tomcat.maxMemory)} " +
                         "${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} " +
                         "${project.tomcat.trustStore} ${project.tomcat.trustStorePassword} "
 
             if (TeamCityExtension.isOnTeamCity(project) && SystemUtils.IS_OS_UNIX)
             {
-                catalinaOpts += "-DsequencePipelineEnabled=${TeamCityExtension.getTeamCityProperty(project, "sequencePiplineEnabled", false)}"
+                catalinaOpts += "-DsequencePipelineEnabled=${TeamCityExtension.getTeamCityProperty(project, "sequencePipelineEnabled", false)}"
             }
+            println("${project.path} catalinaOpts is ${catalinaOpts}")
 
             env(
                     key: "CATALINA_OPTS",

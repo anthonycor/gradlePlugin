@@ -15,11 +15,16 @@ class Tomcat implements Plugin<Project>
     @Override
     void apply(Project project)
     {
-        project.extensions.create("tomcat",TomcatExtension)
+        project.extensions.create("tomcat", TomcatExtension)
         if (project.plugins.hasPlugin(TestRunner.class))
         {
             UiTestExtension testEx = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
             project.tomcat.assertionFlag = testEx.getTestConfig("disableAssertions") ? "-da" : "-ea"
+        }
+        // TODO verify that these are required here as well as in jvmArgs
+        if (project.plugins.hasPlugin(TeamCity.class))
+        {
+            project.tomcat.catalinaOpts = "-Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE"
         }
         addTasks(project)
     }
@@ -62,7 +67,6 @@ class Tomcat implements Plugin<Project>
 
 class TomcatExtension
 {
-    boolean devMode = true
     String assertionFlag = "-ea" // set to -da to disable assertions
     String maxMemory = "1G"
     boolean recompileJsp = true
