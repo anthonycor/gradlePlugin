@@ -24,7 +24,7 @@ class ConfigureLog4J extends DefaultTask
     @TaskAction
     def compress()
     {
-        def String consoleAppender = "" // this is the setting for production mode
+        String consoleAppender = "" // this is the setting for production mode
         if (LabKeyExtension.isDevMode(project))
         {
             consoleAppender = '<appender-ref ref="CONSOLE"/>'
