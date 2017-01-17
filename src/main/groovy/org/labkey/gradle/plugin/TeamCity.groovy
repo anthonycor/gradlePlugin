@@ -236,6 +236,7 @@ class TeamCity extends Tomcat
             ciTests.add(ciTestTask)
             ciTestTask.mustRunAfter(project.tasks.validateConfiguration)
             ciTestTask.mustRunAfter(project.tasks.cleanTestLogs)
+            ciTestTask.mustRunAfter(project.tasks.startTomcat)
         }
 
         project.task("ciTests",
@@ -248,9 +249,9 @@ class TeamCity extends Tomcat
                         killFirefox(project)
                     }
                 })
-        project.tasks.ciTests.dependsOn(project.project(":server:test").tasks.startTomcat)
+        project.tasks.ciTests.dependsOn(project.tasks.startTomcat)
         project.tasks.ciTests.dependsOn(project.tasks.cleanTestLogs)
-        project.project(":server:test").tasks.startTomcat.mustRunAfter(project.tasks.cleanTestLogs)
+        project.tasks.startTomcat.mustRunAfter(project.tasks.cleanTestLogs)
     }
 
     private static void killChrome(Project project)
