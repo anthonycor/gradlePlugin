@@ -21,11 +21,12 @@ class Tomcat implements Plugin<Project>
             UiTestExtension testEx = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
             project.tomcat.assertionFlag = testEx.getTestConfig("disableAssertions") ? "-da" : "-ea"
         }
+        project.tomcat.catalinaOpts = "-Dproject.root=${project.rootProject.projectDir.absolutePath}"
         // TODO verify that these are required here as well as in jvmArgs
-        if (project.plugins.hasPlugin(TeamCity.class))
+        if (TeamCityExtension.isOnTeamCity(project))
         {
-            project.tomcat.catalinaOpts = "-Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE"
-            println("Have TeamCity plugin. Set catalinaOpts to ${project.tomcat.catalinaOpts} ")
+            project.tomcat.catalinaOpts += " -Xnoagent -Djava.compiler=NONE"
+            println("On TeamCity. Set catalinaOpts to ${project.tomcat.catalinaOpts} ")
         }
         addTasks(project)
     }
