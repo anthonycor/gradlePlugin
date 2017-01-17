@@ -39,7 +39,7 @@ class TeamCity extends Tomcat
             project.tomcat.trustStorePassword = "-Djavax.net.ssl.trustStorePassword=changeit"
         }
         project.tomcat.recompileJsp = false
-        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${extension.getTeamCityProperty("tomcat.debug")} "
+        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
 
         println("in TeamCity.apply: Catalina opts is ${project.tomcat.catalinaOpts}")
 
