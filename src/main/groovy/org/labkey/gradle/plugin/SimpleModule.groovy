@@ -339,7 +339,8 @@ class SimpleModule implements Plugin<Project>
 
     static undeployModule(Project project)
     {
-        // delete the module directory first because tomcat when is listening it may decide to reinstate the directory if the .module file is there
+        // delete the .module file first because when tomcat is listening, it may decide to reinstate the directory if the .module file is there
+        println("undeploying module ${project.path}")
         project.delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${project.tasks.module.outputs.getFiles().getAt(0).getName()}"
         project.delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(project.tasks.module.outputs.getFiles().getAt(0).getName())}"
     }
