@@ -19,7 +19,7 @@ class Tomcat implements Plugin<Project>
         if (project.plugins.hasPlugin(TestRunner.class))
         {
             UiTestExtension testEx = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
-            project.tomcat.assertionFlag = testEx.getTestConfig("disableAssertions") ? "-da" : "-ea"
+            project.tomcat.assertionFlag = Boolean.valueOf(testEx.getTestConfig("disableAssertions")) ? "-da" : "-ea"
         }
         project.tomcat.catalinaOpts = "-Dproject.root=${project.rootProject.projectDir.absolutePath}"
 
@@ -64,7 +64,7 @@ class Tomcat implements Plugin<Project>
 
 class TomcatExtension
 {
-    String assertionFlag = "-ea" // set to -da to disable assertions
+    String assertionFlag = "-ea" // set to -da to disable assertions and -ea to enable assertions
     String maxMemory = "1G"
     boolean recompileJsp = true
     String trustStore = ""

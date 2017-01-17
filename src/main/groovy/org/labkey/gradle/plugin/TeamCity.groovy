@@ -32,6 +32,7 @@ class TeamCity extends Tomcat
     void apply(Project project)
     {
         super.apply(project)
+        project.tomcat.assertionFlag = "-ea"
         extension = project.extensions.create("teamCity", TeamCityExtension, project)
         if (project.file("${project.tomcatDir}/localhost.truststore").exists())
         {
@@ -40,8 +41,6 @@ class TeamCity extends Tomcat
         }
         project.tomcat.recompileJsp = false
         project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
-
-        println("in TeamCity.apply: Catalina opts is ${project.tomcat.catalinaOpts}")
 
         addTasks(project)
     }
