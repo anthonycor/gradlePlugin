@@ -47,8 +47,8 @@ class RunUiTest extends Test
     {
         List<String> jvmArgsList = ["-Xmx512m",
                                     "-Xdebug",
-                                    "-Dlabkey.root=${project.rootProject.projectDir.absolutePath}",
-                                    "-Dproject.root=${project.rootProject.projectDir.absolutePath}",
+//                                    "-Dlabkey.root=${project.rootProject.projectDir.absolutePath}",
+//                                    "-Dproject.root=${project.rootProject.projectDir.absolutePath}",
                                     "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestConfig("debugSuspendSelenium")},address=${getDebugPort()}",
                                     "-Dfile.encoding=UTF-8"]
 
@@ -73,6 +73,7 @@ class RunUiTest extends Test
         systemProperty "devMode", LabKeyExtension.isDevMode(project)
         systemProperty "failure.output.dir", "${project.buildDir}/${LOG_DIR}"
         systemProperty "labkey.root", project.rootProject.projectDir
+        systemProperty "project.root", project.rootProject.projectDir
 
         systemProperty "user.home", System.getProperty('user.home')
         systemProperty "tomcat.home", project.ext.tomcatDir

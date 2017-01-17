@@ -25,6 +25,7 @@ class Tomcat implements Plugin<Project>
         if (project.plugins.hasPlugin(TeamCity.class))
         {
             project.tomcat.catalinaOpts = "-Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE"
+            println("Have TeamCity plugin. Set catalinaOpts to ${project.tomcat.catalinaOpts} ")
         }
         addTasks(project)
     }
