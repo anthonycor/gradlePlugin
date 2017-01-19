@@ -47,8 +47,6 @@ class RunUiTest extends Test
     {
         List<String> jvmArgsList = ["-Xmx512m",
                                     "-Xdebug",
-//                                    "-Dlabkey.root=${project.rootProject.projectDir.absolutePath}",
-//                                    "-Dproject.root=${project.rootProject.projectDir.absolutePath}",
                                     "-Xrunjdwp:transport=dt_socket,server=y,suspend=${testExt.getTestConfig("debugSuspendSelenium")},address=${getDebugPort()}",
                                     "-Dfile.encoding=UTF-8"]
 
