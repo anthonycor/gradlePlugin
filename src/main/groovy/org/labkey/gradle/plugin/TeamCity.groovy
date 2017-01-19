@@ -382,6 +382,8 @@ class TeamCityExtension
             if (!(Boolean) getTeamCityProperty("teamcity.build.branch.is_default", true))
                 name = "${getTeamCityProperty('teamcity.build.branch')}_${name}"
             this.databaseName = name.replaceAll("[/\\.\\s-]", "_")
+            String dbProperty = getTeamCityProperty('drop.database')
+            this.dropDatabase = dbProperty.equals("1") || dbProperty.equalsIgnoreCase("true")
         }
         String databaseTypesProp = getTeamCityProperty("database.types")
         Boolean databaseAvailable = false
