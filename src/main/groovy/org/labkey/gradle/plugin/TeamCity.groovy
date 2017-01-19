@@ -203,7 +203,7 @@ class TeamCity extends Tomcat
                         task.fn = {
                             properties.mergePropertiesFromFile()
                             if (extension.dropDatabase)
-                                SqlUtils.dropDatabase(project, properties)
+                                SqlUtils.dropDatabase(project, properties.getConfigProperties())
                         }
                     }
             )
