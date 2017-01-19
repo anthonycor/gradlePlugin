@@ -163,6 +163,7 @@ class TestRunner extends UiTest
             try
             {
                 writer = new OutputStreamWriter(outputStream);
+                dirNames.add("${project.rootDir}/sampledata")
                 dirNames.add("${project.rootDir}/server/test/data")
                 writer.write(String.join(";", dirNames))
             }
