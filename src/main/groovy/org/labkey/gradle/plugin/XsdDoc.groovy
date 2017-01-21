@@ -72,11 +72,8 @@ class XsdDoc implements Plugin<Project>
 
                     main "com.docflex.xml.Generator"
 
-                    classpath {
-                        [
-                                project.configurations.xsdDoc.asPath
-                        ]
-                    }
+                    classpath project.configurations.xsdDoc
+
                     args = [
                             "-template", "${project.xsdDoc.root}/templates/XSDDoc/FramedDoc.tpl",
                             "-p:docTitle", "LabKey XML Schema Reference",

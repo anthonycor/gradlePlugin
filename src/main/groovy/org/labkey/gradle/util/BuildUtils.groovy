@@ -202,7 +202,7 @@ class BuildUtils
                                            Closure specialParams)
     {
         Boolean transitive = !"jars".equals(parentProjectConfig) && !"jspJars".equals(parentProjectConfig)
-        Project depProject = parentProject.project(depProjectPath)
+        Project depProject = parentProject.rootProject.project(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
         {
             parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
