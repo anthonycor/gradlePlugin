@@ -79,9 +79,9 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 type: Copy,
                 description: "Stage select jars into ${staging.dir}",
-                {
-                    from project.configurations.jars
-                    into staging.libDir
+                {CopySpec copy ->
+                    copy.from project.configurations.jars
+                    copy.into staging.libDir
                 }
         )
 
