@@ -52,6 +52,7 @@ class BuildUtils
                                                              "externalModules/scharp",
                                                              "externalModules/labModules",
                                                              "externalModules/onprcEHRModules",
+                                                             "externalModules/cnprcEHRModules",
                                                              "externalModules/snprcEHRModules",
                                                              "externalModules/DISCVR"]
 
