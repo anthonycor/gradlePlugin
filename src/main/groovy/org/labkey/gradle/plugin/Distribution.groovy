@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.labkey.gradle.task.PackageDistribution
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 class Distribution implements Plugin<Project>
@@ -42,7 +43,9 @@ class Distribution implements Plugin<Project>
                 type: PackageDistribution
         )
         dist.dependsOn(project.configurations.distribution)
-        dist.dependsOn(project.project(":server:bootstrap").tasks.jar)
+        BuildUtils.addLabKeyDependency(
+                project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap"
+        )
         if (project.rootProject.hasProperty("distAll"))
             project.rootProject.tasks.distAll.dependsOn(dist)
         if (project.name.contains("client-apis")) {
