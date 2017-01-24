@@ -174,15 +174,31 @@ class BuildUtils
 
     static void addLabKeyDependency(Map<String, Object> config)
     {
-        addLabKeyDependency(
-                (Project) config.get("project"),
-                (String) config.get("config"),
-                (String) config.get("depProjectPath"),
-                (String) config.get("depProjectConfig"),
-                (String) config.get("depVersion"),
-                (String) config.get("depExtension"),
-                (Closure) config.get("specialParams")
-        )
+        if (config.get('transitive') != null)
+        {
+            addLabKeyDependency(
+                    (Project) config.get("project"),
+                    (String) config.get("config"),
+                    (String) config.get("depProjectPath"),
+                    (String) config.get("depProjectConfig"),
+                    (String) config.get("depVersion"),
+                    (String) config.get("depExtension"),
+                    (Boolean) config.get('transitive'),
+                    (Closure) config.get("specialParams")
+            )
+        }
+        else
+        {
+            addLabKeyDependency(
+                    (Project) config.get("project"),
+                    (String) config.get("config"),
+                    (String) config.get("depProjectPath"),
+                    (String) config.get("depProjectConfig"),
+                    (String) config.get("depVersion"),
+                    (String) config.get("depExtension"),
+                    (Closure) config.get("specialParams")
+            )
+        }
     }
 
     static void addLabKeyDependency(Project parentProject,
@@ -202,7 +218,20 @@ class BuildUtils
                                            String depExtension,
                                            Closure specialParams)
     {
-        Boolean transitive = !"jars".equals(parentProjectConfig) && !"jspJars".equals(parentProjectConfig)
+       addLabKeyDependency(parentProject, parentProjectConfig, depProjectPath, depProjectConfig, depVersion, depExtension,
+              !"jars".equals(parentProjectConfig) && !"jspJars".equals(parentProjectConfig),  specialParams)
+    }
+
+    static void addLabKeyDependency(Project parentProject,
+                                    String parentProjectConfig,
+                                    String depProjectPath,
+                                    String depProjectConfig,
+                                    String depVersion,
+                                    String depExtension,
+                                    Boolean transitive,
+                                    Closure specialParams
+                                    )
+    {
         Project depProject = parentProject.rootProject.project(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
         {
