@@ -23,6 +23,8 @@ class Distribution implements Plugin<Project>
 
         addConfigurations(project)
         addTasks(project)
+
+        project.dist.dir = "${project.rootProject.projectDir}/dist"
     }
 
     private void addConfigurations(Project project)
@@ -45,12 +47,6 @@ class Distribution implements Plugin<Project>
         dist.dependsOn(project.project(":server:bootstrap").tasks.jar)
         if (project.rootProject.hasProperty("distAll"))
             project.rootProject.tasks.distAll.dependsOn(dist)
-        if (project.name.contains("client-apis")) {
-            dist.dependsOn(project.project(":remoteapi:java").getTasksByName("javadocJar", true))
-            dist.dependsOn(project.project(":remoteapi:java").getTasksByName("sourcesJar", true))
-            dist.dependsOn(project.project(":server").getTasksByName("jsdoc", true))
-            dist.dependsOn(project.project(":server").getTasksByName("xsddoc", true))
-        }
     }
 
     /**
@@ -79,7 +75,7 @@ class DistributionExtension
 
     // properties used in the installer/build.xml file
     String subDirName
-    String extraFileIdentifier
+    String extraFileIdentifier = ""
     Boolean skipWindowsInstaller
     Boolean skipZipDistribution
     Boolean skipTarGZDistribution

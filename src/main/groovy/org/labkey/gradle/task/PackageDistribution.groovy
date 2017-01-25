@@ -44,28 +44,23 @@ class PackageDistribution extends DefaultTask
             ':server:modules:search',
             ':server:modules:study',
             ':server:modules:survey',
-            ':server:customModules:targetedms',
+//            ':server:customModules:targetedms',
             ':server:modules:visualization',
             ':server:modules:wiki'
     ]
 
-    def String basedir
-    def boolean buildInstallerExes
-    def String installerBuildDir
-    def String installerDir
-    def String productVersion
-    def String vcsRevision
-    def String versionPrefix
+    String baseDir
+    boolean buildInstallerExes
+    String installerBuildDir
+    String installerDir
+    String productVersion
+    String vcsRevision
+    String versionPrefix
+    String binPrefix
 
     private void init()
     {
-        if (System.hasProperty("teamcity.product.version")) {
-            productVersion = System.getProperty("teamcity.product.version")
-        }
-        else {
-            productVersion = "${project.labkeyVersion}"
-        }
-
+        productVersion = "${project.labkeyVersion}"
 
         if (project.hasProperty('teamcity') && (project.teamcity['env.BUILD_NUMBER'])) {
             vcsRevision = project.teamcity['env.BUILD_NUMBER']
@@ -77,16 +72,15 @@ class PackageDistribution extends DefaultTask
             vcsRevision = "NotFromSVN"
         }
 
-        String extraFileIdentifier = project.dist.extraFileIdentifier || ""
         project.dist.labkeyInstallerVersion = "${productVersion}-${vcsRevision}"
-        versionPrefix = "Labkey${project.dist.labkeyInstallerVersion}${extraFileIdentifier}"
+        versionPrefix = "Labkey${project.dist.labkeyInstallerVersion}${project.dist.extraFileIdentifier}"
+        binPrefix = "${versionPrefix}-bin"
     }
 
     @TaskAction
     void action()
     {
-        project.dist.dir = "${project.rootProject.projectDir}/dist"
-        basedir = "${project.rootProject.projectDir}/server/installer"
+        baseDir = "${project.rootProject.projectDir}/server/installer"
         buildInstallerExes = project.dist.skipWindowsInstaller != null ? project.dist.skipWindowsInstaller : true
         installerBuildDir = "${project.rootProject.projectDir}/build/installer"
         installerDir = "${project.dist.dir}/${project.dist.subDirName}"
@@ -165,6 +159,7 @@ class PackageDistribution extends DefaultTask
         copyProps.put("jdbcURL", "jdbc:postgresql://localhost/labkey")
         copyProps.put("jdbcDriverClassName", "org.postgresql.Driver")
 
+        //The Windows installer only supports Postgres, which it also installs.
         project.mkdir(project.file(installerDir).getAbsolutePath())
         project.mkdir(project.file(installerBuildDir).getAbsolutePath())
 
@@ -191,8 +186,8 @@ class PackageDistribution extends DefaultTask
     {
         if (buildInstallerExes) {
             String scriptName = "labkey_installer.nsi"
-            String scriptPath = "${basedir}/${scriptName}"
-            String nsisBasedir = "${basedir}/nsis2.46"
+            String scriptPath = "${baseDir}/${scriptName}"
+            String nsisBasedir = "${baseDir}/nsis2.46"
 
             if (SystemUtils.IS_OS_WINDOWS) {
                 project.exec({ ExecSpec spec ->
@@ -206,7 +201,7 @@ class PackageDistribution extends DefaultTask
             }
             if (SystemUtils.IS_OS_UNIX) {
                 project.exec({ ExecSpec spec ->
-                    spec.commandLine "${nsisBasedir}/makensis.exe"
+                    spec.commandLine "${nsisBasedir}/makensis"
                     spec.args = [
                             "-DPRODUCT_VERSION=\"${productVersion}\"",
                             "-DPRODUCT_REVISION=\"${vcsRevision}\"",
@@ -228,65 +223,66 @@ class PackageDistribution extends DefaultTask
     {
         //copy_manual_upgrade_script
         project.copy({CopySpec copy ->
-            copy.from("${basedir}/archivedata/")
+            copy.from("${baseDir}/archivedata/")
             copy.include "manual-update.sh"
             into "${installerBuildDir}"
         })
         if(project.dist.skipTarGZDistribution == null || !project.dist.skipTarGZDistribution) {
             tarArchives()
+            zipArchives()
         }
-        zipArchives()
     }
 
     private void tarArchives()
     {
-        ant.tar(tarfile:"${installerDir}/${versionPrefix}-bin.tar.gz",
+        ant.tar(tarfile:"${installerDir}/${binPrefix}.tar.gz",
                 longfile: "gnu",
                 compression: "gzip" ) {
             tarfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
-                   prefix:"${versionPrefix}-bin/labkeywebapp") {
+                   prefix:"${binPrefix}/labkeywebapp") {
                 exclude(name: "WEB-INF/classes/distribution")
             }
             tarfileset(dir: "${project.rootProject.buildDir}/distModules",
-                    prefix: "${versionPrefix}-bin/modules") {
+                    prefix: "${binPrefix}/modules") {
                 include(name: "*.module")
             }
             tarfileset(dir: "${project.rootProject.buildDir}/distExtra",
-                    prefix: "${versionPrefix}-bin/") {
+                    prefix: "${binPrefix}/") {
                 include(name:"**/*")
             }
-            tarfileset(dir: "${project.rootProject.projectDir}/external/lib/tomcat",
-                    prefix: "${versionPrefix}-bin/tomcat-lib") {
-                include(name:"*.jar")
-            }
+            project.project(":server").configurations.tomcatJars.getFiles().collect({
+                tomcatJar ->
+                    tarfileset(file: tomcatJar.path,
+                            prefix: "${binPrefix}/tomcat-lib")
+            })
             if (project.dist.includeMassSpecBinaries) {
                 tarfileset(dir: "${project.rootProject.projectDir}/external/windows/msinspect",
-                        prefix: "${versionPrefix}-bin/bin") {
+                        prefix: "${binPrefix}/bin") {
                     include(name: "**/*.jar")
                     exclude(name: "**/.svn")
                 }
             }
             tarfileset(dir: "${project.rootProject.buildDir}/",
-                    prefix: "${versionPrefix}-bin/tomcat-lib") {
+                    prefix: "${binPrefix}/tomcat-lib") {
                 include(name:"labkeyBootstrap.jar")
             }
             tarfileset(dir: "${project.rootProject.buildDir}/deploy/pipelineLib",
-                    prefix: "${versionPrefix}-bin/pipeline-lib") {
+                    prefix: "${binPrefix}/pipeline-lib") {
             }
             tarfileset(dir: "${project.buildDir}",
-                    prefix: "${versionPrefix}-bin") {
+                    prefix: "${binPrefix}") {
                 include(name:"manual-upgrade.sh")
             }
-            tarfileset(dir: "${basedir}/archiveData",
-                    prefix: "${versionPrefix}-bin") {
+            tarfileset(dir: "${baseDir}/archiveData",
+                    prefix: "${binPrefix}") {
                 include(name:"README.txt")
             }
             tarfileset(dir: "${installerBuildDir}",
-                    prefix: "${versionPrefix}-bin") {
+                    prefix: "${binPrefix}") {
                 include(name:"VERSION")
             }
             tarfileset(dir: "${installerBuildDir}",
-                    prefix: "${versionPrefix}-bin") {
+                    prefix: "${binPrefix}") {
                 include(name:"labkey.xml")
             }
         }
@@ -294,73 +290,58 @@ class PackageDistribution extends DefaultTask
 
     private void zipArchives()
     {
-        ant.zip(destfile: "${installerDir}/${versionPrefix}-bin.zip") {
+        ant.zip(destfile: "${installerDir}/${binPrefix}.zip") {
             zipfileset(dir:"${project.rootProject.buildDir}/staging/labkeyWebapp",
-                    prefix: "${versionPrefix}-bin/labkeywebapp") {
+                    prefix: "${binPrefix}/labkeywebapp") {
                 exclude(name:"WEB-INF/classes/distribution")
             }
             zipfileset(dir:"${project.rootProject.buildDir}/distModules",
-                    prefix: "${versionPrefix}-bin/modules") {
+                    prefix: "${binPrefix}/modules") {
                 include(name:"*.module")
             }
             zipfileset(dir:"${project.rootProject.buildDir}/distExtra",
-                    prefix: "${versionPrefix}-bin/") {
+                    prefix: "${binPrefix}/") {
                 include(name:"**/*")
             }
-            zipfileset(dir:"${project.rootProject.projectDir}/external/lib/tomcat",
-                    prefix: "${versionPrefix}-bin/tomcat-lib") {
-                include(name:"*.jar")
-            }
+            project.project(":server").configurations.tomcatJars.getFiles().collect({
+                tomcatJar ->
+                    zipfileset(file: tomcatJar.path,
+                            prefix: "${binPrefix}/tomcat-lib")
+            })
             zipfileset(dir:"${project.rootProject.buildDir}/",
-                    prefix: "${versionPrefix}-bin/tomcat-lib") {
+                    prefix: "${binPrefix}/tomcat-lib") {
                 include(name:"labkeyBootstrap.jar")
             }
             zipfileset(dir:"${project.rootProject.buildDir}/deploy/pipelineLib",
-                    prefix: "${versionPrefix}-bin/pipeline-lib")
+                    prefix: "${binPrefix}/pipeline-lib")
             zipfileset(dir:"${project.rootProject.projectDir}/external/windows/core",
-                    prefix: "${versionPrefix}-bin/bin") {
+                    prefix: "${binPrefix}/bin") {
                 include(name:"**/*")
                 exclude(name:"**/.svn")
             }
 
             if (project.dist.includeMassSpecBinaries) {
-                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/tpp",
-                        prefix: "${versionPrefix}-bin/bin") {
+                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/",
+                        prefix: "${binPrefix}/bin") {
                     exclude(name:"**/.svn")
-                    include(name:"**/*")
-                }
-                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/comet",
-                        prefix: "${versionPrefix}-bin/bin") {
-                    exclude(name:"**/.svn")
-                    include(name:"**/*")
-                }
-                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/msinspect",
-                        prefix: "${versionPrefix}-bin/bin") {
-                    exclude(name:"**/.svn")
-                    include(name:"**/*")
-                }
-                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/labkey",
-                        prefix: "${versionPrefix}-bin/bin") {
-                    exclude(name:"**/.svn")
-                    include(name:"**/*")
-                }
-                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/pwiz",
-                        prefix: "${versionPrefix}-bin/bin") {
-                    exclude(name:"**/.svn")
-                    include(name:"**/*")
+                    include(name:"tpp/**/*")
+                    include(name:"comet/**/*")
+                    include(name:"msinspect/**/*")
+                    include(name:"labkey/**/*")
+                    include(name:"pwiz/**/*")
                 }
             }
 
-            zipfileset(dir:"${basedir}/archivedata/",
-                    prefix: "${versionPrefix}-bin") {
+            zipfileset(dir:"${baseDir}/archivedata/",
+                    prefix: "${binPrefix}") {
                 include(name: "README.txt")
             }
             zipfileset(dir:"${installerBuildDir}/",
-                    prefix: "${versionPrefix}-bin") {
+                    prefix: "${binPrefix}") {
                 include(name:"VERSION")
             }
             zipfileset(dir:"${installerBuildDir}/",
-                    prefix: "${versionPrefix}-bin") {
+                    prefix: "${binPrefix}") {
                 include(name:"labkey.xml")
             }
         }
@@ -394,7 +375,7 @@ class PackageDistribution extends DefaultTask
             exclude "server/LabKey.iws"
             exclude "webapps/CPL/**"
             exclude "server/api/webapp/ext-3.4.1/src/**"
-            exclude ".gradle/**"
+            exclude "/.gradle/**"
         }
         ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.zip") {
             srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
@@ -435,49 +416,69 @@ class PackageDistribution extends DefaultTask
 
     private void packageClientApis()
     {
-        prepare()
-
         setAntPropertiesForInstaller()
 
-        println("Packaging up Client APIs")
+        String javaDir = "${project.dist.dir}/client-api/java"
+        String javascriptDir = "${project.dist.dir}/client-api/javascript"
+        String xmlDir = "${project.dist.dir}/client-api/XML"
 
-        GString apidocsBuildDir = "${project.rootProject.projectDir}/build/client-api/javascript/docs"
-        GString xsddocsBuildDir = "${project.rootProject.projectDir}/build/client-api/xml-schemas/docs"
+        project.mkdir(project.file(javaDir))
+        project.copy({CopySpec copy ->
+            copy.from "${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}"
+            copy.into javaDir
+        })
+        ant.zip(destfile: "${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java.zip") {
+            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir,
+                    prefix: "doc")
+            zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/lib",
+                    prefix: "lib/"){
+                include(name:"*.jar")
+            }
+            zipfileset(file:"${project.project(":remoteapi:java").projectDir}/README.html")
+            zipfileset(file:"${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}")
+        }
 
-        // zipClientApi
-        project.mkdir(project.file("${project.dist.dir}/client-api/javascript"))
-        ant.zip(destfile: "${project.dist.dir}/client-api/javascript/LabKey$project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs.zip"){
+        ant.zip(destfile: "${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java-src.zip") {
+            zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/src")
+        }
+
+        ant.zip(destfile:"${project.dist.dir}/TeamCity-ClientAPI-Java-Docs.zip") {
+            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir)
+        }
+
+        String apidocsBuildDir = project.project(":server").tasks.jsdoc.outputs.getFiles().asPath
+        String xsddocsBuildDir = project.project(":server").tasks.xsddoc.outputs.getFiles().asPath
+
+        project.mkdir(project.file(javascriptDir))
+        ant.zip(destfile: "${javascriptDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs.zip"){
             zipfileset(dir: apidocsBuildDir,
                     prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs")
         }
 
-        // zipXsdDoc
-        project.mkdir(project.file("${project.dist.dir}/client-api/XML"))
-        ant.zip(destfile: "${project.dist.dir}/client-api/XML/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs.zip") {
+        project.mkdir(project.file(xmlDir))
+        ant.zip(destfile: "${xmlDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs.zip") {
             zipfileset(dir: xsddocsBuildDir,
                     prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs")
         }
 
-        //zipTeamCityClientApi
+        //Create a stable file name so that TeamCity can serve it up directly through its own UI
         ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-JavaScript-Docs.zip") {
             zipfileset(dir: apidocsBuildDir)
         }
 
-        //zipTeamCityXsdDocs
+        //Create a stable file name so that TeamCity can serve it up directly through its own UI
         ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-XMLSchema-Docs.zip") {
             zipfileset(dir: xsddocsBuildDir)
         }
 
-        //tarTeamCityClientApi
-        ant.tar(destfile: "${project.dist.dir}/client-api/javascript/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs.tar.gz",
+        ant.tar(destfile: "${javascriptDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs.tar.gz",
                 longfile:"gnu",
                 compression: "gzip") {
             tarfileset(dir: apidocsBuildDir,
                     prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs")
         }
 
-        //tarTeamCityXsdDocs
-        ant.tar(destfile: "${project.dist.dir}/client-api/XML/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs.tar.gz",
+        ant.tar(destfile: "${xmlDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs.tar.gz",
                 longfile:"gnu",
                 compression: "gzip") {
             tarfileset(dir: xsddocsBuildDir,
