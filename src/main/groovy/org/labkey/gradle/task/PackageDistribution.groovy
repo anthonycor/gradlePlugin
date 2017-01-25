@@ -44,7 +44,7 @@ class PackageDistribution extends DefaultTask
             ':server:modules:search',
             ':server:modules:study',
             ':server:modules:survey',
-//            ':server:customModules:targetedms',
+            ':server:customModules:targetedms',
             ':server:modules:visualization',
             ':server:modules:wiki'
     ]
@@ -171,8 +171,6 @@ class PackageDistribution extends DefaultTask
                 return PropertiesUtils.replaceProps(line, copyProps);
             })
         })
-
-
     }
 
     private void packageRedistributables()
@@ -404,8 +402,8 @@ class PackageDistribution extends DefaultTask
                 compression: "gzip") {
             tarfileset(dir: "${project.rootProject.projectDir}/server/configs/config-remote",
                     prefix: "remote") {
-                exclude("**/*.bat")
-                exclude("**/*.exe")
+                exclude(name: "**/*.bat")
+                exclude(name: "**/*.exe")
             }
             tarfileset(dir: "${project.rootProject.projectDir}/server/configs/config-cluster",
                     prefix: "cluster")
