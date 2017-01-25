@@ -264,7 +264,7 @@ class PackageDistribution extends DefaultTask
             }
             tarfileset(dir: "${project.rootProject.buildDir}/",
                     prefix: "${binPrefix}/tomcat-lib") {
-                include(name:"labkeyBootstrap.jar")
+                include(name:"labkeyBootstrap*.jar")
             }
             tarfileset(dir: "${project.rootProject.buildDir}/deploy/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib") {
@@ -310,7 +310,7 @@ class PackageDistribution extends DefaultTask
             })
             zipfileset(dir:"${project.rootProject.buildDir}/",
                     prefix: "${binPrefix}/tomcat-lib") {
-                include(name:"labkeyBootstrap.jar")
+                include(name:"labkeyBootstrap*.jar")
             }
             zipfileset(dir:"${project.rootProject.buildDir}/deploy/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib")
