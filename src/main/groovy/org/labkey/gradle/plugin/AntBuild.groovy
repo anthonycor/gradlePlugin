@@ -43,7 +43,7 @@ class AntBuild implements Plugin<Project>
 
     private static void setAntProperties(Project project)
     {
-        project.ant.setProperty('baseDir', project.project(":server").projectDir)
+        project.ant.setProperty('basedir', project.project(":server").projectDir)
         project.ant.setProperty('modules.dir', project.projectDir.parent)
         project.ant.setProperty('build.modules.dir', project.buildDir.parent)
         project.ant.setProperty('build.dir', project.rootProject.buildDir)
