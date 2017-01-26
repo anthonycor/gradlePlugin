@@ -51,6 +51,7 @@ class Distribution implements Plugin<Project>
         BuildUtils.addLabKeyDependency(
                 project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap"
         )
+        // TODO make this clean out the output files, not just the build directory
         project.task(
                 "cleanDist",
                 group: GroupNames.DISTRIBUTION,
