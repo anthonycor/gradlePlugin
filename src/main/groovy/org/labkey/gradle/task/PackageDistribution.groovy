@@ -351,17 +351,20 @@ class PackageDistribution extends DefaultTask
             exclude "server/test/remainingTests.txt"
             exclude "server/config.properties"
             exclude "server/LabKey.iws"
+            exclude "server/gradlew" // include separately to ensure permissions set correctly.
             exclude "webapps/CPL/**"
             exclude "server/api/webapp/ext-3.4.1/src/**"
             exclude "**/.gradle/**"
         }
         ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.zip") {
             srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
+            zipfileset(file: "${project.rootProject.projectDir}/gradlew", filemode: 755)
         }
         ant.tar(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.tar.gz",
                 longfile:"gnu",
                 compression: "gzip") {
-            srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
+            srcFileTree.addToAntBuilder(ant, 'tarfileset', FileCollection.AntType.FileSet)
+            tarfileset(file: "${project.rootProject.projectDir}/gradlew", filemode: 755)
         }
     }
 
