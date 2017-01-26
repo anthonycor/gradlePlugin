@@ -93,7 +93,6 @@ class PackageDistribution extends DefaultTask
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
             writeDistributionFile()
-            gatherBootstrapJar()
             gatherModules()
             packageRedistributables()
         }
@@ -108,15 +107,6 @@ class PackageDistribution extends DefaultTask
         else if ("clientApis".equalsIgnoreCase(project.dist.type))
         {
             packageClientApis()
-        }
-    }
-
-    private void gatherBootstrapJar()
-    {
-        // TODO when converted to Gradle, we should be able to eliminate this copy
-        project.copy { CopySpec copy ->
-            copy.from project.project(":server:bootstrap").tasks.jar
-            copy.into project.rootProject.buildDir
         }
     }
 
@@ -228,10 +218,9 @@ class PackageDistribution extends DefaultTask
                     exclude(name: "**/.svn")
                 }
             }
-            tarfileset(dir: "${project.rootProject.buildDir}/",
-                    prefix: "${binPrefix}/tomcat-lib") {
-                include(name:"labkeyBootstrap*.jar")
-            }
+            tarfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
+                    prefix: "${binPrefix}/tomcat-lib/")
+
             tarfileset(dir: "${project.rootProject.buildDir}/deploy/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib") {
             }
@@ -274,10 +263,8 @@ class PackageDistribution extends DefaultTask
                     zipfileset(file: tomcatJar.path,
                             prefix: "${binPrefix}/tomcat-lib")
             })
-            zipfileset(dir:"${project.rootProject.buildDir}/",
-                    prefix: "${binPrefix}/tomcat-lib") {
-                include(name:"labkeyBootstrap*.jar")
-            }
+            zipfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
+                    prefix: "${binPrefix}/tomcat-lib/")
             zipfileset(dir:"${project.rootProject.buildDir}/deploy/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib")
             zipfileset(dir:"${project.rootProject.projectDir}/external/windows/core",
