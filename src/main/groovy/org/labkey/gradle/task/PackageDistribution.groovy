@@ -162,31 +162,19 @@ class PackageDistribution extends DefaultTask
 
     private void packageInstallers()
     {
-        if (buildInstallerExes) {
+        if (buildInstallerExes && SystemUtils.IS_OS_WINDOWS) {
             String scriptName = "labkey_installer.nsi"
             String scriptPath = "${baseDir}/${scriptName}"
             String nsisBasedir = "${baseDir}/nsis2.46"
 
-            if (SystemUtils.IS_OS_WINDOWS) {
-                project.exec({ ExecSpec spec ->
-                    spec.commandLine "${nsisBasedir}/makensis.exe"
-                    spec.args = [
-                            "/DPRODUCT_VERSION=\"${productVersion}\"",
-                            "/DPRODUCT_REVISION=\"${vcsRevision}\"",
-                            "${scriptPath}"
-                    ]
-                })
-            }
-            if (SystemUtils.IS_OS_UNIX) {
-                project.exec({ ExecSpec spec ->
-                    spec.commandLine "${nsisBasedir}/makensis"
-                    spec.args = [
-                            "-DPRODUCT_VERSION=\"${productVersion}\"",
-                            "-DPRODUCT_REVISION=\"${vcsRevision}\"",
-                            "${scriptPath}"
-                    ]
-                })
-            }
+            project.exec({ ExecSpec spec ->
+                spec.commandLine "${nsisBasedir}/makensis.exe"
+                spec.args = [
+                        "/DPRODUCT_VERSION=\"${productVersion}\"",
+                        "/DPRODUCT_REVISION=\"${vcsRevision}\"",
+                        "${scriptPath}"
+                ]
+            })
 
             project.copy({ CopySpec copy ->
                 copy.from("${installerBuildDir}/")
