@@ -352,18 +352,20 @@ class PackageDistribution extends DefaultTask
         FileTree srcFileTree = project.fileTree("${project.rootProject.projectDir}") {
             exclude "**/.svn/**"
             exclude "**/**.old"
+            exclude "buildSrc/**"
+            exclude "**/.idea/modules/**"
             exclude "build/**"
             exclude "remoteAPI/axis-1_4/**"
-            exclude "dist/**"
+            exclude "**/dist/**"
             exclude "**/.gwt-cache/**"
-            exclude "intellijBuild/**"
+            exclude "**/intellijBuild/**"
             exclude "archive/**"
             exclude "docs/**"
             exclude "external/lib/**/*.zip"
             exclude "external/lib/**/junit-src.*.jar"
             exclude "external/lib/client/**"
             exclude "server/installer/3rdparty/**"
-            exclude "server/installer/nsis/**"
+            exclude "server/installer/nsis/**" // should this be nsis*??
             exclude "sampledata/**"
             exclude "server/test/lib/**.zip"
             exclude "server/test/selenium.log"
@@ -373,7 +375,7 @@ class PackageDistribution extends DefaultTask
             exclude "server/LabKey.iws"
             exclude "webapps/CPL/**"
             exclude "server/api/webapp/ext-3.4.1/src/**"
-            exclude "/.gradle/**"
+            exclude "**/.gradle/**"
         }
         ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.zip") {
             srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
