@@ -133,33 +133,13 @@ class PackageDistribution extends DefaultTask
                 }
     }
 
-    private void setAntPropertiesForInstaller()
-    {
-        // TODO should we log errors if the subDirName or extraFileIdentifier is missing?
-        if (project.dist.subDirName != null)
-            ant.properties['dist_sub.dir'] = project.dist.subDirName
-        if (project.dist.extraFileIdentifier != null)
-            ant.properties['extraFileIdentifier'] = project.dist.extraFileIdentifier
-        ant.properties['project.root'] = project.rootDir
-        if (project.dist.skipWindowsInstaller != null)
-            ant.properties['skip.windowsInstaller'] = project.dist.skipWindowsInstaller
-        if (project.dist.skipZipDistribution != null)
-            ant.properties['skip.zipDistribution'] = project.dist.skipZipDistribution
-        if (project.dist.skipTarGZDistribution != null)
-            ant.properties['skip.tarGZDistribution'] = project.dist.skipTarGZDistribution
-        if (project.dist.versionPrefix != null)
-            ant.properties['versionPrefix'] = project.dist.versionPrefix
-        if (project.dist.includeMassSpecBinaries != null)
-            ant.properties['includeMassSpecBinaries'] = project.dist.includeMassSpecBinaries
-    }
-
     private void prepare()
     {
         Properties copyProps = new Properties()
+        //The Windows installer only supports Postgres, which it also installs.
         copyProps.put("jdbcURL", "jdbc:postgresql://localhost/labkey")
         copyProps.put("jdbcDriverClassName", "org.postgresql.Driver")
 
-        //The Windows installer only supports Postgres, which it also installs.
         project.mkdir(project.file(installerDir).getAbsolutePath())
         project.mkdir(project.file(installerBuildDir).getAbsolutePath())
 
@@ -347,8 +327,6 @@ class PackageDistribution extends DefaultTask
 
     private void packageSource()
     {
-        prepare()
-        setAntPropertiesForInstaller()
         FileTree srcFileTree = project.fileTree("${project.rootProject.projectDir}") {
             exclude "**/.svn/**"
             exclude "**/**.old"
@@ -389,8 +367,6 @@ class PackageDistribution extends DefaultTask
 
     private void packagePipelineConfigs()
     {
-        prepare()
-        setAntPropertiesForInstaller()
         ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-PipelineConfig.zip") {
             zipfileset(dir: "${project.rootProject.projectDir}/server/configs/config-remote",
                     prefix: "remote")
@@ -416,8 +392,6 @@ class PackageDistribution extends DefaultTask
 
     private void packageClientApis()
     {
-        setAntPropertiesForInstaller()
-
         String javaDir = "${project.dist.dir}/client-api/java"
         String javascriptDir = "${project.dist.dir}/client-api/javascript"
         String xmlDir = "${project.dist.dir}/client-api/XML"
