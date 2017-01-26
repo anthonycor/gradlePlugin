@@ -37,36 +37,44 @@ class ServerSideJS extends DefaultTask
     private void concatenateExt3JsFiles()
     {
 
-        ant.concat(destFile: "${scriptsDir}/Ext.js", force: true)
-                {
-                    header(file: "${scriptFragmentsDir}/Ext.header.js")
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src/Ext.js"))
-                    fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src/Observable.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src/JSON.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src/Connection.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src/Format.js"))
-                    footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
-                }
+        File ext3SrcDir = project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src")
+        if (ext3SrcDir.exists())
+        {
+            ant.concat(destFile: "${scriptsDir}/Ext.js", force: true)
+                    {
+                        header(file: "${scriptFragmentsDir}/Ext.header.js")
+                        fileset(file: new File(ext3SrcDir, "Ext.js"))
+                        fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
+                        fileset(file: new File(ext3SrcDir, "Observable.js"))
+                        fileset(file: new File(ext3SrcDir, "JSON.js"))
+                        fileset(file: new File(ext3SrcDir, "Connection.js"))
+                        fileset(file: new File(ext3SrcDir, "Format.js"))
+                        footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
+                    }
+        }
     }
 
     // create a combined Ext4.js usable by the core module's server-side scripts
     private void concatenateExt4JsFiles()
     {
-        ant.concat(destFile: "${scriptsDir}/Ext4.js", force: true)
-                {
-                    header(file: "${scriptFragmentsDir}/Ext4.header.js")
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/Ext.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/Array.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/Date.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/Number.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/Object.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/String.js"))
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/lang/Error.js"))
-                    fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
-                    fileset(file: project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src/misc/JSON.js"))
-                    footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
-                }
+        File ext4SrcDir = project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src")
+        if (ext4SrcDir.exists())
+        {
+            ant.concat(destFile: "${scriptsDir}/Ext4.js", force: true)
+                    {
+                        header(file: "${scriptFragmentsDir}/Ext4.header.js")
+                        fileset(file: new File(ext4SrcDir, "Ext.js"))
+                        fileset(file: new File(ext4SrcDir, "lang/Array.js"))
+                        fileset(file: new File(ext4SrcDir, "lang/Date.js"))
+                        fileset(file: new File(ext4SrcDir, "lang/Number.js"))
+                        fileset(file: new File(ext4SrcDir, "lang/Object.js"))
+                        fileset(file: new File(ext4SrcDir, "lang/String.js"))
+                        fileset(file: new File(ext4SrcDir, "lang/Error.js"))
+                        fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
+                        fileset(file: new File(ext4SrcDir, "misc/JSON.js"))
+                        footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
+                    }
+        }
 
     }
 
