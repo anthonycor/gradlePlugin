@@ -458,18 +458,7 @@ class ModuleExtension
 
     private void setVcsProperties()
     {
-        if (project.plugins.hasPlugin("org.labkey.versioning"))
-        {
-            modProperties.setProperty("VcsURL", project.versioning.info.url)
-            modProperties.setProperty("VcsRevision", project.versioning.info.commit)
-            modProperties.setProperty("BuildNumber", (String) TeamCityExtension.getTeamCityProperty(project, "build.number", project.versioning.info.build))
-        }
-        else
-        {
-            modProperties.setProperty("VcsURL", "Unknown")
-            modProperties.setProperty("VcsRevision", "Unknown")
-            modProperties.setProperty("BuildNumber", "Unknown")
-        }
+        modProperties.putAll(BuildUtils.getStandardVCSProperties(project))
     }
 
     private setEnlistmentId()

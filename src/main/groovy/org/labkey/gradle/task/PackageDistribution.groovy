@@ -9,6 +9,7 @@ import org.gradle.process.ExecSpec
 import org.gradle.api.tasks.TaskAction
 
 import org.labkey.gradle.plugin.DistributionExtension
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files
@@ -62,15 +63,7 @@ class PackageDistribution extends DefaultTask
     {
         productVersion = "${project.labkeyVersion}"
 
-        if (project.hasProperty('teamcity') && (project.teamcity['env.BUILD_NUMBER'])) {
-            vcsRevision = project.teamcity['env.BUILD_NUMBER']
-        }
-        else if (project.hasProperty("includeVcs")) {
-            vcsRevision = project.versioning.info.commit
-        }
-        else {
-            vcsRevision = "NotFromSVN"
-        }
+        vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
 
         project.dist.labkeyInstallerVersion = "${productVersion}-${vcsRevision}"
         versionPrefix = "Labkey${project.dist.labkeyInstallerVersion}${project.dist.extraFileIdentifier}"

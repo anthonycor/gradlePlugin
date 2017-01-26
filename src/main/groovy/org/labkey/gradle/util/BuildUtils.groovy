@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.labkey.gradle.plugin.Api
 import org.labkey.gradle.plugin.Jsp
+import org.labkey.gradle.plugin.TeamCityExtension
 import org.labkey.gradle.plugin.XmlBeans
 
 import java.util.regex.Matcher
@@ -170,6 +171,24 @@ class BuildUtils
         if (matcher.matches())
             version = matcher.group(1)
         return version
+    }
+
+    static Properties getStandardVCSProperties(project)
+    {
+        Properties ret = new Properties();
+        if (project.plugins.hasPlugin("org.labkey.versioning"))
+        {
+            ret.setProperty("VcsURL", project.versioning.info.url)
+            ret.setProperty("VcsRevision", project.versioning.info.commit)
+            ret.setProperty("BuildNumber", (String) TeamCityExtension.getTeamCityProperty(project, "build.number", project.versioning.info.build))
+        }
+        else
+        {
+            ret.setProperty("VcsURL", "Unknown")
+            ret.setProperty("VcsRevision", "Unknown")
+            ret.setProperty("BuildNumber", "Unknown")
+        }
+        return ret;
     }
 
     static void addLabKeyDependency(Map<String, Object> config)
