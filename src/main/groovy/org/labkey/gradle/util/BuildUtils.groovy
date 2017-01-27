@@ -92,7 +92,7 @@ class BuildUtils
     {
         // find the directories in each of the moduleDirs that meet our selection criteria
         moduleDirs.each { String path ->
-            File directory = new File(rootDir, path);
+            File directory = new File(rootDir, path)
             if (directory.exists())
             {
                 String prefix = convertDirToPath(rootDir, directory)
@@ -119,7 +119,7 @@ class BuildUtils
 
     static List<String> whyNotBuildFromSource(Project project, String property)
     {
-        List<String> reasons = [];
+        List<String> reasons = []
         if (!project.hasProperty(property))
         {
             reasons.add("Project does not have ${property} property")
@@ -129,7 +129,7 @@ class BuildUtils
         else if (!Boolean.valueOf((String) project.property(property)))
             reasons.add("${property} property is false")
 
-        return reasons;
+        return reasons
     }
 
     static boolean shouldBuildClientLibsFromSource(Project project)
@@ -139,12 +139,12 @@ class BuildUtils
 
     static boolean isGitModule(Project project)
     {
-        return project.file(".git").exists();
+        return project.file(".git").exists()
     }
 
     static boolean isSvnModule(Project project)
     {
-        return !isGitModule(project);
+        return !isGitModule(project)
     }
 
     static String getVersionNumber(Project project)
@@ -175,7 +175,7 @@ class BuildUtils
 
     static Properties getStandardVCSProperties(project)
     {
-        Properties ret = new Properties();
+        Properties ret = new Properties()
         if (project.plugins.hasPlugin("org.labkey.versioning"))
         {
             ret.setProperty("VcsURL", project.versioning.info.url)
@@ -188,7 +188,7 @@ class BuildUtils
             ret.setProperty("VcsRevision", "Unknown")
             ret.setProperty("BuildNumber", "Unknown")
         }
-        return ret;
+        return ret
     }
 
     static void addLabKeyDependency(Map<String, Object> config)
@@ -271,7 +271,7 @@ class BuildUtils
             else
             {
                 parentProject.logger.info("${depProjectPath} project found but not building from source because: "
-                        + whyNotBuildFromSource(parentProject, BuildUtils.BUILD_FROM_SOURCE_PROP).join("; "))
+                        + whyNotBuildFromSource(parentProject, BUILD_FROM_SOURCE_PROP).join("; "))
                 if (depVersion == null)
                     depVersion = depProject.version
             }
