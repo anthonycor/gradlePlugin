@@ -22,7 +22,7 @@ class ConfigureLog4J extends DefaultTask
     File outputFile = new File(outputDir, "log4j.xml")
 
     @TaskAction
-    def compress()
+    void compress()
     {
         String consoleAppender = "" // this is the setting for production mode
         if (LabKeyExtension.isDevMode(project))
