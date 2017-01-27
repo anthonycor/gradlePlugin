@@ -15,7 +15,7 @@ class DoThenSetup extends DefaultTask
     }
 
     @TaskAction
-    setup() {
+    void setup() {
         getFn().run()
 
         //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
