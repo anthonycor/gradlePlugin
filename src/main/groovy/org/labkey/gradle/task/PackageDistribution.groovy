@@ -82,7 +82,8 @@ class PackageDistribution extends DefaultTask
 
         setUpModuleDistDirectories()
 
-        // TODO enum would be better for these types
+        // TODO create separate tasks/plugins for these that are included separately so we get rid of this checking
+        // and can declare proper inputs and outputs
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
             writeDistributionFile()
@@ -116,7 +117,13 @@ class PackageDistribution extends DefaultTask
                 }
     }
 
-    private void prepare()
+    private void packageRedistributables()
+    {
+        packageInstallers()
+        packageArchives()
+    }
+
+    private void copyLibXml()
     {
         Properties copyProps = new Properties()
         //The Windows installer only supports Postgres, which it also installs.
@@ -136,16 +143,10 @@ class PackageDistribution extends DefaultTask
         })
     }
 
-    private void packageRedistributables()
-    {
-        prepare()
-        packageInstallers()
-        packageArchives()
-    }
-
     private void packageInstallers()
     {
         if (buildInstallerExes && SystemUtils.IS_OS_WINDOWS) {
+            copyLibXml()
             String scriptName = "labkey_installer.nsi"
             String scriptPath = "${baseDir}/${scriptName}"
             String nsisBasedir = "${baseDir}/nsis2.46"
@@ -311,7 +312,7 @@ class PackageDistribution extends DefaultTask
             exclude "external/lib/**/junit-src.*.jar"
             exclude "external/lib/client/**"
             exclude "server/installer/3rdparty/**"
-            exclude "server/installer/nsis/**" // should this be nsis*??
+            exclude "server/installer/nsis*/**"
             exclude "sampledata/**"
             exclude "server/test/lib/**.zip"
             exclude "server/test/selenium.log"
@@ -326,13 +327,13 @@ class PackageDistribution extends DefaultTask
         }
         ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.zip") {
             srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
-            zipfileset(file: "${project.rootProject.projectDir}/gradlew", filemode: 755)
+            zipfileset(file: "${project.rootProject.projectDir}/server/gradlew", prefix: "server", filemode: 755)
         }
         ant.tar(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.tar.gz",
                 longfile:"gnu",
                 compression: "gzip") {
             srcFileTree.addToAntBuilder(ant, 'tarfileset', FileCollection.AntType.FileSet)
-            tarfileset(file: "${project.rootProject.projectDir}/gradlew", filemode: 755)
+            tarfileset(file: "${project.rootProject.projectDir}/server/gradlew", prefix: "server", filemode: 755)
         }
     }
 
