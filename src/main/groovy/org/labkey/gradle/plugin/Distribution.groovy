@@ -21,14 +21,13 @@ class Distribution implements Plugin<Project>
     @Override
     void apply(Project project)
     {
-        project.buildDir = "${project.rootDir}/build/dist/${project.name}"
+        project.buildDir = "${project.rootDir}/build/installer/${project.name}"
         DistributionExtension extension = project.extensions.create("dist", DistributionExtension)
         extension.distModulesDir = "${project.rootProject.buildDir}/distModules"
+        extension.dir = "${project.rootProject.projectDir}/dist"
 
         addConfigurations(project)
         addTasks(project)
-
-        project.dist.dir = "${project.rootProject.projectDir}/dist"
     }
 
     private void addConfigurations(Project project)

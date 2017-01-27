@@ -2,12 +2,11 @@ package org.labkey.gradle.task
 
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
-import org.gradle.api.file.CopySpec
-import org.gradle.process.ExecSpec
 import org.gradle.api.tasks.TaskAction
-
+import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.PropertiesUtils
@@ -52,20 +51,20 @@ class PackageDistribution extends DefaultTask
 
     String baseDir
     boolean buildInstallerExes
-    String installerBuildDir
-    String installerDir
-    String productVersion
+
+    // TODO would like to declare this as the output directory but need to supply a value on initialization.
+    // Need to figure out order of initialization of extension and task.
+    File distributionDir
+
     String vcsRevision
     String versionPrefix
     String binPrefix
 
     private void init()
     {
-        productVersion = "${project.labkeyVersion}"
-
         vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
 
-        project.dist.labkeyInstallerVersion = "${productVersion}-${vcsRevision}"
+        project.dist.labkeyInstallerVersion = "${project.version}-${vcsRevision}"
         versionPrefix = "Labkey${project.dist.labkeyInstallerVersion}${project.dist.extraFileIdentifier}"
         binPrefix = "${versionPrefix}-bin"
     }
@@ -75,8 +74,8 @@ class PackageDistribution extends DefaultTask
     {
         baseDir = "${project.rootProject.projectDir}/server/installer"
         buildInstallerExes = project.dist.skipWindowsInstaller != null ? project.dist.skipWindowsInstaller : true
-        installerBuildDir = "${project.rootProject.projectDir}/build/installer"
-        installerDir = "${project.dist.dir}/${project.dist.subDirName}"
+
+        distributionDir = project.file("${project.dist.dir}/${project.dist.subDirName}")
 
         init()
 
@@ -119,6 +118,9 @@ class PackageDistribution extends DefaultTask
 
     private void packageRedistributables()
     {
+        project.mkdir(project.file(distributionDir).getAbsolutePath())
+
+        copyLibXml()
         packageInstallers()
         packageArchives()
     }
@@ -130,13 +132,10 @@ class PackageDistribution extends DefaultTask
         copyProps.put("jdbcURL", "jdbc:postgresql://localhost/labkey")
         copyProps.put("jdbcDriverClassName", "org.postgresql.Driver")
 
-        project.mkdir(project.file(installerDir).getAbsolutePath())
-        project.mkdir(project.file(installerBuildDir).getAbsolutePath())
-
         project.copy({ CopySpec copy ->
             copy.from("${project.rootProject.projectDir}/webapps")
             copy.include("labkey.xml")
-            copy.into("${project.buildDir}")
+            copy.into(project.buildDir)
             copy.filter({ String line ->
                 return PropertiesUtils.replaceProps(line, copyProps);
             })
@@ -146,7 +145,6 @@ class PackageDistribution extends DefaultTask
     private void packageInstallers()
     {
         if (buildInstallerExes && SystemUtils.IS_OS_WINDOWS) {
-            copyLibXml()
             String scriptName = "labkey_installer.nsi"
             String scriptPath = "${baseDir}/${scriptName}"
             String nsisBasedir = "${baseDir}/nsis2.46"
@@ -154,16 +152,16 @@ class PackageDistribution extends DefaultTask
             project.exec({ ExecSpec spec ->
                 spec.commandLine "${nsisBasedir}/makensis.exe"
                 spec.args = [
-                        "/DPRODUCT_VERSION=\"${productVersion}\"",
+                        "/DPRODUCT_VERSION=\"${project.version}\"",
                         "/DPRODUCT_REVISION=\"${vcsRevision}\"",
                         "${scriptPath}"
                 ]
             })
 
             project.copy({ CopySpec copy ->
-                copy.from("${installerBuildDir}/")
+                copy.from("${project.buildDir}/")
                 copy.include("Setup_includeJRE.exe")
-                copy.into("${installerDir}/")
+                copy.into("${distributionDir}/")
                 copy.rename("Setup_includeJRE.exe", "${project.dist.versionPrefix}-Setup.exe")
             })
         }
@@ -171,21 +169,19 @@ class PackageDistribution extends DefaultTask
 
     private void packageArchives()
     {
-        //copy_manual_upgrade_script
-        project.copy({CopySpec copy ->
-            copy.from("${baseDir}/archivedata/")
-            copy.include "manual-update.sh"
-            into "${installerBuildDir}"
-        })
-        if(project.dist.skipTarGZDistribution == null || !project.dist.skipTarGZDistribution) {
+        if (project.dist.skipTarGZDistribution == null || !project.dist.skipTarGZDistribution)
+        {
             tarArchives()
+        }
+        if (project.dist.skipZipDistribution == null || !project.dist.skipZipDistribution)
+        {
             zipArchives()
         }
     }
 
     private void tarArchives()
     {
-        ant.tar(tarfile:"${installerDir}/${binPrefix}.tar.gz",
+        ant.tar(tarfile:"${distributionDir}/${binPrefix}.tar.gz",
                 longfile: "gnu",
                 compression: "gzip" ) {
             tarfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
@@ -218,7 +214,8 @@ class PackageDistribution extends DefaultTask
             tarfileset(dir: "${project.rootProject.buildDir}/deploy/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib") {
             }
-            tarfileset(dir: "${project.buildDir}",
+
+            tarfileset(dir: "${baseDir}/archivedata/",
                     prefix: "${binPrefix}") {
                 include(name:"manual-upgrade.sh")
             }
@@ -226,11 +223,11 @@ class PackageDistribution extends DefaultTask
                     prefix: "${binPrefix}") {
                 include(name:"README.txt")
             }
-            tarfileset(dir: "${installerBuildDir}",
+            tarfileset(dir: "${project.buildDir}",
                     prefix: "${binPrefix}") {
                 include(name:"VERSION")
             }
-            tarfileset(dir: "${installerBuildDir}",
+            tarfileset(dir: "${project.buildDir}",
                     prefix: "${binPrefix}") {
                 include(name:"labkey.xml")
             }
@@ -239,7 +236,7 @@ class PackageDistribution extends DefaultTask
 
     private void zipArchives()
     {
-        ant.zip(destfile: "${installerDir}/${binPrefix}.zip") {
+        ant.zip(destfile: "${distributionDir}/${binPrefix}.zip") {
             zipfileset(dir:"${project.rootProject.buildDir}/staging/labkeyWebapp",
                     prefix: "${binPrefix}/labkeywebapp") {
                 exclude(name:"WEB-INF/classes/distribution")
@@ -283,11 +280,11 @@ class PackageDistribution extends DefaultTask
                     prefix: "${binPrefix}") {
                 include(name: "README.txt")
             }
-            zipfileset(dir:"${installerBuildDir}/",
+            zipfileset(dir:"${project.buildDir}/",
                     prefix: "${binPrefix}") {
                 include(name:"VERSION")
             }
-            zipfileset(dir:"${installerBuildDir}/",
+            zipfileset(dir:"${project.buildDir}/",
                     prefix: "${binPrefix}") {
                 include(name:"labkey.xml")
             }
@@ -324,6 +321,7 @@ class PackageDistribution extends DefaultTask
             exclude "webapps/CPL/**"
             exclude "server/api/webapp/ext-3.4.1/src/**"
             exclude "**/.gradle/**"
+            exclude ".gradle/**"
         }
         ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.zip") {
             srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
