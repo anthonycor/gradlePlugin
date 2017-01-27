@@ -85,7 +85,9 @@ class PackageDistribution extends DefaultTask
         // and can declare proper inputs and outputs
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
+            createDistributionFiles()
             writeDistributionFile()
+            writeVersionFile()
             gatherModules()
             packageRedistributables()
         }
@@ -137,7 +139,7 @@ class PackageDistribution extends DefaultTask
             copy.include("labkey.xml")
             copy.into(project.buildDir)
             copy.filter({ String line ->
-                return PropertiesUtils.replaceProps(line, copyProps);
+                return PropertiesUtils.replaceProps(line, copyProps)
             })
         })
     }
@@ -215,20 +217,20 @@ class PackageDistribution extends DefaultTask
                     prefix: "${binPrefix}/pipeline-lib") {
             }
 
-            tarfileset(dir: "${baseDir}/archivedata/",
-                    prefix: "${binPrefix}") {
+            tarfileset(dir: project.buildDir,
+                    prefix: binPrefix) {
                 include(name:"manual-upgrade.sh")
             }
             tarfileset(dir: "${baseDir}/archiveData",
-                    prefix: "${binPrefix}") {
+                    prefix: binPrefix) {
                 include(name:"README.txt")
             }
-            tarfileset(dir: "${project.buildDir}",
-                    prefix: "${binPrefix}") {
+            tarfileset(dir: project.buildDir,
+                    prefix: binPrefix) {
                 include(name:"VERSION")
             }
-            tarfileset(dir: "${project.buildDir}",
-                    prefix: "${binPrefix}") {
+            tarfileset(dir: project.buildDir,
+                    prefix: binPrefix) {
                 include(name:"labkey.xml")
             }
         }
@@ -362,9 +364,9 @@ class PackageDistribution extends DefaultTask
 
     private void packageClientApis()
     {
-        String javaDir = "${project.dist.dir}/client-api/java"
-        String javascriptDir = "${project.dist.dir}/client-api/javascript"
-        String xmlDir = "${project.dist.dir}/client-api/XML"
+        GString javaDir = "${project.dist.dir}/client-api/java"
+        GString javascriptDir = "${project.dist.dir}/client-api/javascript"
+        GString xmlDir = "${project.dist.dir}/client-api/XML"
 
         project.mkdir(project.file(javaDir))
         project.copy({CopySpec copy ->
@@ -437,11 +439,33 @@ class PackageDistribution extends DefaultTask
         distDir.mkdirs()
     }
 
+    private void createDistributionFiles()
+    {
+        writeDistributionFile()
+        writeVersionFile()
+        // copy the manual-update script to the build directory so we can fix the line endings.
+        project.copy({CopySpec copy ->
+            copy.from("${baseDir}/archivedata/")
+            copy.include "manual-upgrade.sh"
+            copy.into project.buildDir
+        })
+        project.ant.fixcrlf (srcdir: project.buildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
+    }
+
+
     private void writeDistributionFile()
     {
         File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
         if (!distExtraDir.exists())
             distExtraDir.mkdirs()
         Files.write(Paths.get(distExtraDir.absolutePath, DistributionExtension.DIST_FILE_NAME), project.name.getBytes())
+    }
+
+    private void writeVersionFile()
+    {
+        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
+        if (!distExtraDir.exists())
+            distExtraDir.mkdirs()
+        Files.write(Paths.get(distExtraDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
     }
 }

@@ -84,6 +84,7 @@ class DistributionExtension
 {
     public static final String DIST_FILE_DIR = "distExtra/labkeywebapp/WEB-INF/classes"
     public static final String DIST_FILE_NAME = "distribution"
+    public static final String VERSION_FILE_NAME = "VERSION"
 
     String dir = "dist"
     String distModulesDir
