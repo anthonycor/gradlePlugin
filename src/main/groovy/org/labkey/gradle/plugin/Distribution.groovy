@@ -22,9 +22,7 @@ class Distribution implements Plugin<Project>
     void apply(Project project)
     {
         project.buildDir = "${project.rootDir}/build/installer/${project.name}"
-        DistributionExtension extension = project.extensions.create("dist", DistributionExtension)
-        extension.distModulesDir = "${project.rootProject.buildDir}/distModules"
-        extension.dir = "${project.rootProject.projectDir}/dist"
+        project.extensions.create("dist", DistributionExtension, project)
 
         addConfigurations(project)
         addTasks(project)
@@ -86,8 +84,11 @@ class DistributionExtension
     public static final String DIST_FILE_NAME = "distribution"
     public static final String VERSION_FILE_NAME = "VERSION"
 
-    String dir = "dist"
-    String distModulesDir
+    String dir
+    String modulesDir
+    String installerSrcDir
+    String extraSrcDir
+    String archiveDataDir
     String type = "modules"
 
     // properties used in the installer/build.xml file
@@ -97,6 +98,23 @@ class DistributionExtension
     Boolean skipZipDistribution
     Boolean skipTarGZDistribution
     Boolean includeMassSpecBinaries = false
-    String versionPrefix
+    String versionPrefix = null
     String labkeyInstallerVersion
+    private Project project
+
+
+    DistributionExtension(Project project)
+    {
+        this.project = project
+        this.modulesDir = "${project.rootProject.buildDir}/distModules"
+        this.dir = "${project.rootProject.projectDir}/dist"
+        this.installerSrcDir = "${project.rootProject.projectDir}/server/installer"
+        this.extraSrcDir = "${project.rootProject.buildDir}/distExtra"
+        this.archiveDataDir = "${this.installerSrcDir}/archivedata"
+    }
+
+    Boolean buildInstallerExes()
+    {
+        return skipWindowsInstaller == null ? true: skipWindowsInstaller
+    }
 }

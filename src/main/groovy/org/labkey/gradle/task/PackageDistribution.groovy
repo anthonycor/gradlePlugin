@@ -49,34 +49,31 @@ class PackageDistribution extends DefaultTask
             ':server:modules:wiki'
     ]
 
-    String baseDir
-    boolean buildInstallerExes
-
-    // TODO would like to declare this as the output directory but need to supply a value on initialization.
+    // TODO would like to declare this as the output directory but need to supply a value during configuration.
     // Need to figure out order of initialization of extension and task.
     File distributionDir
 
     String vcsRevision
-    String versionPrefix
     String binPrefix
+    DistributionExtension distExtension
 
     private void init()
     {
+        distExtension = project.getExtensions().findByType(DistributionExtension.class)
+
+        distributionDir = project.file("${distExtension.dir}/${distExtension.subDirName}")
+
         vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
 
-        project.dist.labkeyInstallerVersion = "${project.version}-${vcsRevision}"
-        versionPrefix = "Labkey${project.dist.labkeyInstallerVersion}${project.dist.extraFileIdentifier}"
-        binPrefix = "${versionPrefix}-bin"
+        distExtension.labkeyInstallerVersion = "${project.version}-${vcsRevision}"
+        if (distExtension.versionPrefix == null)
+            distExtension.versionPrefix = "Labkey${distExtension.labkeyInstallerVersion}${distExtension.extraFileIdentifier}"
+        binPrefix = "${distExtension.versionPrefix}-bin"
     }
 
     @TaskAction
     void action()
     {
-        baseDir = "${project.rootProject.projectDir}/server/installer"
-        buildInstallerExes = project.dist.skipWindowsInstaller != null ? project.dist.skipWindowsInstaller : true
-
-        distributionDir = project.file("${project.dist.dir}/${project.dist.subDirName}")
-
         init()
 
         setUpModuleDistDirectories()
@@ -86,8 +83,6 @@ class PackageDistribution extends DefaultTask
         if ("modules".equalsIgnoreCase(project.dist.type))
         {
             createDistributionFiles()
-            writeDistributionFile()
-            writeVersionFile()
             gatherModules()
             packageRedistributables()
         }
@@ -108,7 +103,7 @@ class PackageDistribution extends DefaultTask
     private void gatherModules()
     {
         ant.copy (
-                toDir: project.dist.distModulesDir
+                toDir: distExtension.modulesDir
         )
                 {
                     project.configurations.distribution.each {
@@ -146,13 +141,13 @@ class PackageDistribution extends DefaultTask
 
     private void packageInstallers()
     {
-        if (buildInstallerExes && SystemUtils.IS_OS_WINDOWS) {
+        if (distExtension.buildInstallerExes() && SystemUtils.IS_OS_WINDOWS) {
             String scriptName = "labkey_installer.nsi"
-            String scriptPath = "${baseDir}/${scriptName}"
-            String nsisBasedir = "${baseDir}/nsis2.46"
+            String scriptPath = "${distExtension.installerSrcDir}/${scriptName}"
+            String nsisBaseDir = "${distExtension.installerSrcDir}/nsis2.46"
 
             project.exec({ ExecSpec spec ->
-                spec.commandLine "${nsisBasedir}/makensis.exe"
+                spec.commandLine "${nsisBaseDir}/makensis.exe"
                 spec.args = [
                         "/DPRODUCT_VERSION=\"${project.version}\"",
                         "/DPRODUCT_REVISION=\"${vcsRevision}\"",
@@ -164,18 +159,18 @@ class PackageDistribution extends DefaultTask
                 copy.from("${project.buildDir}/")
                 copy.include("Setup_includeJRE.exe")
                 copy.into("${distributionDir}/")
-                copy.rename("Setup_includeJRE.exe", "${project.dist.versionPrefix}-Setup.exe")
+                copy.rename("Setup_includeJRE.exe", "${distExtension.versionPrefix}-Setup.exe")
             })
         }
     }
 
     private void packageArchives()
     {
-        if (project.dist.skipTarGZDistribution == null || !project.dist.skipTarGZDistribution)
+        if (distExtension.skipTarGZDistribution == null || !distExtension.skipTarGZDistribution)
         {
             tarArchives()
         }
-        if (project.dist.skipZipDistribution == null || !project.dist.skipZipDistribution)
+        if (distExtension.skipZipDistribution == null || !distExtension.skipZipDistribution)
         {
             zipArchives()
         }
@@ -190,11 +185,11 @@ class PackageDistribution extends DefaultTask
                    prefix:"${binPrefix}/labkeywebapp") {
                 exclude(name: "WEB-INF/classes/distribution")
             }
-            tarfileset(dir: "${project.rootProject.buildDir}/distModules",
+            tarfileset(dir: distExtension.modulesDir,
                     prefix: "${binPrefix}/modules") {
                 include(name: "*.module")
             }
-            tarfileset(dir: "${project.rootProject.buildDir}/distExtra",
+            tarfileset(dir: distExtension.extraSrcDir,
                     prefix: "${binPrefix}/") {
                 include(name:"**/*")
             }
@@ -203,7 +198,7 @@ class PackageDistribution extends DefaultTask
                     tarfileset(file: tomcatJar.path,
                             prefix: "${binPrefix}/tomcat-lib")
             })
-            if (project.dist.includeMassSpecBinaries) {
+            if (distExtension.includeMassSpecBinaries) {
                 tarfileset(dir: "${project.rootProject.projectDir}/external/windows/msinspect",
                         prefix: "${binPrefix}/bin") {
                     include(name: "**/*.jar")
@@ -221,7 +216,7 @@ class PackageDistribution extends DefaultTask
                     prefix: binPrefix) {
                 include(name:"manual-upgrade.sh")
             }
-            tarfileset(dir: "${baseDir}/archivedata",
+            tarfileset(dir: distExtension.archiveDataDir,
                     prefix: binPrefix) {
                 include(name:"README.txt")
             }
@@ -243,11 +238,11 @@ class PackageDistribution extends DefaultTask
                     prefix: "${binPrefix}/labkeywebapp") {
                 exclude(name:"WEB-INF/classes/distribution")
             }
-            zipfileset(dir:"${project.rootProject.buildDir}/distModules",
+            zipfileset(dir: distExtension.modulesDir,
                     prefix: "${binPrefix}/modules") {
                 include(name:"*.module")
             }
-            zipfileset(dir:"${project.rootProject.buildDir}/distExtra",
+            zipfileset(dir: distExtension.extraSrcDir,
                     prefix: "${binPrefix}/") {
                 include(name:"**/*")
             }
@@ -278,7 +273,7 @@ class PackageDistribution extends DefaultTask
                 }
             }
 
-            zipfileset(dir:"${baseDir}/archivedata/",
+            zipfileset(dir: distExtension.archiveDataDir,
                     prefix: "${binPrefix}") {
                 include(name: "README.txt")
             }
@@ -434,7 +429,7 @@ class PackageDistribution extends DefaultTask
 
     private void setUpModuleDistDirectories()
     {
-        File distDir = new File((String) project.dist.distModulesDir)
+        File distDir = new File((String) distExtension.modulesDir)
         distDir.deleteDir()
         distDir.mkdirs()
     }
@@ -445,7 +440,7 @@ class PackageDistribution extends DefaultTask
         writeVersionFile()
         // copy the manual-update script to the build directory so we can fix the line endings.
         project.copy({CopySpec copy ->
-            copy.from("${baseDir}/archivedata/")
+            copy.from(distExtension.archiveDataDir)
             copy.include "manual-upgrade.sh"
             copy.into project.buildDir
         })
