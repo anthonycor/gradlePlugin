@@ -359,7 +359,7 @@ class SimpleModule implements Plugin<Project>
      */
     static List<File> getModuleFilesAndDirectories(Project project, Boolean includeDeployed = true, Boolean includeStaging=true)
     {
-        String moduleFileBaseName = project.tasks.module.baseName
+        String moduleFilePrefix = "${project.tasks.module.baseName}-"
         List<File> files = new ArrayList<>()
         if (includeDeployed)
         {
@@ -372,7 +372,7 @@ class SimpleModule implements Plugin<Project>
                     @Override
                     boolean accept(final File file)
                     {
-                        return file.isFile() && file.getName().startsWith(moduleFileBaseName)
+                        return file.isFile() && file.getName().startsWith(moduleFilePrefix)
                     }
                 })
                 )
@@ -382,7 +382,7 @@ class SimpleModule implements Plugin<Project>
                     @Override
                     boolean accept(final File file)
                     {
-                        return file.isDirectory() && file.getName().startsWith(moduleFileBaseName)
+                        return file.isDirectory() && file.getName().startsWith(moduleFilePrefix)
                     }
                 })
                 )
@@ -399,7 +399,7 @@ class SimpleModule implements Plugin<Project>
                     boolean accept(final File dir,
                                    final String name)
                     {
-                        return name.startsWith(moduleFileBaseName)
+                        return name.startsWith(moduleFilePrefix)
                     }
                 })
                 )
