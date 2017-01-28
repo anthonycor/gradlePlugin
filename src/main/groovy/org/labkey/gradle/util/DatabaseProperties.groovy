@@ -125,8 +125,8 @@ class DatabaseProperties
     {
         if (hasConfigFile(project))
         {
-            Properties props = PropertiesUtils.readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE);
-            return props;
+            Properties props = PropertiesUtils.readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE)
+            return props
         }
         else
         {
