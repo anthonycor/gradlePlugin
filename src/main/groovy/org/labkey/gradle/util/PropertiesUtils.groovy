@@ -14,7 +14,7 @@ class PropertiesUtils
     {
         Properties props = new Properties()
         props.load(new FileInputStream(project.file(fileName)))
-        return props;
+        return props
     }
 
     static String parseCompositeProp(Project project, Properties props, String prop)
@@ -23,7 +23,7 @@ class PropertiesUtils
             project.logger.error("${project.path} Properties is null")
         else
         {
-            Matcher valMatcher = VALUE_PATTERN.matcher(prop);
+            Matcher valMatcher = VALUE_PATTERN.matcher(prop)
             while (valMatcher.find())
             {
                 String p = valMatcher.group(1).replace("\${", "").replace("}", "")
@@ -33,28 +33,28 @@ class PropertiesUtils
                     project.logger.error("Unable to find value for ${p} in ${props}")
             }
         }
-        return prop;
+        return prop
     }
 
     static String replaceProps(String line, Properties props)
     {
-        Matcher matcher = PROPERTY_PATTERN.matcher(line);
+        Matcher matcher = PROPERTY_PATTERN.matcher(line)
         while(matcher.find())
         {
-            String propName = matcher.group(1);
+            String propName = matcher.group(1)
             if (props.containsKey(propName))
             {
-                line = line.replace("@@" + propName + "@@", props.get(propName).toString());
+                line = line.replace("@@" + propName + "@@", props.get(propName).toString())
             }
         }
-        return line;
+        return line
     }
 
     static void readProperties(File propertiesFile, Properties properties)
     {
         if (propertiesFile.exists())
         {
-            FileInputStream is;
+            FileInputStream is
             try
             {
                 is = new FileInputStream(propertiesFile)
