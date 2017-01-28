@@ -26,11 +26,12 @@ class ModuleResources implements Plugin<Project>
 
     private void addTasks(Project project)
     {
-        def Task writeDependenciesFile = project.task("writeDependenciesList",
+        Task writeDependenciesFile = project.task("writeDependenciesList",
                 type: WriteDependenciesFile,
                 description: "write a list of direct external dependencies that should be checked on the credits page"
         )
         project.tasks.processModuleResources.dependsOn(writeDependenciesFile)
+        project.tasks.clean.dependsOn(project.tasks.cleanWriteDependenciesList)
     }
 
     private void addSourceSet(Project project)

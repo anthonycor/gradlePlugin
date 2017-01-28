@@ -1,9 +1,9 @@
 package org.labkey.gradle.plugin
 
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Copy
@@ -300,24 +300,26 @@ class SimpleModule implements Plugin<Project>
         _project.task('deployModule',
                 group: GroupNames.MODULE,
                 description: "copy a project's .module file to the local deploy directory")
-                {
-                    inputs.file moduleFile
-                    outputs.file "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${moduleFile.outputs.getFiles().getAt(0).getName()}"
+                {Task task ->
+                    task.inputs.file moduleFile
+                    task.outputs.file "${ServerDeployExtension.getModulesDeployDirectory(_project)}/${moduleFile.outputs.getFiles()[0].getName()}"
 
-
-                    doLast {
-                        _project.copy {
-                            from moduleFile
-                            into "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
+                    task.doLast {
+                        _project.copy { CopySpec copy->
+                            copy.from moduleFile
+                            copy.into _project.staging.modulesDir
+                        }
+                        _project.copy { CopySpec copy->
+                            copy.from moduleFile
+                            copy.into ServerDeployExtension.getModulesDeployDirectory(_project)
                         }
                         if (LabKeyExtension.isBootstrapModule(_project))
                         {
                             _project.copy
-                                    {
-                                        from _project.tasks.jar
-                                        into "${_project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/lib"
+                                    { CopySpec copy ->
+                                        copy.from _project.tasks.jar
+                                        copy.into "${_project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/lib"
                                     }
-
                         }
                     }
                 }
@@ -326,23 +328,91 @@ class SimpleModule implements Plugin<Project>
                 group: GroupNames.MODULE,
                 description: "remove a project's .module file and the unjarred file from the deploy directory",
                 type: Delete,
-                {
-                    inputs.file "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${project.tasks.module.outputs.getFiles().getAt(0).getName()}"
-                    inputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(project.tasks.module.outputs.getFiles().getAt(0).getName())}"
-                    outputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
-                    doFirst {
-                        undeployModule(project)
+                { Delete delete ->
+                    getModuleFilesAndDirectories(_project).forEach({
+                        File file ->
+                            if (file.isDirectory())
+                                delete.inputs.dir file
+                            else
+                                delete.inputs.file file
+                    })
+                    delete.outputs.dir "${ServerDeployExtension.getServerDeployDirectory(_project)}/modules"
+                    delete.doFirst {
+                        undeployModule(_project)
                     }
                 })
 
+        _project.task("reallyClean",
+                group: GroupNames.BUILD,
+                description: "Deletes the build directory, staging and deployment directories of this module",
+        ).dependsOn(_project.tasks.clean, _project.tasks.undeployModule)
+
+    }
+
+    /**
+     * Finds all module files and directories for a project included in the deployment directory and/or staging directory
+     * @param project the project to find module files for
+     * @param includeDeployed include .module files and directories in the build/deploy directory
+     * @param includeStaging indlude .module files in the build/staging directory
+     * @return list of files and directories for this module with the deploy .module files first, followed by the deploy directories
+     *          followed by the staging .module files.
+     */
+    static List<File> getModuleFilesAndDirectories(Project project, Boolean includeDeployed = true, Boolean includeStaging=true)
+    {
+        String moduleFileBaseName = project.tasks.module.baseName
+        List<File> files = new ArrayList<>()
+        if (includeDeployed)
+        {
+            File deployDir = new File(ServerDeployExtension.getModulesDeployDirectory(project))
+            if (deployDir.isDirectory())
+            {
+                // first add the files because we want to delete these first.  If the directory goes away and the .module file is there
+                // the directory might get recreated because of listeners.
+                files.addAll(deployDir.listFiles(new FileFilter() {
+                    @Override
+                    boolean accept(final File file)
+                    {
+                        return file.isFile() && file.getName().startsWith(moduleFileBaseName)
+                    }
+                })
+                )
+
+                // then add the directories
+                files.addAll(deployDir.listFiles(new FileFilter() {
+                    @Override
+                    boolean accept(final File file)
+                    {
+                        return file.isDirectory() && file.getName().startsWith(moduleFileBaseName)
+                    }
+                })
+                )
+            }
+        }
+        // staging has only the .modules files
+        if (includeStaging)
+        {
+            File stagingDir = new File((String) project.staging.modulesDir)
+            if (stagingDir.isDirectory())
+            {
+                files.addAll(stagingDir.listFiles(new FilenameFilter() {
+                    @Override
+                    boolean accept(final File dir,
+                                   final String name)
+                    {
+                        return name.startsWith(moduleFileBaseName)
+                    }
+                })
+                )
+            }
+        }
+        return files
     }
 
     static undeployModule(Project project)
     {
-        // delete the .module file first because when tomcat is listening, it may decide to reinstate the directory if the .module file is there
-        println("undeploying module ${project.path}")
-        project.delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${project.tasks.module.outputs.getFiles().getAt(0).getName()}"
-        project.delete "${ServerDeployExtension.getServerDeployDirectory(project)}/modules/${FilenameUtils.getBaseName(project.tasks.module.outputs.getFiles().getAt(0).getName())}"
+        getModuleFilesAndDirectories(project).forEach({File file ->
+            project.delete file
+        })
     }
 
     private static boolean hasClientLibraries(Project project)

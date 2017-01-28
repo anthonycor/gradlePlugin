@@ -14,7 +14,7 @@ class WriteDependenciesFile extends DefaultTask
     @OutputFile
     File dependenciesFile = project.file("resources/credits/dependencies.txt")
 
-    public WriteDependenciesFile()
+    WriteDependenciesFile()
     {
         if (project.file("build.gradle").exists())
         {
@@ -37,7 +37,7 @@ class WriteDependenciesFile extends DefaultTask
     }
 
     @TaskAction
-    public void writeFile()
+    void writeFile()
     {
         FileOutputStream outputStream = null;
         try

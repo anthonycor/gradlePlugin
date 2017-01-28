@@ -250,5 +250,10 @@ class ServerDeployExtension
     {
         return "${project.rootProject.buildDir}/deploy"
     }
+
+    static String getModulesDeployDirectory(Project project)
+    {
+        return "${getServerDeployDirectory(project)}/modules"
+    }
 }
 
