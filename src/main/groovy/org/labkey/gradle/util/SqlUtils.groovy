@@ -14,13 +14,13 @@ class SqlUtils
     static void execSql(Project project, Properties params, String sql)
     {
         // read in a clean (unsubstituted) set of properties from the file
-        Properties configProperties = DatabaseProperties.readDatabaseProperties(project);
-        configProperties.putAll(params); //overrides configProperties in case of duplicates
+        Properties configProperties = DatabaseProperties.readDatabaseProperties(project)
+        configProperties.putAll(params) //overrides configProperties in case of duplicates
 
-        String url = PropertiesUtils.parseCompositeProp(project, configProperties, configProperties.getProperty("jdbcURL"));
-        String user = configProperties.getProperty("jdbcUser");
-        String password = configProperties.getProperty("jdbcPassword");
-        String driverClassName = configProperties.getProperty("jdbcDriverClassName");
+        String url = PropertiesUtils.parseCompositeProp(project, configProperties, configProperties.getProperty("jdbcURL"))
+        String user = configProperties.getProperty("jdbcUser")
+        String password = configProperties.getProperty("jdbcPassword")
+        String driverClassName = configProperties.getProperty("jdbcDriverClassName")
 
         //see http://gradle.1045684.n5.nabble.com/using-jdbc-driver-in-a-task-fails-td1435189.html
         URLClassLoader loader = GroovyObject.class.classLoader
@@ -36,13 +36,12 @@ class SqlUtils
         Sql db = null
         try
         {
-            db = Sql.newInstance(url, user, password);
-            db.execute(sql);
-
+            db = Sql.newInstance(url, user, password)
+            db.execute(sql)
         }
         catch (Exception e)
         {
-            project.logger.error(e.toString());
+            project.logger.error(e.toString())
         }
         finally
         {
