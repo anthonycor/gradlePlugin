@@ -1,8 +1,6 @@
 package org.labkey.gradle.util
 
-/**
- * Created by susanh on 8/30/16.
- */
+
 class GroupNames
 {
     public static final String API = "API"
