@@ -221,7 +221,7 @@ class PackageDistribution extends DefaultTask
                     prefix: binPrefix) {
                 include(name:"manual-upgrade.sh")
             }
-            tarfileset(dir: "${baseDir}/archiveData",
+            tarfileset(dir: "${baseDir}/archivedata",
                     prefix: binPrefix) {
                 include(name:"README.txt")
             }
