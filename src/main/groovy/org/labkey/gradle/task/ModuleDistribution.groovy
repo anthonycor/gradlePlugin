@@ -1,20 +1,16 @@
 package org.labkey.gradle.task
 
 import org.apache.commons.lang3.SystemUtils
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
-import org.gradle.api.file.FileCollection
-import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
-import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class PackageDistribution extends DefaultTask
+class ModuleDistribution extends DistributionTask
 {
     public static final String ALL_DISTRIBUTIONS = "all"
 
@@ -52,8 +48,6 @@ class PackageDistribution extends DefaultTask
     // TODO would like to declare this as the output directory but need to supply a value during configuration.
     // Need to figure out order of initialization of extension and task.
     File distributionDir
-
-    String vcsRevision
     String binPrefix
     DistributionExtension distExtension
 
@@ -61,43 +55,24 @@ class PackageDistribution extends DefaultTask
     {
         distExtension = project.getExtensions().findByType(DistributionExtension.class)
 
-        distributionDir = project.file("${distExtension.dir}/${distExtension.subDirName}")
-
-        vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
-
-        distExtension.labkeyInstallerVersion = "${project.version}-${vcsRevision}"
         if (distExtension.versionPrefix == null)
-            distExtension.versionPrefix = "Labkey${distExtension.labkeyInstallerVersion}${distExtension.extraFileIdentifier}"
+            distExtension.versionPrefix = "Labkey${project.installerVersion}${project.extraFileIdentifier}"
         binPrefix = "${distExtension.versionPrefix}-bin"
+
+        distributionDir = project.file("${dir}/${distExtension.subDirName}")
+        distributionDir.deleteDir()
+        distributionDir.mkdirs()
     }
 
     @TaskAction
-    void action()
+    void doAction()
     {
         init()
 
-        setUpModuleDistDirectories()
+        createDistributionFiles()
+        gatherModules()
+        packageRedistributables()
 
-        // TODO create separate tasks/plugins for these that are included separately so we get rid of this checking
-        // and can declare proper inputs and outputs
-        if ("modules".equalsIgnoreCase(project.dist.type))
-        {
-            createDistributionFiles()
-            gatherModules()
-            packageRedistributables()
-        }
-        else if ("source".equalsIgnoreCase(project.dist.type))
-        {
-            packageSource()
-        }
-        else if ("pipelineConfigs".equalsIgnoreCase(project.dist.type))
-        {
-            packagePipelineConfigs()
-        }
-        else if ("clientApis".equalsIgnoreCase(project.dist.type))
-        {
-            packageClientApis()
-        }
     }
 
     private void gatherModules()
@@ -212,10 +187,8 @@ class PackageDistribution extends DefaultTask
                     prefix: "${binPrefix}/pipeline-lib") {
             }
 
-            tarfileset(dir: project.buildDir,
-                    prefix: binPrefix) {
-                include(name:"manual-upgrade.sh")
-            }
+            tarfileset(file: "${project.buildDir}/manual-upgrade.sh", prefix: binPrefix, mode: 744)
+
             tarfileset(dir: distExtension.archiveDataDir,
                     prefix: binPrefix) {
                 include(name:"README.txt")
@@ -288,152 +261,6 @@ class PackageDistribution extends DefaultTask
         }
     }
 
-    private void packageSource()
-    {
-        FileTree srcFileTree = project.fileTree("${project.rootProject.projectDir}") {
-            exclude "**/.svn/**"
-            exclude "**/**.old"
-            exclude "buildSrc/**"
-            exclude "**/.idea/modules/**"
-            exclude "build/**"
-            exclude "remoteAPI/axis-1_4/**"
-            exclude "**/dist/**"
-            exclude "**/.gwt-cache/**"
-            exclude "**/intellijBuild/**"
-            exclude "archive/**"
-            exclude "docs/**"
-            exclude "external/lib/**/*.zip"
-            exclude "external/lib/**/junit-src.*.jar"
-            exclude "external/lib/client/**"
-            exclude "server/installer/3rdparty/**"
-            exclude "server/installer/nsis*/**"
-            exclude "sampledata/**"
-            exclude "server/test/lib/**.zip"
-            exclude "server/test/selenium.log"
-            exclude "server/test/selenium.log.lck"
-            exclude "server/test/remainingTests.txt"
-            exclude "server/config.properties"
-            exclude "server/LabKey.iws"
-            exclude "server/gradlew" // include separately to ensure permissions set correctly.
-            exclude "webapps/CPL/**"
-            exclude "server/api/webapp/ext-3.4.1/src/**"
-            exclude "**/.gradle/**"
-            exclude ".gradle/**"
-        }
-        ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.zip") {
-            srcFileTree.addToAntBuilder(ant, 'zipfileset', FileCollection.AntType.FileSet)
-            zipfileset(file: "${project.rootProject.projectDir}/server/gradlew", prefix: "server", filemode: 755)
-        }
-        ant.tar(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-src.tar.gz",
-                longfile:"gnu",
-                compression: "gzip") {
-            srcFileTree.addToAntBuilder(ant, 'tarfileset', FileCollection.AntType.FileSet)
-            tarfileset(file: "${project.rootProject.projectDir}/server/gradlew", prefix: "server", filemode: 755)
-        }
-    }
-
-    private void packagePipelineConfigs()
-    {
-        ant.zip(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-PipelineConfig.zip") {
-            zipfileset(dir: "${project.rootProject.projectDir}/server/configs/config-remote",
-                    prefix: "remote")
-            zipfileset(dir: "${project.rootProject.projectDir}/server/configs/config-cluster",
-                    prefix: "cluster")
-            zipfileset(dir: "${project.rootProject.projectDir}/server/configs/config-webserver",
-                    prefix: "webserver")
-        }
-        ant.tar(destfile: "${project.dist.dir}/LabKey${project.dist.labkeyInstallerVersion}-PipelineConfig.tar.gz",
-                longfile:"gnu",
-                compression: "gzip") {
-            tarfileset(dir: "${project.rootProject.projectDir}/server/configs/config-remote",
-                    prefix: "remote") {
-                exclude(name: "**/*.bat")
-                exclude(name: "**/*.exe")
-            }
-            tarfileset(dir: "${project.rootProject.projectDir}/server/configs/config-cluster",
-                    prefix: "cluster")
-            tarfileset(dir: "${project.rootProject.projectDir}/server/configs/config-webserver",
-                    prefix: "webserver")
-        }
-    }
-
-    private void packageClientApis()
-    {
-        GString javaDir = "${project.dist.dir}/client-api/java"
-        GString javascriptDir = "${project.dist.dir}/client-api/javascript"
-        GString xmlDir = "${project.dist.dir}/client-api/XML"
-
-        project.mkdir(project.file(javaDir))
-        project.copy({CopySpec copy ->
-            copy.from "${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}"
-            copy.into javaDir
-        })
-        ant.zip(destfile: "${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java.zip") {
-            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir,
-                    prefix: "doc")
-            zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/lib",
-                    prefix: "lib/"){
-                include(name:"*.jar")
-            }
-            zipfileset(file:"${project.project(":remoteapi:java").projectDir}/README.html")
-            zipfileset(file:"${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}")
-        }
-
-        ant.zip(destfile: "${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java-src.zip") {
-            zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/src")
-        }
-
-        ant.zip(destfile:"${project.dist.dir}/TeamCity-ClientAPI-Java-Docs.zip") {
-            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir)
-        }
-
-        String apidocsBuildDir = project.project(":server").tasks.jsdoc.outputs.getFiles().asPath
-        String xsddocsBuildDir = project.project(":server").tasks.xsddoc.outputs.getFiles().asPath
-
-        project.mkdir(project.file(javascriptDir))
-        ant.zip(destfile: "${javascriptDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs.zip"){
-            zipfileset(dir: apidocsBuildDir,
-                    prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs")
-        }
-
-        project.mkdir(project.file(xmlDir))
-        ant.zip(destfile: "${xmlDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs.zip") {
-            zipfileset(dir: xsddocsBuildDir,
-                    prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs")
-        }
-
-        //Create a stable file name so that TeamCity can serve it up directly through its own UI
-        ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-JavaScript-Docs.zip") {
-            zipfileset(dir: apidocsBuildDir)
-        }
-
-        //Create a stable file name so that TeamCity can serve it up directly through its own UI
-        ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-XMLSchema-Docs.zip") {
-            zipfileset(dir: xsddocsBuildDir)
-        }
-
-        ant.tar(destfile: "${javascriptDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs.tar.gz",
-                longfile:"gnu",
-                compression: "gzip") {
-            tarfileset(dir: apidocsBuildDir,
-                    prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-JavaScript-Docs")
-        }
-
-        ant.tar(destfile: "${xmlDir}/LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs.tar.gz",
-                longfile:"gnu",
-                compression: "gzip") {
-            tarfileset(dir: xsddocsBuildDir,
-                    prefix: "LabKey${project.dist.labkeyInstallerVersion}-ClientAPI-XMLSchema-Docs")
-        }
-    }
-
-    private void setUpModuleDistDirectories()
-    {
-        File distDir = new File((String) distExtension.modulesDir)
-        distDir.deleteDir()
-        distDir.mkdirs()
-    }
-
     private void createDistributionFiles()
     {
         writeDistributionFile()
@@ -458,9 +285,6 @@ class PackageDistribution extends DefaultTask
 
     private void writeVersionFile()
     {
-        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
-        if (!distExtraDir.exists())
-            distExtraDir.mkdirs()
-        Files.write(Paths.get(distExtraDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
+        Files.write(Paths.get(project.buildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
     }
 }
