@@ -273,6 +273,8 @@ class SimpleModule implements Plugin<Project>
             moduleFile.dependsOn(_project.tasks.apiJar)
         if (_project.hasProperty('jspJar'))
             moduleFile.dependsOn(_project.tasks.jspJar)
+        if (_project.getPlugins().findPlugin(ClientLibraries.class) && !LabKeyExtension.isDevMode(_project))
+            moduleFile.dependsOn(_project.tasks.compressClientLibs)
         _project.tasks.build.dependsOn(moduleFile)
         _project.tasks.clean.dependsOn(_project.tasks.cleanModule)
 
