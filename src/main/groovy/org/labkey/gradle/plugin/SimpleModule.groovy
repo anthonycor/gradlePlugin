@@ -30,12 +30,12 @@ class SimpleModule implements Plugin<Project>
     //   ext.skipBuild = true
     private static final String SKIP_BUILD_FILE = "skipBuild.txt"
 
-    Project _project;
+    Project _project
 
     @Override
     void apply(Project project)
     {
-        _project = project;
+        _project = project
 
         _project.apply plugin: 'java-base'
 
@@ -55,7 +55,7 @@ class SimpleModule implements Plugin<Project>
 
     static boolean shouldDoBuild(Project project)
     {
-        List<String> indicators = new ArrayList<>();
+        List<String> indicators = new ArrayList<>()
         if (project.file(SKIP_BUILD_FILE).exists())
             indicators.add(SKIP_BUILD_FILE + " exists")
         if (!project.file(ModuleExtension.MODULE_PROPERTIES_FILE).exists())
@@ -211,13 +211,13 @@ class SimpleModule implements Plugin<Project>
                     include 'module.template.xml'
                     rename {"module.xml"}
                     filter( { String line ->
-                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line);
-                        String newLine = line;
+                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
+                        String newLine = line
                         while (matcher.find())
                         {
                             newLine = newLine.replace(matcher.group(), (String) _project.lkModule.getPropertyValue(matcher.group(1), ""))
                         }
-                        return newLine;
+                        return newLine
 
                     })
                     destinationDir = new File((String) _project.labkey.explodedModuleConfigDir)
@@ -417,7 +417,7 @@ class SimpleModule implements Plugin<Project>
 
     private static boolean hasClientLibraries(Project project)
     {
-        return ClientLibraries.isApplicable(project) || Gwt.isApplicable(project) || Webapp.isApplicable(project);
+        return ClientLibraries.isApplicable(project) || Gwt.isApplicable(project) || Webapp.isApplicable(project)
     }
 
     private void addDependencies()
@@ -478,7 +478,7 @@ class ModuleExtension
     ModuleExtension(Project project)
     {
         this.project = project
-        setModuleProperties(project);
+        setModuleProperties(project)
     }
 
     Project getProject()
@@ -494,7 +494,7 @@ class ModuleExtension
     String getPropertyValue(String propertyName, String defaultValue)
     {
         String value = modProperties.getProperty(propertyName)
-        return value == null ? defaultValue : value;
+        return value == null ? defaultValue : value
 
     }
 
