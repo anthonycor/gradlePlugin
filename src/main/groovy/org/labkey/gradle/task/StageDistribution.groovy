@@ -28,7 +28,7 @@ class StageDistribution extends DefaultTask
     @TaskAction
     void action()
     {
-        File distDir = project.hasProperty("distDir") ? new File((String) project.property("distDir")) : new File("${project.rootProject.rootDir}/dist")
+        File distDir = project.hasProperty("distDir") ? new File(project.rootDir, (String) project.property("distDir")) : new File("${project.rootDir}/dist")
         if (!distDir.exists())
             throw new GradleException("Distribution directory ${distDir} not found")
         String extension = project.hasProperty("distType") ? project.property('distType') : "tar.gz"
