@@ -11,6 +11,7 @@ abstract class DistributionTask extends DefaultTask
     DistributionTask()
     {
         dir = project.rootProject.file("dist")
+        project.mkdir(project.buildDir)
     }
 
 }
