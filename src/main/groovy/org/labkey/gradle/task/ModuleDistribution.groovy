@@ -107,7 +107,7 @@ class ModuleDistribution extends DistributionTask
         project.copy({ CopySpec copy ->
             copy.from("${project.rootProject.projectDir}/webapps")
             copy.include("labkey.xml")
-            copy.into(project.buildDir)
+            copy.into(installerBuildDir)
             copy.filter({ String line ->
                 return PropertiesUtils.replaceProps(line, copyProps)
             })
@@ -131,7 +131,7 @@ class ModuleDistribution extends DistributionTask
             })
 
             project.copy({ CopySpec copy ->
-                copy.from("${project.buildDir}/")
+                copy.from("${installerBuildDir}/")
                 copy.include("Setup_includeJRE.exe")
                 copy.into("${distributionDir}/")
                 copy.rename("Setup_includeJRE.exe", "${distExtension.versionPrefix}-Setup.exe")
@@ -187,17 +187,17 @@ class ModuleDistribution extends DistributionTask
                     prefix: "${binPrefix}/pipeline-lib") {
             }
 
-            tarfileset(file: "${project.buildDir}/manual-upgrade.sh", prefix: binPrefix, mode: 744)
+            tarfileset(file: "${installerBuildDir}/manual-upgrade.sh", prefix: binPrefix, mode: 744)
 
             tarfileset(dir: distExtension.archiveDataDir,
                     prefix: binPrefix) {
                 include(name:"README.txt")
             }
-            tarfileset(dir: project.buildDir,
+            tarfileset(dir: installerBuildDir,
                     prefix: binPrefix) {
                 include(name:"VERSION")
             }
-            tarfileset(dir: project.buildDir,
+            tarfileset(dir: installerBuildDir,
                     prefix: binPrefix) {
                 include(name:"labkey.xml")
             }
@@ -250,11 +250,11 @@ class ModuleDistribution extends DistributionTask
                     prefix: "${binPrefix}") {
                 include(name: "README.txt")
             }
-            zipfileset(dir:"${project.buildDir}/",
+            zipfileset(dir:"${installerBuildDir}/",
                     prefix: "${binPrefix}") {
                 include(name:"VERSION")
             }
-            zipfileset(dir:"${project.buildDir}/",
+            zipfileset(dir:"${installerBuildDir}/",
                     prefix: "${binPrefix}") {
                 include(name:"labkey.xml")
             }
@@ -269,9 +269,9 @@ class ModuleDistribution extends DistributionTask
         project.copy({CopySpec copy ->
             copy.from(distExtension.archiveDataDir)
             copy.include "manual-upgrade.sh"
-            copy.into project.buildDir
+            copy.into installerBuildDir
         })
-        project.ant.fixcrlf (srcdir: project.buildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
+        project.ant.fixcrlf (srcdir: installerBuildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
     }
 
 
@@ -285,6 +285,6 @@ class ModuleDistribution extends DistributionTask
 
     private void writeVersionFile()
     {
-        Files.write(Paths.get(project.buildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
+        Files.write(Paths.get(installerBuildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
     }
 }

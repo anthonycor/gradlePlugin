@@ -3,8 +3,6 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.DeleteSpec
-import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.ModuleDistribution
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -21,7 +19,6 @@ class Distribution implements Plugin<Project>
     @Override
     void apply(Project project)
     {
-        project.buildDir = "${project.rootDir}/build/installer/${project.name}"
         project.extensions.create("dist", DistributionExtension, project)
 
         addConfigurations(project)
@@ -49,16 +46,16 @@ class Distribution implements Plugin<Project>
         BuildUtils.addLabKeyDependency(
                 project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap"
         )
-        // TODO make this clean out the output files, not just the build directory
-        project.task(
-                "cleanDist",
-                group: GroupNames.DISTRIBUTION,
-                description: "Remove the build directory for a distribution",
-                type: Delete,
-                { DeleteSpec delete ->
-                    delete.delete project.buildDir
-                }
-        )
+//        // TODO make this clean out the output files, not just the build directory
+//        project.task(
+//                "cleanDist",
+//                group: GroupNames.DISTRIBUTION,
+//                description: "Remove the build directory for a distribution",
+//                type: Delete,
+//                { DeleteSpec delete ->
+//                    delete.delete installerBuildDir
+//                }
+//        )
         if (project.rootProject.hasProperty("distAll"))
             project.rootProject.tasks.distAll.dependsOn(dist)
 

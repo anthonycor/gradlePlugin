@@ -4,7 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Task to compile XSD schema files into Java class files using he ant XMLBean
+ * Task to compile XSD schema files into Java class files using the ant XMLBean
  */
 class SchemaCompile extends DefaultTask {
 
@@ -19,7 +19,7 @@ class SchemaCompile extends DefaultTask {
             schema: project.file(project.xmlBeans.schemasDir),
             javasource: project.labkey.sourceCompatibility,
             srcgendir: "$project.labkey.srcGenDir/$project.xmlBeans.classDir",
-            classgendir: new File(project.buildDir, project.xmlBeans.classDir),
+            classgendir: "$project.buildDir/$project.xmlBeans.classDir",
             classpath: project.configurations.xmlbeans.asPath,
             failonerror: true
     )
