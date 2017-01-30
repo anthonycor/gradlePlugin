@@ -28,16 +28,16 @@ class ClientLibsCompress extends DefaultTask
     }
 
     @TaskAction
-    def compress()
+    void compress()
     {
-        def FileTree libXmlFiles = project.fileTree(dir: workingDir,
+        FileTree libXmlFiles = project.fileTree(dir: workingDir,
                 includes: ["**/*${LIB_XML_EXTENSION}"]
         )
         libXmlFiles.files.each() {
-            def file ->
-                def inputDirPrefix = workingDir
-                def pathSuffix = file.getPath().substring(inputDirPrefix.getPath().length())
-                def sourceFile = new File(workingDir, pathSuffix)
+            File file ->
+                File inputDirPrefix = workingDir
+                String pathSuffix = file.getPath().substring(inputDirPrefix.getPath().length())
+                File sourceFile = new File(workingDir, pathSuffix)
                 ant.compressClientLibs(
                         srcFile: sourceFile.getAbsolutePath(),
                         sourcedir: workingDir,
