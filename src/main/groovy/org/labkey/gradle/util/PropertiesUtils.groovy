@@ -1,5 +1,6 @@
 package org.labkey.gradle.util
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.gradle.api.Project
 
 import java.util.regex.Matcher
@@ -36,15 +37,21 @@ class PropertiesUtils
         return prop
     }
 
-    static String replaceProps(String line, Properties props)
+    static String replaceProps(String line, Properties props, Boolean xmlEncode = false)
     {
         Matcher matcher = PROPERTY_PATTERN.matcher(line)
-        while(matcher.find())
+        while (matcher.find())
         {
             String propName = matcher.group(1)
             if (props.containsKey(propName))
             {
-                line = line.replace("@@" + propName + "@@", props.get(propName).toString())
+                String val = props.get(propName).toString()
+                if (val != null)
+                {
+                    if (xmlEncode)
+                        val = StringEscapeUtils.escapeXml10(val)
+                    line = line.replace("@@" + propName + "@@", val)
+                }
             }
         }
         return line

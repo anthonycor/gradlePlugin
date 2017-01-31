@@ -109,7 +109,7 @@ class ModuleDistribution extends DistributionTask
             copy.include("labkey.xml")
             copy.into(installerBuildDir)
             copy.filter({ String line ->
-                return PropertiesUtils.replaceProps(line, copyProps)
+                return PropertiesUtils.replaceProps(line, copyProps, true)
             })
         })
     }
@@ -183,7 +183,7 @@ class ModuleDistribution extends DistributionTask
             tarfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
                     prefix: "${binPrefix}/tomcat-lib/")
 
-            tarfileset(dir: "${project.rootProject.buildDir}/deploy/pipelineLib",
+            tarfileset(dir: "${project.rootProject.buildDir}/staging/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib") {
             }
 
@@ -226,7 +226,7 @@ class ModuleDistribution extends DistributionTask
             })
             zipfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
                     prefix: "${binPrefix}/tomcat-lib/")
-            zipfileset(dir:"${project.rootProject.buildDir}/deploy/pipelineLib",
+            zipfileset(dir:"${project.rootProject.buildDir}/staging/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib")
             zipfileset(dir:"${project.rootProject.projectDir}/external/windows/core",
                     prefix: "${binPrefix}/bin") {

@@ -41,7 +41,7 @@ class DoThenSetup extends DefaultTask
                     isNextLineComment = !newLine.contains("-->");
                     return newLine;
                 }
-                return PropertiesUtils.replaceProps(line, configProperties);
+                return PropertiesUtils.replaceProps(line, configProperties, true);
             })
         })
 
