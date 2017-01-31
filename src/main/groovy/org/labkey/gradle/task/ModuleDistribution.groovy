@@ -57,7 +57,7 @@ class ModuleDistribution extends DistributionTask
         distExtension = project.getExtensions().findByType(DistributionExtension.class)
 
         if (distExtension.versionPrefix == null)
-            distExtension.versionPrefix = "Labkey${project.installerVersion}${project.extraFileIdentifier}"
+            distExtension.versionPrefix = "Labkey${project.installerVersion}${distExtension.extraFileIdentifier}"
         binPrefix = "${distExtension.versionPrefix}-bin"
 
         distributionDir = project.file("${dir}/${distExtension.subDirName}")
