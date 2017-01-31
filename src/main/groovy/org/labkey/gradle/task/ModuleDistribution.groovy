@@ -125,7 +125,7 @@ class ModuleDistribution extends DistributionTask
                 spec.commandLine "${nsisBaseDir}/makensis.exe"
                 spec.args = [
                         "/DPRODUCT_VERSION=\"${project.version}\"",
-                        "/DPRODUCT_REVISION=\"${vcsRevision}\"",
+                        "/DPRODUCT_REVISION=\"${project.vcsRevision}\"",
                         "${scriptPath}"
                 ]
             })
