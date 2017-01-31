@@ -171,7 +171,7 @@ class ServerDeploy implements Plugin<Project>
         project.task(
                 'undeployModules',
                 group: GroupNames.DEPLOY,
-                description: "Moves the module files out of the deploy directory and back to staging",
+                description: "Removes all module files and directories from the deploy and staging directories",
                 type: UndeployModules
         )
 

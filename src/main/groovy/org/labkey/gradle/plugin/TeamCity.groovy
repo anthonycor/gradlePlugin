@@ -9,6 +9,7 @@ import org.gradle.process.ExecSpec
 import org.gradle.process.JavaExecSpec
 import org.labkey.gradle.task.DoThenSetup
 import org.labkey.gradle.task.RunTestSuite
+import org.labkey.gradle.task.UndeployModules
 import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
@@ -64,22 +65,6 @@ class TeamCity extends Tomcat
                     }
                 }
         )
-
-        // The ant task was written such that multiple zip files could be incorporated into the one.
-        // TODO Verify that a single file is sufficient, otherwise use the fatjar method similar to what is seen in sampledata/qc/build.gradle
-//        project.task("copyJavascriptDocs",
-//            group: GroupNames.TEST_SERVER,
-//                description: "create client-api docs file for presentation in TeamCity",
-//                type: Copy,
-//                {
-//                    from "${project.dist.dir}/client-api/javascript" // TODO this should be a proper dependency on a distribution task
-//                    include *.zip
-//                    into "${project.dist.dir}/TeamCityTabs" {
-//                        rename "JavascriptAPIDocs.zip"
-//                    }
-//                    include *.zip
-//                }
-//        )
 
         project.task("cleanTestLogs",
                 group: GroupNames.TEST_SERVER,
@@ -208,35 +193,27 @@ class TeamCity extends Tomcat
                     }
             )
 
-//            String undeployTaskName = "undeployNon${properties.shortType.capitalize()}Modules"
-//            Task undeployTask = project.tasks.findByName(undeployTaskName)
-//            if (undeployTask == null)
-//            {
-//                undeployTask = project.task(undeployTaskName,
-//                        group: GroupNames.TEST_SERVER,
-//                        description: "Undeploy modules that do not support the chosen database ${properties.dbTypeAndVersion}")
-//                        { Task task ->
-//                            task.doFirst
-//                                    {
-//                                        project.rootProject.allprojects.each { Project p ->
-//                                            if (!SimpleModule.shouldDoBuild(
-//                                                    project) || !SimpleModule.isDatabaseSupported(p, properties.getShortType()))
-//                                            {
-//                                                SimpleModule.undeployModule(project)
-//                                            }
-//                                        }
-//                                    }
-//                        }
-//            }
-//            project.tasks.startTomcat.mustRunAfter(undeployTask)
+            String undeployTaskName = "undeployModulesNotFor${properties.shortType.capitalize()}"
+            Task undeployTask = project.tasks.findByName(undeployTaskName)
+            if (undeployTask == null)
+            {
+                undeployTask = project.task(undeployTaskName,
+                        group: GroupNames.DEPLOY,
+                        description: "Undeploy modules that are either not supposed to be built or are not supported by database ${properties.dbTypeAndVersion}",
+                        type: UndeployModules,
+                        {UndeployModules task ->
+                            task.dbType = properties.shortType
+                        }
+                )
+                project.tasks.startTomcat.mustRunAfter(undeployTask)
+            }
 
             project.project(":server:test").tasks.startTomcat.mustRunAfter(setUpDbTask)
             Task ciTestTask = project.task("ciTests" + properties.dbTypeAndVersion.capitalize(),
                     group: GroupNames.TEST_SERVER,
                     description: "Run a test suite for ${properties.dbTypeAndVersion} on the TeamCity server",
                     type: RunTestSuite,
-//                    dependsOn: [setUpDbTask, undeployTask],
-                    dependsOn: [setUpDbTask],
+                    dependsOn: [setUpDbTask, undeployTask],
                     { RunTestSuite task ->
                         task.dbProperties = properties
                     }
