@@ -1,5 +1,6 @@
 package org.labkey.gradle.task
 
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
@@ -117,23 +118,19 @@ class ModuleDistribution extends DistributionTask
     private void packageInstallers()
     {
         if (distExtension.buildInstallerExes() && SystemUtils.IS_OS_WINDOWS) {
-            String scriptName = "labkey_installer.nsi"
-            String scriptPath = "${distExtension.installerSrcDir}/${scriptName}"
-            String nsisBaseDir = "${distExtension.installerSrcDir}/nsis2.46"
-
             project.exec({ ExecSpec spec ->
-                spec.commandLine "${nsisBaseDir}/makensis.exe"
+                spec.commandLine FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/nsis2.46/makensis.exe")
                 spec.args = [
                         "/DPRODUCT_VERSION=\"${project.version}\"",
                         "/DPRODUCT_REVISION=\"${project.vcsRevision}\"",
-                        "${scriptPath}"
+                        FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/labkey_installer.nsi")
                 ]
             })
 
             project.copy({ CopySpec copy ->
-                copy.from("${installerBuildDir}/")
+                copy.from(installerBuildDir)
                 copy.include("Setup_includeJRE.exe")
-                copy.into("${distributionDir}/")
+                copy.into(distributionDir)
                 copy.rename("Setup_includeJRE.exe", "${distExtension.versionPrefix}-Setup.exe")
             })
         }
