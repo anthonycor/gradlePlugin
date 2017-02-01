@@ -25,11 +25,21 @@ class BuildUtils
     public static final String TEST_MODULE = ":server:test"
     public static final String TEST_MODULES_DIR = "server/test/modules"
 
-    public static final List<String> BASE_MODULES = [":server:bootstrap",
-                                                     ":server:api",
-                                                     ":schemas",
-                                                     ":server:internal",
-                                                     ':remoteapi:java'
+    // the set of modules required for minimal LabKey server functionality
+    public static final List<String> BASE_MODULES = [
+            ":server:bootstrap",
+            ":server:api",
+            ":schemas",
+            ":server:internal",
+            ':remoteapi:java',
+            ":server:modules:announcements",
+            ":server:modules:audit",
+            ":server:modules:core",
+            ":server:modules:experiment",
+            ":server:modules:filecontent",
+            ":server:modules:pipeline",
+            ":server:modules:query",
+            ":server:modules:wiki"
     ]
 
     public static final List<String> EHR_MODULE_NAMES = [
