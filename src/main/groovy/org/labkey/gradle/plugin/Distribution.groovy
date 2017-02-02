@@ -111,6 +111,6 @@ class DistributionExtension
 
     Boolean buildInstallerExes()
     {
-        return skipWindowsInstaller == null ? true: skipWindowsInstaller
+        return skipWindowsInstaller == null ? true: !skipWindowsInstaller
     }
 }
