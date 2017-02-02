@@ -45,6 +45,10 @@ class TestRunner extends UiTest
                         {
                             srcDirs += otherProj.file(UiTest.TEST_SRC_DIR)
                         }
+                        else if (otherProj.file("test/test/src").exists())  // special case for labmodules and scharp directories
+                        {
+                            srcDirs += otherProj.file("test/test/src")
+                        }
                     }
                 }
                 output.classesDir = "${project.buildDir}/classes"
