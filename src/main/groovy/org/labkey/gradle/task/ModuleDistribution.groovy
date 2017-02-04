@@ -129,8 +129,8 @@ class ModuleDistribution extends DistributionTask
 
             project.logger.info("Finished with exec for makensis")
             project.copy({ CopySpec copy ->
-                project.logger.info("*** Copying setup.exe now ***")
-                copy.from(installerBuildDir)
+                project.logger.info("*** Copying setup.exe now from ${installerBuildDir}/.. to ${distributionDir} ***")
+                copy.from("${installerBuildDir}/..") // makensis puts the installer into build/installer without the project name subdirectory
                 copy.include("Setup_includeJRE.exe")
                 copy.into(distributionDir)
                 copy.rename("Setup_includeJRE.exe", "${distExtension.versionPrefix}-Setup.exe")
