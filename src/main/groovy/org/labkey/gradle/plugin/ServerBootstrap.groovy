@@ -1,8 +1,10 @@
 package org.labkey.gradle.plugin
 
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.util.GroupNames
 /**
@@ -58,6 +60,17 @@ class ServerBootstrap implements Plugin<Project>
         project.jar.manifest {
             attributes provider: 'LabKey'
             attributes 'Main-Class': BOOTSTRAP_MAIN_CLASS
+        }
+        // This we do specially for the Windows installer because the init script looks in the build directory
+        // for the bootstrap jar.  When we remove the Windows installer, we can remove this extra copy.
+        if (SystemUtils.IS_OS_WINDOWS)
+        {
+            project.tasks.jar.doLast {
+                project.copy { CopySpec copy ->
+                    copy.from project.jar.outputs
+                    copy.into project.rootProject.buildDir
+                }
+            }
         }
 
         Task createApiFilesList = project.task(
