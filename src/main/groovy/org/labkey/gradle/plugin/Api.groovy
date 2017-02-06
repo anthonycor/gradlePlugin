@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -63,11 +64,11 @@ class Api implements Plugin<Project>
                 group: GroupNames.API,
                 type: Jar,
                 description: "produce jar file for api",
-                {
-                    classifier CLASSIFIER
-                    from project.sourceSets['api'].output.classesDir
-                    baseName "${project.name}_api"
-                    destinationDir = project.file(project.labkey.explodedModuleLibDir)
+                {Jar jar ->
+                    jar.classifier CLASSIFIER
+                    jar.from project.sourceSets['api'].output.classesDir
+                    jar.baseName "${project.name}_api"
+                    jar.destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 })
         project.tasks.processApiResources.enabled = false
         apiJar.dependsOn(project.apiClasses)
@@ -80,10 +81,10 @@ class Api implements Plugin<Project>
         {
             // we put all API jar files into a special directory for the RecompilingJspClassLoader's classpath
             apiJar.doLast {
-                project.copy {
-                    from project.file(project.labkey.explodedModuleLibDir)
-                    into "${project.rootProject.buildDir}/${MODULES_API_DIR}"
-                    include "${project.name}_api*.jar"
+                project.copy { CopySpec copy ->
+                    copy.from project.file(project.labkey.explodedModuleLibDir)
+                    copy.into "${project.rootProject.buildDir}/${MODULES_API_DIR}"
+                    copy.include "${project.name}_api*.jar"
                 }
             }
         }

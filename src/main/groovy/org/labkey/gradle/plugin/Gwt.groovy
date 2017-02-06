@@ -110,14 +110,14 @@ class Gwt implements Plugin<Project>
                             // Workaround for incremental build (GRADLE-1483)
                             java.outputs.upToDateSpec = new AndSpec()
 
-                            doFirst {
+                            java.doFirst {
                                 project.file(extrasDir).mkdirs()
                                 project.file(outputDir).mkdirs()
                             }
 
                             if (LabKeyExtension.isDevMode(project))
                             {
-                                doLast new GzipAction()
+                                java.doLast new GzipAction()
                             }
 
                             java.main = 'com.google.gwt.dev.Compiler'
@@ -146,7 +146,7 @@ class Gwt implements Plugin<Project>
                                 }
                             }
 
-                            args =
+                            java.args =
                                     [
                                             '-war', outputDir,
                                             '-style', project.gwt.style,

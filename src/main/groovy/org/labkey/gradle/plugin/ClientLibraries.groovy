@@ -28,7 +28,7 @@ class ClientLibraries implements Plugin<Project>
         addTasks(project)
     }
 
-    private void addTasks(Project project)
+    private static void addTasks(Project project)
     {
         Task compressLibsTask = project.task("compressClientLibs",
                 group: GroupNames.CLIENT_LIBRARIES,

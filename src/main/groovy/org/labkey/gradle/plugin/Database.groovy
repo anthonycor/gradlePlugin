@@ -25,8 +25,8 @@ class Database implements Plugin<Project>
             group: GroupNames.DATABASE,
             type: PickDb,
             description: "Switch to PostgreSQL configuration",
-            {
-                dbType = "pg"
+            {PickDb task ->
+                task.dbType = "pg"
             }
         )
     }
@@ -36,8 +36,8 @@ class Database implements Plugin<Project>
             group: GroupNames.DATABASE,
             type: PickDb,
             description: "Switch to SQL Server configuration",
-            {
-                dbType = "mssql"
+            {PickDb task ->
+                task.dbType = "mssql"
             }
         )
     }

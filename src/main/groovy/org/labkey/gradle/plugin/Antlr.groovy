@@ -40,11 +40,11 @@ class Antlr implements Plugin<Project>
 
         if (!antlrInput.isEmpty())
         {
-            def outputDir = new File("${project.labkey.srcGenDir}/antlr/org/labkey/query/sql/antlr")
+            File outputDir = new File("${project.labkey.srcGenDir}/antlr/org/labkey/query/sql/antlr")
             List<Task> antlrTasks = new ArrayList<>();
             antlrInput.files.each() {
-                def file ->
-                    def Task antlrTask = project.task("antlr" + file.getName().substring(0, file.getName().indexOf(EXTENSION)),
+                File file ->
+                     Task antlrTask = project.task("antlr" + file.getName().substring(0, file.getName().indexOf(EXTENSION)),
                             type: JavaExec,
                             group: GroupNames.CODE_GENERATION,
                             description: "Generate Java classes from " + file.getName(),
@@ -68,7 +68,7 @@ class Antlr implements Plugin<Project>
                     )
                     antlrTasks.add(antlrTask);
             }
-            def antlrTask = project.task("antlr",
+            Task antlrTask = project.task("antlr",
                     group: GroupNames.CODE_GENERATION,
                     description: "generate Java classes from all ${EXTENSION} files",
                     dependsOn: antlrTasks
