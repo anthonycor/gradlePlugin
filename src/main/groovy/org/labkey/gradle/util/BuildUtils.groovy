@@ -59,13 +59,15 @@ class BuildUtils
                                                            OPTIONAL_MODULES_DIR
     ]
 
-    public static final List<String> EXTERNAL_MODULE_DIRS = [EXTERNAL_MODULES_DIR,
-                                                             "externalModules/scharp",
-                                                             "externalModules/labModules",
-                                                             "externalModules/onprcEHRModules",
-                                                             "externalModules/cnprcEHRModules",
-                                                             "externalModules/snprcEHRModules",
-                                                             "externalModules/DISCVR"]
+    public static final List<String> EHR_EXTERNAL_MODULE_DIRS = [
+            "externalModules/labModules",
+            "externalModules/onprcEHRModules",
+            "externalModules/cnprcEHRModules",
+            "externalModules/snprcEHRModules",
+            "externalModules/DISCVR"
+    ]
+
+    public static final List<String> EXTERNAL_MODULE_DIRS = ["externalModules/scharp"] + EHR_EXTERNAL_MODULE_DIRS
 
     /**
      * This includes modules that are required for any LabKey server build (e.g., bootstrap, api, internal)
