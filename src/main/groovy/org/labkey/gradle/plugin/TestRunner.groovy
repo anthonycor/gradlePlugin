@@ -6,6 +6,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.util.BuildUtils
 
 /**
  * Created by susanh on 12/7/16.
@@ -80,6 +81,7 @@ class TestRunner extends UiTest
             compile "com.googlecode.sardine:sardine:${project.sardineVersion}"
             compile "junit:junit:${project.junitVersion}"
         }
+        BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: ":remoteapi:java")
     }
 
     @Override
