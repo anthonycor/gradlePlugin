@@ -27,7 +27,6 @@ class Module extends SimpleModule
     {
         _project.dependencies
                 {
-                    BuildUtils.addLabKeyDependency(project: _project, config: "compile", depProjectPath: ":server:api")
                     // This is only required for :server:api to compile, but we exclude the declaration of dependencies from
                     // the :server:api pom file because we cannot specify a version, since we rely on the local tomcat version.
                     // Therefore, when relying on the api jar file not built from source, we require this extra definition;
