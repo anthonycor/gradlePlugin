@@ -191,7 +191,7 @@ class TeamCity extends Tomcat
                             if (extension.dropDatabase)
                                 SqlUtils.dropDatabase(project, properties.getConfigProperties())
                             properties.setJdbcUrl()
-                            project.logger.info("after dropDatabase and setjdbcUrl, properties ")
+                            project.logger.info("after dropDatabase and setjdbcUrl, properties are ${properties.properties} ")
                         }
                         task.doLast {
                             project.logger.info("Writing out JDBC URL now");

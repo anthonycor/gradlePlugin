@@ -81,15 +81,12 @@ class StartTomcat extends DefaultTask
                         key: "CLOSE_WINDOW",
                         value: true
                 )
-                arg(line: "/c start")
-                arg(value: "&quot;Tomcat Server&quot;")
+                arg(line: "/c start ")
+                arg(value: "'Tomcat Server'")
                 arg(value: "/B")
                 arg(value: "${project.tomcatDir}/bin/catalina.bat")
             }
-            else
-            {
-                arg(value: "start")
-            }
+            arg(value: "start")
         }
         println("Waiting 5 seconds for tomcat to start...")
         project.ant.sleep(seconds: 5)
