@@ -138,9 +138,6 @@ class SimpleModule implements Plugin<Project>
 
     protected void setJavaBuildProperties()
     {
-        _project.sourceCompatibility = _project.labkey.sourceCompatibility
-        _project.targetCompatibility = _project.labkey.targetCompatibility
-
         _project.libsDirName = 'explodedModule/lib'
 
         addSourceSets()
@@ -346,7 +343,7 @@ class SimpleModule implements Plugin<Project>
 
         _project.task("reallyClean",
                 group: GroupNames.BUILD,
-                description: "Deletes the build directory, staging and deployment directories of this module",
+                description: "Deletes the build, staging, and deployment directories of this module",
         ).dependsOn(_project.tasks.clean, _project.tasks.undeployModule)
 
     }
