@@ -61,6 +61,7 @@ class ModuleDistribution extends DistributionTask
         binPrefix = "${distExtension.versionPrefix}-bin"
 
         distributionDir = project.file("${dir}/${distExtension.subDirName}")
+        new File(distExtension.modulesDir).deleteDir()
         distributionDir.deleteDir()
         distributionDir.mkdirs()
     }
