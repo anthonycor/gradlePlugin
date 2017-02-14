@@ -39,7 +39,7 @@ class DatabaseProperties
         this.project = project
         this.configProperties = readDatabaseProperties(project)
         if (!this.configProperties.isEmpty())
-            setDefaultJdbcProperties(useBootstrap)
+            setDefaultJdbcProperties(useBootstrap, true)
     }
 
     static File getConfigFile(Project project)
@@ -88,7 +88,7 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_PORT_PROP)
     }
 
-    void setDefaultJdbcProperties(Boolean bootstrap)
+    void setDefaultJdbcProperties(Boolean bootstrap, Boolean doInterpolation = true)
     {
         if (this.configProperties.getProperty(JDBC_DATABASE_PROP) == null)
         {
@@ -103,10 +103,11 @@ class DatabaseProperties
             this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
         if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
             this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
-        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        if (doInterpolation)
+            this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
     }
 
-    void mergePropertiesFromFile()
+    void mergePropertiesFromFile(boolean doInterpolation)
     {
         Properties fileProperties = readDatabaseProperties(project)
         for (String name : fileProperties.propertyNames())
@@ -116,8 +117,12 @@ class DatabaseProperties
                 this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
         }
-        setDefaultJdbcProperties(false)
-        writeDatabaseProperty(project, JDBC_URL_PROP, this.configProperties.getProperty(JDBC_URL_PROP))
+        setDefaultJdbcProperties(false, doInterpolation)
+    }
+
+    void writeJdbcUrl()
+    {
+        writeDatabaseProperty(project, JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
     }
 
 

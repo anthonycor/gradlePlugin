@@ -186,10 +186,14 @@ class TeamCity extends Tomcat
                     {DoThenSetup task ->
                         task.setDatabaseProperties(properties)
                         task.fn = {
-                            properties.mergePropertiesFromFile()
+                            properties.mergePropertiesFromFile(false)
                             project.logger.info("in setUp${suffix}, properties are ${properties.properties}")
                             if (extension.dropDatabase)
                                 SqlUtils.dropDatabase(project, properties.getConfigProperties())
+                        }
+                        task.doLast {
+                            project.logger.info("Writing out JDBC URL now");
+                            properties.writeJdbcUrl()
                         }
                     }
             )
