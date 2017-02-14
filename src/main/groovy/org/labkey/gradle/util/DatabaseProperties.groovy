@@ -104,7 +104,12 @@ class DatabaseProperties
         if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
             this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
         if (doInterpolation)
-            this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+            setJdbcUrl()
+    }
+
+    void setJdbcUrl()
+    {
+        this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
     }
 
     void mergePropertiesFromFile(boolean doInterpolation)
