@@ -21,6 +21,7 @@ class SqlUtils
         String user = configProperties.getProperty("jdbcUser")
         String password = configProperties.getProperty("jdbcPassword")
         String driverClassName = configProperties.getProperty("jdbcDriverClassName")
+        project.logger.info("in execSql: url ${url} user ${user} password ${password} driverClassName ${driverClassName}")
 
         //see http://gradle.1045684.n5.nabble.com/using-jdbc-driver-in-a-task-fails-td1435189.html
         URLClassLoader loader = GroovyObject.class.classLoader
@@ -29,6 +30,7 @@ class SqlUtils
             loader.addURL(file.toURI().toURL())
         }
         Class driverClass = loader.loadClass(driverClassName)
+        project.logger.info("driverClass is ${driverClass}")
 
         Driver driverInstance = (Driver) driverClass.newInstance()
         DriverManager.registerDriver(driverInstance)
