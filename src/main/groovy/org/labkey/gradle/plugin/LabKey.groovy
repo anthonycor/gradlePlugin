@@ -106,8 +106,6 @@ class LabKeyExtension
         }
     }
 
-    String sourceCompatibility = '1.8'
-    String targetCompatibility = '1.8'
     Boolean skipBuild = false // set this to true in an individual module's build.gradle file to skip building
 
     String explodedModuleDir

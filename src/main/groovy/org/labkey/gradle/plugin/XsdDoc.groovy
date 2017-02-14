@@ -20,10 +20,6 @@ class XsdDoc implements Plugin<Project>
         // FIXME we need a more flexible way to specify these.  Is this a subset of xsds or can we find all?
         project.xsdDoc.xsdFiles = [
                 project.project(":schemas").file("apiTest.xsd"),
-                project.project(":server:modules:study").file("schemas/assayProvider.xsd"),
-                project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd"),
-                project.project(":server:modules:study").file("schemas/studyPipelineTasks.xsd"),
-                project.project(":server:modules:dataintegration").file("schemas/etl.xsd"),
                 project.project(":schemas").file("cohorts.xsd"),
                 project.project(":schemas").file("datasets.xsd"),
                 project.project(":schemas").file("domainTemplate.xsd"),
@@ -40,6 +36,15 @@ class XsdDoc implements Plugin<Project>
                 project.project(":schemas").file("visitMap.xsd"),
                 project.project(":schemas").file("webpart.xsd")
         ]
+        if (project.findProject(":server:modules:study") != null)
+        {
+            project.xsdDoc.xsdFiles += [project.project(":server:modules:study").file("schemas/assayProvider.xsd"),
+                                        project.project(":server:modules:study").file("schemas/studyPipelineTasks.xsd")]
+        }
+        if (project.findProject(":server:modules:pipeline")  != null)
+            project.xsdDoc.xsdFiles += project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd")
+        if (project.findProject(":server:modules:dataintegration")  != null)
+            project.xsdDoc.xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
         addDependencies(project)
         addTasks(project)
     }

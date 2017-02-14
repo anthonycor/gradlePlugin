@@ -48,6 +48,6 @@ class AntBuild implements Plugin<Project>
         project.ant.setProperty('build.modules.dir', project.buildDir.parent)
         project.ant.setProperty('build.dir', project.rootProject.buildDir)
         project.ant.setProperty('explodedModuleDir', project.labkey.explodedModuleDir)
-        project.ant.setProperty('java.source.and.target', project.labkey.sourceCompatibility)
+        project.ant.setProperty('java.source.and.target', project.sourceCompatibility)
     }
 }

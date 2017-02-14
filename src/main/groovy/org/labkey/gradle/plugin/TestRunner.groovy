@@ -239,8 +239,8 @@ class TestRunner extends UiTest
             )
             ant.iajc(
                     destdir: "${project.buildDir}/classes",
-                    source: project.labkey.sourceCompatibility,
-                    target: project.labkey.targetCompatibility,
+                    source: project.sourceCompatibility,
+                    target: project.targetCompatibility,
                     classpath: project.configurations.uiTestCompile.asPath,
                     {
                         project.sourceSets.uiTest.java.srcDirs.each {

@@ -53,6 +53,7 @@ class SqlUtils
 
     static void dropDatabase(Project project, Properties properties)
     {
+        project.logger.info("in dropDatabase for ${project.path}, properties are ${properties}")
         if (!properties.containsKey("jdbcDatabase") || properties.get("jdbcDatabase").equals("labkey"))
         {
             throw new GradleException("Must specify a database that is not 'labkey'")
