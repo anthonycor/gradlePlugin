@@ -15,7 +15,9 @@ class SqlUtils
     {
         // read in a clean (unsubstituted) set of properties from the file
         Properties configProperties = DatabaseProperties.readDatabaseProperties(project)
+        project.logger.info("configProperties read from file are ${configProperties}")
         configProperties.putAll(params) //overrides configProperties in case of duplicates
+        project.logger.info("after adding params, configProperties are ${configProperties}")
 
         String url = PropertiesUtils.parseCompositeProp(project, configProperties, configProperties.getProperty("jdbcURL"))
         String user = configProperties.getProperty("jdbcUser")
