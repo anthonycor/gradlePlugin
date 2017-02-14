@@ -94,17 +94,18 @@ class Gwt implements Plugin<Project>
         gwtModuleClasses.entrySet().each {
              gwtModuleClass ->
 
-                def compileTask = project.task(
+                Task compileTask = project.task(
                         'compileGwt' + gwtModuleClass.getKey(),
                         group: GroupNames.GWT,
                         type: JavaExec,
                         description: "compile GWT source files for " + gwtModuleClass.getKey()  + " into JS",
                         { JavaExec java ->
-                            def extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
-                            def outputDir = project.labkey.explodedModuleWebDir
+                            GString extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
+                            String outputDir = project.labkey.explodedModuleWebDir
 
                             java.inputs.file(project.sourceSets.gwt.java.srcDirs)
 
+                            java.outputs.dir extrasDir
                             java.outputs.dir outputDir
 
                             // Workaround for incremental build (GRADLE-1483)
