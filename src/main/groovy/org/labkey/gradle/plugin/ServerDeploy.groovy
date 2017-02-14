@@ -179,7 +179,7 @@ class ServerDeploy implements Plugin<Project>
                 'cleanStaging',
                 group: GroupNames.DEPLOY,
                 type: Delete,
-                description: "Removes the staging directory (${staging.dir})",
+                description: "Removes the staging directory ${staging.dir}",
                 { DeleteSpec spec ->
                     spec.delete staging.dir
                 }
