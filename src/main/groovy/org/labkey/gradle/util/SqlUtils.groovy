@@ -69,6 +69,7 @@ class SqlUtils
             params.setProperty("jdbcHost", (String) properties.get('jdbcHost'))
             params.setProperty("jdbcPort", (String) properties.get("jdbcPort"))
 
+            project.logger.info("Attempting to drop database. params are ${params}")
             project.logger.info("Attempting to drop database ${properties.get("jdbcDatabase")}")
             execSql(project, params, "DROP DATABASE \"${properties.get('jdbcDatabase')}\";")
         }
