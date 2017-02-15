@@ -449,16 +449,19 @@ class SimpleModule implements Plugin<Project>
                     }
 
 
-                    _project.artifactoryPublish {
-                        _project.tasks.each {
-                            if (it instanceof Jar &&
-                                    (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
-                            {
-                                dependsOn it
+                    if (_project.hasProperty('doPublishing'))
+                    {
+                        _project.artifactoryPublish {
+                            _project.tasks.each {
+                                if (it instanceof Jar &&
+                                        (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
+                                {
+                                    dependsOn it
+                                }
                             }
+                            dependsOn pomFileTask
+                            publications('libs')
                         }
-                        dependsOn pomFileTask
-                        publications('libs')
                     }
 
                 }
