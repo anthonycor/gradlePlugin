@@ -23,9 +23,9 @@ class RunUiTest extends Test
 
         reports { TestTaskReports -> reports
             reports.junitXml.enabled = false
-            reports.junitXml.setDestination( new File("${project.buildDir}/${LOG_DIR}"))
+            reports.junitXml.setDestination( new File("${project.buildDir}/${LOG_DIR}/reports/xml"))
             reports.html.enabled = true
-            reports.html.setDestination(new File( "${project.buildDir}/${LOG_DIR}"))
+            reports.html.setDestination(new File( "${project.buildDir}/${LOG_DIR}/reports/html"))
         }
         setClasspath (project.sourceSets.uiTest.runtimeClasspath)
         setTestClassesDir (project.sourceSets.uiTest.output.classesDir)
