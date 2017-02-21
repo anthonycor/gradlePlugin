@@ -2,16 +2,19 @@ package org.labkey.gradle.task
 
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
+import org.labkey.gradle.plugin.StagingExtension
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class ModuleDistribution extends DistributionTask
+class ModuleDistribution extends DefaultTask
 {
     public static final String ALL_DISTRIBUTIONS = "all"
 
@@ -46,24 +49,29 @@ class ModuleDistribution extends DistributionTask
             ':server:modules:wiki'
     ]
 
-    // TODO would like to declare this as the output directory but need to supply a value during configuration.
-    // Need to figure out order of initialization of extension and task.
+    Boolean includeWindowsInstaller = false
+    Boolean includeZipArchive = false
+    Boolean includeTarGZArchive = false
+    Boolean makeDistribution = true // set to false for the "extra modules"
+    String extraFileIdentifier = ""
+    Boolean includeMassSpecBinaries = false
+    String versionPrefix = null
+    String subDirName
+    @OutputDirectory
+    File installerBuildDir
+
     File distributionDir
-    String binPrefix
+
+    String archivePrefix
     DistributionExtension distExtension
 
-    private void init()
+    ModuleDistribution()
     {
-        distExtension = project.getExtensions().findByType(DistributionExtension.class)
+        description = "Make a LabKey modules distribution"
+        distExtension = project.extensions.findByType(DistributionExtension.class)
 
-        if (distExtension.versionPrefix == null)
-            distExtension.versionPrefix = "Labkey${project.installerVersion}${distExtension.extraFileIdentifier}"
-        binPrefix = "${distExtension.versionPrefix}-bin"
-
-        distributionDir = project.file("${dir}/${distExtension.subDirName}")
-        new File(distExtension.modulesDir).deleteDir()
-        distributionDir.deleteDir()
-        distributionDir.mkdirs()
+        this.dependsOn(project.project(":server").tasks.stageTomcatJars)
+        installerBuildDir = new File("${project.rootDir}/build/installer/${project.name}")
     }
 
     @TaskAction
@@ -71,31 +79,43 @@ class ModuleDistribution extends DistributionTask
     {
         init()
 
-        createDistributionFiles()
+        if (makeDistribution)
+            createDistributionFiles()
         gatherModules()
         packageRedistributables()
 
     }
 
+    private void init()
+    {
+        if (versionPrefix == null)
+            versionPrefix = "Labkey${project.installerVersion}${extraFileIdentifier}"
+
+        archivePrefix = "${versionPrefix}-bin"
+
+        if (distributionDir == null && subDirName != null)
+            distributionDir = project.file("${distExtension.dir}/${subDirName}")
+
+        // because we gather up all modules put into this directory, we always want to start clean
+        // TODO we can problem avoid using this altogether but just copying from the distribution configuration
+        new File(distExtension.modulesDir).deleteDir()
+    }
+
     private void gatherModules()
     {
-        ant.copy (
-                toDir: distExtension.modulesDir
-        )
-                {
-                    project.configurations.distribution.each {
-                        File moduleFile ->
-                            file(name: moduleFile.getPath())
-                    }
-                }
+        project.copy{CopySpec copy ->
+            copy.from { project.configurations.distribution }
+            copy.into distExtension.modulesDir
+        }
     }
 
     private void packageRedistributables()
     {
-        project.mkdir(project.file(distributionDir).getAbsolutePath())
-
-        copyLibXml()
-        packageInstallers()
+        if (makeDistribution)
+        {
+            copyLibXml()
+            packageInstallers()
+        }
         packageArchives()
     }
 
@@ -118,7 +138,7 @@ class ModuleDistribution extends DistributionTask
 
     private void packageInstallers()
     {
-        if (distExtension.buildInstallerExes() && SystemUtils.IS_OS_WINDOWS) {
+        if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS) {
             project.exec({ ExecSpec spec ->
                 spec.commandLine FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/nsis2.46/makensis.exe")
                 spec.args = [
@@ -132,18 +152,18 @@ class ModuleDistribution extends DistributionTask
                 copy.from("${installerBuildDir}/..") // makensis puts the installer into build/installer without the project name subdirectory
                 copy.include("Setup_includeJRE.exe")
                 copy.into(distributionDir)
-                copy.rename("Setup_includeJRE.exe", "${distExtension.versionPrefix}-Setup.exe")
+                copy.rename("Setup_includeJRE.exe", "${versionPrefix}-Setup.exe")
             })
         }
     }
 
     private void packageArchives()
     {
-        if (distExtension.skipTarGZDistribution == null || !distExtension.skipTarGZDistribution)
+        if (includeTarGZArchive)
         {
             tarArchives()
         }
-        if (distExtension.skipZipDistribution == null || !distExtension.skipZipDistribution)
+        if (includeZipArchive)
         {
             zipArchives()
         }
@@ -151,110 +171,142 @@ class ModuleDistribution extends DistributionTask
 
     private void tarArchives()
     {
-        ant.tar(tarfile:"${distributionDir}/${binPrefix}.tar.gz",
-                longfile: "gnu",
-                compression: "gzip" ) {
-            tarfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
-                   prefix:"${binPrefix}/labkeywebapp") {
-                exclude(name: "WEB-INF/classes/distribution")
-            }
-            tarfileset(dir: distExtension.modulesDir,
-                    prefix: "${binPrefix}/modules") {
-                include(name: "*.module")
-            }
-            tarfileset(dir: distExtension.extraSrcDir,
-                    prefix: "${binPrefix}/") {
-                include(name:"**/*")
-            }
-            project.project(":server").configurations.tomcatJars.getFiles().collect({
-                tomcatJar ->
-                    tarfileset(file: tomcatJar.path,
-                            prefix: "${binPrefix}/tomcat-lib")
-            })
-            if (distExtension.includeMassSpecBinaries) {
-                tarfileset(dir: "${project.rootProject.projectDir}/external/windows/msinspect",
-                        prefix: "${binPrefix}/bin") {
-                    include(name: "**/*.jar")
-                    exclude(name: "**/.svn")
+
+        if (makeDistribution)
+        {
+            StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
+
+            ant.tar(tarfile: "${distributionDir}/${archivePrefix}.tar.gz",
+                    longfile: "gnu",
+                    compression: "gzip") {
+                tarfileset(dir: staging.webappDir,
+                        prefix: "${archivePrefix}/labkeywebapp") {
+                    exclude(name: "WEB-INF/classes/distribution")
+                }
+                tarfileset(dir: distExtension.modulesDir,
+                        prefix: "${archivePrefix}/modules") {
+                    include(name: "*.module")
+                }
+                tarfileset(dir: distExtension.extraSrcDir,
+                        prefix: "${archivePrefix}/") {
+                    include(name: "**/*")
+                }
+                tarfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib") {
+                    // this exclusion is necessary because for some reason when buildFromSource=false,
+                    // the tomcat bootstrap jar is included in the staged libraries and the LabKey boostrap jar is not.
+                    // Not sure why.
+                    exclude(name: "bootstrap.jar")
+                }
+
+                if (includeMassSpecBinaries)
+                {
+                    tarfileset(dir: "${project.rootProject.projectDir}/external/windows/msinspect",
+                            prefix: "${archivePrefix}/bin") {
+                        include(name: "**/*.jar")
+                        exclude(name: "**/.svn")
+                    }
+                }
+                // TODO this should not be necessary once we figure out why buildFromSource=false doesn't pick this up
+                tarfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
+                        prefix: "${archivePrefix}/tomcat-lib/")
+
+                tarfileset(dir: staging.pipelineLibDir,
+                        prefix: "${archivePrefix}/pipeline-lib") {
+                }
+
+                tarfileset(file: "${installerBuildDir}/manual-upgrade.sh", prefix: archivePrefix, mode: 744)
+
+                tarfileset(dir: distExtension.archiveDataDir,
+                        prefix: archivePrefix) {
+                    include(name: "README.txt")
+                }
+                tarfileset(dir: installerBuildDir,
+                        prefix: archivePrefix) {
+                    include(name: "VERSION")
+                }
+                tarfileset(dir: installerBuildDir,
+                        prefix: archivePrefix) {
+                    include(name: "labkey.xml")
                 }
             }
-            tarfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
-                    prefix: "${binPrefix}/tomcat-lib/")
-
-            tarfileset(dir: "${project.rootProject.buildDir}/staging/pipelineLib",
-                    prefix: "${binPrefix}/pipeline-lib") {
-            }
-
-            tarfileset(file: "${installerBuildDir}/manual-upgrade.sh", prefix: binPrefix, mode: 744)
-
-            tarfileset(dir: distExtension.archiveDataDir,
-                    prefix: binPrefix) {
-                include(name:"README.txt")
-            }
-            tarfileset(dir: installerBuildDir,
-                    prefix: binPrefix) {
-                include(name:"VERSION")
-            }
-            tarfileset(dir: installerBuildDir,
-                    prefix: binPrefix) {
-                include(name:"labkey.xml")
+        }
+        else
+        {
+            ant.tar(tarfile: "${distributionDir}/${versionPrefix}.tar.gz",
+                    longfile: "gnu",
+                    compression: "gzip") {
+                tarfileset(dir: distExtension.modulesDir,
+                        prefix: "${archivePrefix}/modules") {
+                    include(name: "*.module")
+                }
             }
         }
     }
 
     private void zipArchives()
     {
-        ant.zip(destfile: "${distributionDir}/${binPrefix}.zip") {
-            zipfileset(dir:"${project.rootProject.buildDir}/staging/labkeyWebapp",
-                    prefix: "${binPrefix}/labkeywebapp") {
-                exclude(name:"WEB-INF/classes/distribution")
-            }
-            zipfileset(dir: distExtension.modulesDir,
-                    prefix: "${binPrefix}/modules") {
-                include(name:"*.module")
-            }
-            zipfileset(dir: distExtension.extraSrcDir,
-                    prefix: "${binPrefix}/") {
-                include(name:"**/*")
-            }
-            project.project(":server").configurations.tomcatJars.getFiles().collect({
-                tomcatJar ->
-                    zipfileset(file: tomcatJar.path,
-                            prefix: "${binPrefix}/tomcat-lib")
-            })
-            zipfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
-                    prefix: "${binPrefix}/tomcat-lib/")
-            zipfileset(dir:"${project.rootProject.buildDir}/staging/pipelineLib",
-                    prefix: "${binPrefix}/pipeline-lib")
-            zipfileset(dir:"${project.rootProject.projectDir}/external/windows/core",
-                    prefix: "${binPrefix}/bin") {
-                include(name:"**/*")
-                exclude(name:"**/.svn")
-            }
+        if (makeDistribution)
+        {
+            ant.zip(destfile: "${distributionDir}/${archivePrefix}.zip") {
+                zipfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
+                        prefix: "${archivePrefix}/labkeywebapp") {
+                    exclude(name: "WEB-INF/classes/distribution")
+                }
+                zipfileset(dir: distExtension.modulesDir,
+                        prefix: "${archivePrefix}/modules") {
+                    include(name: "*.module")
+                }
+                zipfileset(dir: distExtension.extraSrcDir,
+                        prefix: "${archivePrefix}/") {
+                    include(name: "**/*")
+                }
+                project.project(":server").configurations.tomcatJars.getFiles().collect({
+                    tomcatJar ->
+                        zipfileset(file: tomcatJar.path,
+                                prefix: "${archivePrefix}/tomcat-lib")
+                })
+                zipfileset(dir: "${project.rootProject.buildDir}/staging/pipelineLib",
+                        prefix: "${archivePrefix}/pipeline-lib")
+                zipfileset(dir: "${project.rootProject.projectDir}/external/windows/core",
+                        prefix: "${archivePrefix}/bin") {
+                    include(name: "**/*")
+                    exclude(name: "**/.svn")
+                }
 
-            if (project.dist.includeMassSpecBinaries) {
-                zipfileset(dir:"${project.rootProject.projectDir}/external/windows/",
-                        prefix: "${binPrefix}/bin") {
-                    exclude(name:"**/.svn")
-                    include(name:"tpp/**/*")
-                    include(name:"comet/**/*")
-                    include(name:"msinspect/**/*")
-                    include(name:"labkey/**/*")
-                    include(name:"pwiz/**/*")
+                if (includeMassSpecBinaries)
+                {
+                    zipfileset(dir: "${project.rootProject.projectDir}/external/windows/",
+                            prefix: "${archivePrefix}/bin") {
+                        exclude(name: "**/.svn")
+                        include(name: "tpp/**/*")
+                        include(name: "comet/**/*")
+                        include(name: "msinspect/**/*")
+                        include(name: "labkey/**/*")
+                        include(name: "pwiz/**/*")
+                    }
+                }
+
+                zipfileset(dir: distExtension.archiveDataDir,
+                        prefix: "${archivePrefix}") {
+                    include(name: "README.txt")
+                }
+                zipfileset(dir: "${installerBuildDir}/",
+                        prefix: "${archivePrefix}") {
+                    include(name: "VERSION")
+                }
+                zipfileset(dir: "${installerBuildDir}/",
+                        prefix: "${archivePrefix}") {
+                    include(name: "labkey.xml")
                 }
             }
-
-            zipfileset(dir: distExtension.archiveDataDir,
-                    prefix: "${binPrefix}") {
-                include(name: "README.txt")
-            }
-            zipfileset(dir:"${installerBuildDir}/",
-                    prefix: "${binPrefix}") {
-                include(name:"VERSION")
-            }
-            zipfileset(dir:"${installerBuildDir}/",
-                    prefix: "${binPrefix}") {
-                include(name:"labkey.xml")
+        }
+        else
+        {
+            ant.zip(destfile: "${distributionDir}/${versionPrefix}.zip") {
+                zipfileset(dir: distExtension.modulesDir,
+                        prefix: "${archivePrefix}/modules") {
+                    include(name: "*.module")
+                }
             }
         }
     }

@@ -108,9 +108,6 @@ class SimpleModule implements Plugin<Project>
             if (Gwt.isApplicable(_project))
                 _project.apply plugin: 'org.labkey.gwt'
 
-            if (Distribution.isApplicable(_project))
-                _project.apply plugin: 'org.labkey.distribution'
-
             if (NpmRun.isApplicable(_project))
             {
                 // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
