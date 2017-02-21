@@ -6,6 +6,7 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
+import org.labkey.gradle.plugin.StagingExtension
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files
@@ -57,6 +58,7 @@ class ModuleDistribution extends DistributionTask
     ModuleDistribution()
     {
         description = "Make a LabKey modules distribution"
+        this.dependsOn(project.project(":server").tasks.stageTomcatJars)
     }
 
     @TaskAction
@@ -153,10 +155,13 @@ class ModuleDistribution extends DistributionTask
 
     private void tarArchives()
     {
+
+        StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
+
         ant.tar(tarfile:"${distributionDir}/${binPrefix}.tar.gz",
                 longfile: "gnu",
                 compression: "gzip" ) {
-            tarfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
+            tarfileset(dir: staging.webappDir,
                    prefix:"${binPrefix}/labkeywebapp") {
                 exclude(name: "WEB-INF/classes/distribution")
             }
@@ -168,11 +173,13 @@ class ModuleDistribution extends DistributionTask
                     prefix: "${binPrefix}/") {
                 include(name:"**/*")
             }
-            project.project(":server").configurations.tomcatJars.getFiles().collect({
-                tomcatJar ->
-                    tarfileset(file: tomcatJar.path,
-                            prefix: "${binPrefix}/tomcat-lib")
-            })
+            tarfileset(dir: staging.tomcatLibDir, prefix: "${binPrefix}/tomcat-lib") {
+                // this exclusion is necessary because for some reason when buildFromSource=false,
+                // the tomcat bootstrap jar is included in the staged libraries and the LabKey boostrap jar is not.
+                // Not sure why.
+                exclude(name: "bootstrap.jar")
+            }
+
             if (includeMassSpecBinaries) {
                 tarfileset(dir: "${project.rootProject.projectDir}/external/windows/msinspect",
                         prefix: "${binPrefix}/bin") {
@@ -180,10 +187,11 @@ class ModuleDistribution extends DistributionTask
                     exclude(name: "**/.svn")
                 }
             }
+            // TODO this should not be necessary once we figure out why buildFromSource=false doesn't pick this up
             tarfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
                     prefix: "${binPrefix}/tomcat-lib/")
 
-            tarfileset(dir: "${project.rootProject.buildDir}/staging/pipelineLib",
+            tarfileset(dir: staging.pipelineLibDir,
                     prefix: "${binPrefix}/pipeline-lib") {
             }
 
@@ -224,8 +232,6 @@ class ModuleDistribution extends DistributionTask
                     zipfileset(file: tomcatJar.path,
                             prefix: "${binPrefix}/tomcat-lib")
             })
-            zipfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
-                    prefix: "${binPrefix}/tomcat-lib/")
             zipfileset(dir:"${project.rootProject.buildDir}/staging/pipelineLib",
                     prefix: "${binPrefix}/pipeline-lib")
             zipfileset(dir:"${project.rootProject.projectDir}/external/windows/core",
