@@ -7,9 +7,10 @@ import org.labkey.gradle.plugin.Jsp
 import org.labkey.gradle.plugin.TeamCityExtension
 import org.labkey.gradle.plugin.XmlBeans
 
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 /**
  * Static utility methods and constants for use in the build and settings scripts.
  */
@@ -104,18 +105,30 @@ class BuildUtils
     {
         // find the directories in each of the moduleDirs that meet our selection criteria
         moduleDirs.each { String path ->
-            File directory = new File(rootDir, path)
-            if (directory.exists())
+            if (path.contains("*"))
             {
-                String prefix = convertDirToPath(rootDir, directory)
-                settings.include directory.listFiles().findAll { File f ->
-                    // exclude non-directories, explicitly excluded names, and directories beginning with a .
-                    f.isDirectory() && !excludedModules.contains(f.getName()) && !(f =~ ".*/\\..*") && !(f =~ "^\\..*")
-                }.collect {
-                    (String) "${prefix}:${it.getName()}"
-                }.toArray(new String[0])
+                ModuleFinder finder = new ModuleFinder(rootDir, path, excludedModules)
+                Files.walkFileTree(Paths.get(rootDir.getAbsolutePath()), finder)
+                finder.modulePaths.each{String modulePath ->
+                    settings.include modulePath
+                }
+            }
+            else
+            {
+                File directory = new File(rootDir, path)
+                if (directory.exists())
+                {
+                    String prefix = convertDirToPath(rootDir, directory)
+                    settings.include directory.listFiles().findAll { File f ->
+                        // exclude non-directories, explicitly excluded names, and directories beginning with a .
+                        f.isDirectory() && !excludedModules.contains(f.getName()) && !(f =~ ".*/\\..*") && !(f =~ "^\\..*")
+                    }.collect {
+                        (String) "${prefix}:${it.getName()}"
+                    }.toArray(new String[0])
+                }
             }
         }
+
     }
 
     static String convertDirToPath(File rootDir, File directory)
@@ -232,6 +245,15 @@ class BuildUtils
         }
     }
 
+    static void addModuleDistributionDependency(Project distributionProject, String depProjectPath, String config)
+    {
+        if (distributionProject.configurations.findByName(config) == null)
+            distributionProject.configurations {
+                config
+            }
+        addLabKeyDependency(project: distributionProject, config: config, depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module")
+    }
+
     static void addModuleDistributionDependency(Project distributionProject, String depProjectPath)
     {
         addLabKeyDependency(project: distributionProject, config: "distribution", depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module")
@@ -239,10 +261,14 @@ class BuildUtils
 
     static void addModuleDistributionDependencies(Project distributionProject, List<String> depProjectPaths)
     {
-        depProjectPaths.each{
-            String path -> addModuleDistributionDependency(distributionProject, path)
-        }
+        addModuleDistributionDependencies(distributionProject, depProjectPaths, "distribution")
+    }
 
+    static void addModuleDistributionDependencies(Project distributionProject, List<String> depProjectPaths, String config)
+    {
+        depProjectPaths.each{
+            String path -> addModuleDistributionDependency(distributionProject, path, config)
+        }
     }
 
     static void addLabKeyDependency(Project parentProject,
