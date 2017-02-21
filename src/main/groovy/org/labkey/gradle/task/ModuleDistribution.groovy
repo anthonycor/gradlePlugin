@@ -60,7 +60,6 @@ class ModuleDistribution extends DefaultTask
     @OutputDirectory
     File installerBuildDir
 
-    @OutputDirectory
     File distributionDir
 
     String archivePrefix
@@ -69,11 +68,10 @@ class ModuleDistribution extends DefaultTask
     ModuleDistribution()
     {
         description = "Make a LabKey modules distribution"
-        if (makeDistribution)
-        {
-            this.dependsOn(project.project(":server").tasks.stageTomcatJars)
-            installerBuildDir = new File("${project.rootDir}/build/installer/${project.name}")
-        }
+        distExtension = project.extensions.findByType(DistributionExtension.class)
+
+        this.dependsOn(project.project(":server").tasks.stageTomcatJars)
+        installerBuildDir = new File("${project.rootDir}/build/installer/${project.name}")
     }
 
     @TaskAction
@@ -90,15 +88,14 @@ class ModuleDistribution extends DefaultTask
 
     private void init()
     {
-        distExtension = project.getExtensions().findByType(DistributionExtension.class)
-
         if (versionPrefix == null)
             versionPrefix = "Labkey${project.installerVersion}${extraFileIdentifier}"
 
         archivePrefix = "${versionPrefix}-bin"
 
         if (distributionDir == null && subDirName != null)
-            distributionDir = project.file("${dir}/${subDirName}")
+            distributionDir = project.file("${distExtension.dir}/${subDirName}")
+
         // because we gather up all modules put into this directory, we always want to start clean
         // TODO we can problem avoid using this altogether but just copying from the distribution configuration
         new File(distExtension.modulesDir).deleteDir()
