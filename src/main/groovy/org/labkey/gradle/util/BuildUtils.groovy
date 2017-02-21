@@ -240,8 +240,7 @@ class BuildUtils
     static void addModuleDistributionDependencies(Project distributionProject, List<String> depProjectPaths)
     {
         depProjectPaths.each{
-            String path ->
-                addLabKeyDependency(project: distributionProject, config: "distribution", depProjectPath: path, depProjectConfig: "published", depExtension: "module")
+            String path -> addModuleDistributionDependency(distributionProject, path)
         }
 
     }
