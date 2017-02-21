@@ -1,10 +1,11 @@
 package org.labkey.gradle.task
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-class ClientApiDistribution extends DistributionTask
+class ClientApiDistribution extends DefaultTask
 {
     @OutputDirectory
     File javaDir
@@ -21,9 +22,9 @@ class ClientApiDistribution extends DistributionTask
     ClientApiDistribution()
     {
 
-        javaDir = new File(dir, "/client-api/java")
-        javascriptDir = new File(dir, "/client-api/javascript")
-        xmlDir = new File(dir, "/client-api/XML")
+        javaDir = new File(project.dist.dir, "/client-api/java")
+        javascriptDir = new File(project.dist.dir, "/client-api/javascript")
+        xmlDir = new File(project.dist.dir, "/client-api/XML")
 
         apiDocsBuildDir = project.project(":server").tasks.jsdoc.outputs.getFiles().asPath
         xsdDocsBuildDir = project.project(":server").tasks.xsddoc.outputs.getFiles().asPath
@@ -98,15 +99,15 @@ class ClientApiDistribution extends DistributionTask
     private void createTeamCityArchives()
     {
         //Create a stable file names so that TeamCity can serve it up directly through its own UI
-        ant.zip(destfile:"${dir}/TeamCity-ClientAPI-Java-Docs.zip") {
+        ant.zip(destfile:"${project.dist.dir}/TeamCity-ClientAPI-Java-Docs.zip") {
             zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir)
         }
 
-        ant.zip(destfile: "${dir}/TeamCity-ClientAPI-JavaScript-Docs.zip") {
+        ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-JavaScript-Docs.zip") {
             zipfileset(dir: apiDocsBuildDir)
         }
 
-        ant.zip(destfile: "${dir}/TeamCity-ClientAPI-XMLSchema-Docs.zip") {
+        ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-XMLSchema-Docs.zip") {
             zipfileset(dir: xsdDocsBuildDir)
         }
     }

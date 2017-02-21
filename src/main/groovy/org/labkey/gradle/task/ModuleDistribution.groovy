@@ -2,7 +2,9 @@ package org.labkey.gradle.task
 
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
@@ -12,7 +14,7 @@ import org.labkey.gradle.util.PropertiesUtils
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class ModuleDistribution extends DistributionTask
+class ModuleDistribution extends DefaultTask
 {
     public static final String ALL_DISTRIBUTIONS = "all"
 
@@ -51,14 +53,14 @@ class ModuleDistribution extends DistributionTask
     Boolean includeZipArchive = false
     Boolean includeTarGZArchive = false
     Boolean makeDistribution = true // set to false for the "extra modules"
-    String subDirName
     String extraFileIdentifier = ""
     Boolean includeMassSpecBinaries = false
     String versionPrefix = null
+    String subDirName
+    @OutputDirectory
+    File installerBuildDir
 
-    // TODO would like to declare this as the output directory but need to supply a value during configuration.
-    // Need to figure out order of initialization.
-//    @OutputDirectory
+    @OutputDirectory
     File distributionDir
 
     String archivePrefix
@@ -68,7 +70,10 @@ class ModuleDistribution extends DistributionTask
     {
         description = "Make a LabKey modules distribution"
         if (makeDistribution)
+        {
             this.dependsOn(project.project(":server").tasks.stageTomcatJars)
+            installerBuildDir = new File("${project.rootDir}/build/installer/${project.name}")
+        }
     }
 
     @TaskAction
@@ -92,10 +97,11 @@ class ModuleDistribution extends DistributionTask
 
         archivePrefix = "${versionPrefix}-bin"
 
-        distributionDir = project.file("${dir}/${subDirName}")
+        if (distributionDir == null && subDirName != null)
+            distributionDir = project.file("${dir}/${subDirName}")
+        // because we gather up all modules put into this directory, we always want to start clean
+        // TODO we can problem avoid using this altogether but just copying from the distribution configuration
         new File(distExtension.modulesDir).deleteDir()
-        distributionDir.deleteDir()
-        distributionDir.mkdirs()
     }
 
     private void gatherModules()
@@ -108,8 +114,6 @@ class ModuleDistribution extends DistributionTask
 
     private void packageRedistributables()
     {
-        project.mkdir(project.file(distributionDir).getAbsolutePath())
-
         if (makeDistribution)
         {
             copyLibXml()

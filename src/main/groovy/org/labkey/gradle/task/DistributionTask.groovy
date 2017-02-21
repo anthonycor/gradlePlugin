@@ -8,15 +8,9 @@ abstract class DistributionTask extends DefaultTask
     @OutputDirectory
     File dir
 
-    @OutputDirectory
-    File installerBuildDir
-
     DistributionTask()
     {
         dir = project.rootProject.file("dist")
-
-        installerBuildDir = new File("${project.rootDir}/build/installer/${project.name}")
-        project.mkdir(project.buildDir)
     }
 
 }

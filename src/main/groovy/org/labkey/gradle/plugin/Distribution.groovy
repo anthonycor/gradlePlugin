@@ -3,7 +3,10 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.DeleteSpec
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
+import org.gradle.api.tasks.Delete
+import org.labkey.gradle.util.GroupNames
 
 class Distribution implements Plugin<Project>
 {
@@ -97,11 +100,11 @@ class DistributionExtension
     public static final String DIST_FILE_NAME = "distribution"
     public static final String VERSION_FILE_NAME = "VERSION"
 
-    String dir
-    String modulesDir
-    String installerSrcDir
-    String extraSrcDir
-    String archiveDataDir
+    String dir = "${project.rootProject.projectDir}/dist"
+    String modulesDir = "${project.rootProject.buildDir}/distModules"
+    String installerSrcDir = "${project.rootProject.projectDir}/server/installer"
+    String extraSrcDir = "${project.rootProject.buildDir}/distExtra"
+    String archiveDataDir = "${this.installerSrcDir}/archivedata"
     String type = "modules"
 
     // properties used in the installer/build.xml file
@@ -117,11 +120,6 @@ class DistributionExtension
     DistributionExtension(Project project)
     {
         this.project = project
-        this.modulesDir = "${project.rootProject.buildDir}/distModules"
-        this.dir = "${project.rootProject.projectDir}/dist"
-        this.installerSrcDir = "${project.rootProject.projectDir}/server/installer"
-        this.extraSrcDir = "${project.rootProject.buildDir}/distExtra"
-        this.archiveDataDir = "${this.installerSrcDir}/archivedata"
     }
 
     Boolean buildInstallerExes()
