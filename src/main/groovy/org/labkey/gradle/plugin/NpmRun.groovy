@@ -46,7 +46,6 @@ class NpmRun implements Plugin<Project>
                     mustRunAfter "npmInstall"
                 }
 
-
         project.task("npmRunSetup")
                 {
                     group = GroupNames.NPM_RUN
@@ -93,6 +92,7 @@ class NpmRun implements Plugin<Project>
             project.tasks.module.dependsOn("npmRunBuildProd")
 
         project.tasks.npmInstall {
+            dependsOn "npm_prune"
             inputs.file project.file(NPM_PROJECT_FILE)
             outputs.dir project.file("node_modules")
         }
@@ -116,5 +116,4 @@ class NpmRunExtension
     String setup = "setup"
     String buildProd = "build-prod"
     String buildDev = "build"
-
 }
