@@ -47,23 +47,16 @@ class ModuleDistribution extends DistributionTask
     ]
 
     // TODO would like to declare this as the output directory but need to supply a value during configuration.
-    // Need to figure out order of initialization of extension and task.
+    // Need to figure out order of initialization.
+//    @OutputDirectory
     File distributionDir
+
     String binPrefix
     DistributionExtension distExtension
 
-    private void init()
+    ModuleDistribution()
     {
-        distExtension = project.getExtensions().findByType(DistributionExtension.class)
-
-        if (distExtension.versionPrefix == null)
-            distExtension.versionPrefix = "Labkey${project.installerVersion}${distExtension.extraFileIdentifier}"
-        binPrefix = "${distExtension.versionPrefix}-bin"
-
-        distributionDir = project.file("${dir}/${distExtension.subDirName}")
-        new File(distExtension.modulesDir).deleteDir()
-        distributionDir.deleteDir()
-        distributionDir.mkdirs()
+        description = "Make a LabKey modules distribution"
     }
 
     @TaskAction
@@ -77,17 +70,26 @@ class ModuleDistribution extends DistributionTask
 
     }
 
+    private void init()
+    {
+        distExtension = project.getExtensions().findByType(DistributionExtension.class)
+
+        if (versionPrefix == null)
+            versionPrefix = "Labkey${project.installerVersion}${extraFileIdentifier}"
+        binPrefix = "${versionPrefix}-bin"
+
+        distributionDir = project.file("${dir}/${subDirName}")
+        new File(distExtension.modulesDir).deleteDir()
+        distributionDir.deleteDir()
+        distributionDir.mkdirs()
+    }
+
     private void gatherModules()
     {
-        ant.copy (
-                toDir: distExtension.modulesDir
-        )
-                {
-                    project.configurations.distribution.each {
-                        File moduleFile ->
-                            file(name: moduleFile.getPath())
-                    }
-                }
+        project.copy{CopySpec copy ->
+            copy.from { project.configurations.distribution }
+            copy.into distExtension.modulesDir
+        }
     }
 
     private void packageRedistributables()
@@ -118,7 +120,7 @@ class ModuleDistribution extends DistributionTask
 
     private void packageInstallers()
     {
-        if (distExtension.buildInstallerExes() && SystemUtils.IS_OS_WINDOWS) {
+        if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS) {
             project.exec({ ExecSpec spec ->
                 spec.commandLine FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/nsis2.46/makensis.exe")
                 spec.args = [
@@ -132,18 +134,18 @@ class ModuleDistribution extends DistributionTask
                 copy.from("${installerBuildDir}/..") // makensis puts the installer into build/installer without the project name subdirectory
                 copy.include("Setup_includeJRE.exe")
                 copy.into(distributionDir)
-                copy.rename("Setup_includeJRE.exe", "${distExtension.versionPrefix}-Setup.exe")
+                copy.rename("Setup_includeJRE.exe", "${versionPrefix}-Setup.exe")
             })
         }
     }
 
     private void packageArchives()
     {
-        if (distExtension.skipTarGZDistribution == null || !distExtension.skipTarGZDistribution)
+        if (includeTarGZDistribution)
         {
             tarArchives()
         }
-        if (distExtension.skipZipDistribution == null || !distExtension.skipZipDistribution)
+        if (includeZipDistribution)
         {
             zipArchives()
         }
@@ -171,7 +173,7 @@ class ModuleDistribution extends DistributionTask
                     tarfileset(file: tomcatJar.path,
                             prefix: "${binPrefix}/tomcat-lib")
             })
-            if (distExtension.includeMassSpecBinaries) {
+            if (includeMassSpecBinaries) {
                 tarfileset(dir: "${project.rootProject.projectDir}/external/windows/msinspect",
                         prefix: "${binPrefix}/bin") {
                     include(name: "**/*.jar")
@@ -232,7 +234,7 @@ class ModuleDistribution extends DistributionTask
                 exclude(name:"**/.svn")
             }
 
-            if (project.dist.includeMassSpecBinaries) {
+            if (includeMassSpecBinaries) {
                 zipfileset(dir:"${project.rootProject.projectDir}/external/windows/",
                         prefix: "${binPrefix}/bin") {
                     exclude(name:"**/.svn")

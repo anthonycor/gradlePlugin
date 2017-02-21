@@ -232,6 +232,20 @@ class BuildUtils
         }
     }
 
+    static void addModuleDistributionDependency(Project distributionProject, String depProjectPath)
+    {
+        addLabKeyDependency(project: distributionProject, config: "distribution", depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module")
+    }
+
+    static void addModuleDistributionDependencies(Project distributionProject, List<String> depProjectPaths)
+    {
+        depProjectPaths.each{
+            String path ->
+                addLabKeyDependency(project: distributionProject, config: "distribution", depProjectPath: path, depProjectConfig: "published", depExtension: "module")
+        }
+
+    }
+
     static void addLabKeyDependency(Project parentProject,
                                            String parentProjectConfig,
                                            String depProjectPath,
