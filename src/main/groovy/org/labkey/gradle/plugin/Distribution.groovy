@@ -23,7 +23,19 @@ class Distribution implements Plugin<Project>
         project.extensions.create("dist", DistributionExtension, project)
 
         addConfigurations(project)
-        addTasks(project)
+        addTaskDependencies(project)
+    }
+
+    private void addConfigurations(Project project)
+    {
+        project.configurations
+                {
+                    distribution
+                }
+    }
+
+    private void addTaskDependencies(Project project)
+    {
         // This block sets up the task dependencies for each configuration dependency.
         project.afterEvaluate {
             if (project.hasProperty("distribution"))
@@ -39,41 +51,6 @@ class Distribution implements Plugin<Project>
         }
     }
 
-    private void addConfigurations(Project project)
-    {
-        project.configurations
-                {
-                    distribution
-                }
-    }
-
-    private static void addTasks(Project project)
-    {
-//        Task dist = project.task(
-//                "distribution",
-//                group: GroupNames.DISTRIBUTION,
-//                description: "Make a LabKey modules distribution",
-//                type: ModuleDistribution
-//        )
-//        dist.dependsOn(project.configurations.distribution)
-//        dist.dependsOn(project.project(":server").tasks.stageApp)
-//        BuildUtils.addLabKeyDependency(
-//                project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap"
-//        )
-//        // TODO make this clean out the output files, not just the build directory
-//        project.task(
-//                "cleanDist",
-//                group: GroupNames.DISTRIBUTION,
-//                description: "Remove the build directory for a distribution",
-//                type: Delete,
-//                { DeleteSpec delete ->
-//                    delete.delete installerBuildDir
-//                }
-//        )
-//        if (project.rootProject.hasProperty("distAll"))
-//            project.rootProject.tasks.distAll.dependsOn(dist)
-
-    }
 
     /**
      * This method is used within the distribution build.gradle files to allow distributions
@@ -104,17 +81,8 @@ class DistributionExtension
     String modulesDir = "${project.rootProject.buildDir}/distModules"
     String installerSrcDir = "${project.rootProject.projectDir}/server/installer"
     String extraSrcDir = "${project.rootProject.buildDir}/distExtra"
-    String archiveDataDir = "${this.installerSrcDir}/archivedata"
-    String type = "modules"
+    String archiveDataDir = "${installerSrcDir}/archivedata"
 
-    // properties used in the installer/build.xml file
-    String subDirName
-    String extraFileIdentifier = ""
-    Boolean skipWindowsInstaller
-    Boolean skipZipDistribution
-    Boolean skipTarGZDistribution
-    Boolean includeMassSpecBinaries = false
-    String versionPrefix = null
     private Project project
 
     DistributionExtension(Project project)
@@ -122,8 +90,4 @@ class DistributionExtension
         this.project = project
     }
 
-    Boolean buildInstallerExes()
-    {
-        return skipWindowsInstaller == null ? true: !skipWindowsInstaller
-    }
 }
