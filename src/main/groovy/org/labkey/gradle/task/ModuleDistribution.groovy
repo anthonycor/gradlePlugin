@@ -206,9 +206,6 @@ class ModuleDistribution extends DefaultTask
                         exclude(name: "**/.svn")
                     }
                 }
-                // TODO this should not be necessary once we figure out why buildFromSource=false doesn't pick this up
-                tarfileset(file: project.project(":server:bootstrap").tasks.jar.outputs.getFiles().asPath,
-                        prefix: "${archivePrefix}/tomcat-lib/")
 
                 tarfileset(dir: staging.pipelineLibDir,
                         prefix: "${archivePrefix}/pipeline-lib") {
