@@ -348,6 +348,8 @@ class BuildUtils
                 classifier = ":${XmlBeans.CLASSIFIER}"
             else if ('jspCompile'.equals(projectConfig))
                 classifier = ":${Jsp.CLASSIFIER}"
+            else if ('transformCompile'.equals(projectConfig)) // special business for CNPRC's distribution so it can include the genetics transform jar file
+                classifier = ":transform"
         }
 
         String moduleName
@@ -369,5 +371,15 @@ class BuildUtils
 
         return "org.labkey:${moduleName}${versionString}${classifier}${extensionString}"
 
+    }
+
+    static String getRepositoryKey(Project project)
+    {
+        String repoKey = project.path.contains(":distributions") ? "dist" : "libs"
+        if (project.verson.endsWith("-SNAPSHOT"))
+            repoKey += project.verson.endsWith("-SNAPSHOT") ? "-snapshot" : "-release"
+        repoKey += "-local"
+
+        return repoKey
     }
 }

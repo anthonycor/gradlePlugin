@@ -81,6 +81,7 @@ class ModuleDistribution extends DefaultTask
 
         if (makeDistribution)
             createDistributionFiles()
+        gatherExtraFiles()
         gatherModules()
         packageRedistributables()
 
@@ -97,8 +98,19 @@ class ModuleDistribution extends DefaultTask
             distributionDir = project.file("${distExtension.dir}/${subDirName}")
 
         // because we gather up all modules put into this directory, we always want to start clean
-        // TODO we can problem avoid using this altogether but just copying from the distribution configuration
+        // TODO we can probably avoid using this altogether but just copying from the distribution configuration
         new File(distExtension.modulesDir).deleteDir()
+    }
+
+    private void gatherExtraFiles()
+    {
+        if (project.configurations.findByName("distributionExtras") != null)
+        {
+            project.copy { CopySpec copy ->
+                copy.from { project.configurations.distributionExtras }
+                copy.into distributionDir
+            }
+        }
     }
 
     private void gatherModules()
