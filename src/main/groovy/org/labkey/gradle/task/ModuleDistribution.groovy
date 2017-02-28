@@ -81,7 +81,6 @@ class ModuleDistribution extends DefaultTask
 
         if (makeDistribution)
             createDistributionFiles()
-        gatherExtraFiles()
         gatherModules()
         packageRedistributables()
 
@@ -98,24 +97,14 @@ class ModuleDistribution extends DefaultTask
             distributionDir = project.file("${distExtension.dir}/${subDirName}")
 
         // because we gather up all modules put into this directory, we always want to start clean
-        // TODO we can probably avoid using this altogether but just copying from the distribution configuration
+        // TODO we can probably avoid using this altogether by just copying from the distribution configuration
         new File(distExtension.modulesDir).deleteDir()
-    }
-
-    private void gatherExtraFiles()
-    {
-        if (project.configurations.findByName("distributionExtras") != null)
-        {
-            project.copy { CopySpec copy ->
-                copy.from { project.configurations.distributionExtras }
-                copy.into distributionDir
-            }
-        }
     }
 
     private void gatherModules()
     {
-        project.copy{CopySpec copy ->
+        project.copy
+        { CopySpec copy ->
             copy.from { project.configurations.distribution }
             copy.into distExtension.modulesDir
         }
@@ -138,34 +127,37 @@ class ModuleDistribution extends DefaultTask
         copyProps.put("jdbcURL", "jdbc:postgresql://localhost/labkey")
         copyProps.put("jdbcDriverClassName", "org.postgresql.Driver")
 
-        project.copy({ CopySpec copy ->
+        project.copy
+        { CopySpec copy ->
             copy.from("${project.rootProject.projectDir}/webapps")
             copy.include("labkey.xml")
             copy.into(installerBuildDir)
             copy.filter({ String line ->
                 return PropertiesUtils.replaceProps(line, copyProps, true)
             })
-        })
+        }
     }
 
     private void packageInstallers()
     {
         if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS) {
-            project.exec({ ExecSpec spec ->
+            project.exec
+            { ExecSpec spec ->
                 spec.commandLine FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/nsis2.46/makensis.exe")
                 spec.args = [
                         "/DPRODUCT_VERSION=\"${project.version}\"",
                         "/DPRODUCT_REVISION=\"${project.vcsRevision}\"",
                         FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/labkey_installer.nsi")
                 ]
-            })
+            }
 
-            project.copy({ CopySpec copy ->
+            project.copy
+            { CopySpec copy ->
                 copy.from("${installerBuildDir}/..") // makensis puts the installer into build/installer without the project name subdirectory
                 copy.include("Setup_includeJRE.exe")
                 copy.into(distributionDir)
                 copy.rename("Setup_includeJRE.exe", "${versionPrefix}-Setup.exe")
-            })
+            }
         }
     }
 
