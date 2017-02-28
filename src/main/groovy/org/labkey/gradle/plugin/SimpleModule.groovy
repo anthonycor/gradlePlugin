@@ -17,6 +17,7 @@ import org.labkey.gradle.util.PropertiesUtils
 
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
+
 /**
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_jsp.jar, <module>.jar)
@@ -436,15 +437,16 @@ class SimpleModule implements Plugin<Project>
                 )
                 _project.publishing {
                     publications {
-                        libs(MavenPublication) {
+                        libs(MavenPublication) { pub ->
                             _project.tasks.each {
                                 if (it instanceof Jar &&
                                     (!it.name.equals("schemasJar") || XmlBeans.isApplicable(_project)))
-                                        artifact it
+                                {
+                                    pub.artifact(it)
+                                }
                             }
                         }
                     }
-
 
                     if (_project.hasProperty('doPublishing'))
                     {
