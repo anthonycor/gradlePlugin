@@ -1,5 +1,7 @@
 package org.labkey.gradle.util
 
+import org.apache.commons.io.FilenameUtils
+
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -18,7 +20,7 @@ class ModuleFinder extends SimpleFileVisitor<Path>
     ModuleFinder(File rootDir, String pattern)
     {
         this.rootDir = rootDir
-        matcher = FileSystems.getDefault().getPathMatcher("glob:"+ pattern)
+        matcher = FileSystems.getDefault().getPathMatcher("glob:"+ FilenameUtils.separatorsToSystem(pattern))
     }
 
     ModuleFinder(File rootDir, String pattern, List<String> excluded)
