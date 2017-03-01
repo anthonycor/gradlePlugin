@@ -96,6 +96,7 @@ class ModuleDistribution extends DefaultTask
         if (distributionDir == null && subDirName != null)
             distributionDir = project.file("${distExtension.dir}/${subDirName}")
 
+        new File(distExtension.extraSrcDir).deleteDir()
         // because we gather up all modules put into this directory, we always want to start clean
         // TODO we can probably avoid using this altogether by just copying from the distribution configuration
         new File(distExtension.modulesDir).deleteDir()
@@ -175,12 +176,13 @@ class ModuleDistribution extends DefaultTask
 
     private void tarArchives()
     {
-
+        String archiveFileName
         if (makeDistribution)
         {
             StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
 
-            ant.tar(tarfile: "${distributionDir}/${archivePrefix}.tar.gz",
+            archiveFileName = "${distributionDir}/${archivePrefix}.tar.gz"
+            ant.tar(tarfile: archiveFileName,
                     longfile: "gnu",
                     compression: "gzip") {
                 tarfileset(dir: staging.webappDir,
@@ -233,7 +235,8 @@ class ModuleDistribution extends DefaultTask
         }
         else
         {
-            ant.tar(tarfile: "${distributionDir}/${versionPrefix}.tar.gz",
+            archiveFileName = "${distributionDir}/${versionPrefix}.tar.gz"
+            ant.tar(tarfile: archiveFileName,
                     longfile: "gnu",
                     compression: "gzip") {
                 tarfileset(dir: distExtension.modulesDir,
@@ -242,13 +245,18 @@ class ModuleDistribution extends DefaultTask
                 }
             }
         }
+        project.artifacts {
+            publication new File(archiveFileName)
+        }
     }
 
     private void zipArchives()
     {
+        String archiveFileName
         if (makeDistribution)
         {
-            ant.zip(destfile: "${distributionDir}/${archivePrefix}.zip") {
+            archiveFileName = "${distributionDir}/${archivePrefix}.zip"
+            ant.zip(destfile: archiveFileName) {
                 zipfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
@@ -303,12 +311,16 @@ class ModuleDistribution extends DefaultTask
         }
         else
         {
-            ant.zip(destfile: "${distributionDir}/${versionPrefix}.zip") {
+            archiveFileName = "${distributionDir}/${versionPrefix}.zip"
+            ant.zip(destfile: archiveFileName) {
                 zipfileset(dir: distExtension.modulesDir,
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
             }
+        }
+        project.artifacts {
+            publication new File(archiveFileName)
         }
     }
 
