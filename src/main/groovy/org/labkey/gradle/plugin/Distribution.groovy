@@ -48,7 +48,9 @@ class Distribution implements Plugin<Project>
                 project.configurations.distribution.dependencies.each {
                     if (it instanceof DefaultProjectDependency)
                     {
-                        distTask.dependsOn(((DefaultProjectDependency) it).dependencyProject.tasks.module)
+                        DefaultProjectDependency dep = (DefaultProjectDependency) it
+                        if (dep.dependencyProject.tasks.findByName("module") != null)
+                            distTask.dependsOn(dep.dependencyProject.tasks.module)
                     }
                 }
             }

@@ -1,5 +1,7 @@
 package org.labkey.gradle.util
 
+import org.gradle.api.Project
+
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 /**
@@ -47,5 +49,10 @@ class ModuleFinder extends SimpleFileVisitor<Path>
             find(dir)
             return FileVisitResult.CONTINUE
         }
+    }
+
+    static boolean isPotentialModule(Project p)
+    {
+        return !p.name.startsWith(".") && !p.name.toLowerCase().contains("test") && !p.name.toLowerCase().equals("distributions")
     }
 }
