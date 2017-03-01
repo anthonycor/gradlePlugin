@@ -160,5 +160,17 @@ class LabKeyExtension
         externalDir = "${project.rootDir}/external"
         externalLibDir = "${externalDir}/lib"
     }
+
+    static Properties getBasePomProperties(String artifactPrefix, String description)
+    {
+        Properties pomProperties = new Properties()
+        pomProperties.put("ArtifactId", artifactPrefix)
+        pomProperties.put("Organization", "LabKey")
+        pomProperties.put("OrganizationURL", "http://www.labkey.org")
+        pomProperties.put("Description", description )
+        pomProperties.put("License", "The Apache Software License, Version 2.0")
+        pomProperties.put("LicenseURL", "http://www.apache.org/licenses/LICENSE-2.0.txt")
+        return pomProperties
+    }
 }
 

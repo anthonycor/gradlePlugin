@@ -25,26 +25,31 @@ class PomFile extends DefaultTask
                     asNode().get('artifactId').first().setValue((String) pomProperties.getProperty("ArtifactId", project.name))
                     // remove the tomcat dependencies with no version specified because we cannot know which version of tomcat is in use
                     List<Node> toRemove = []
-                    asNode().dependencies.first().each {
-                        if ( it.get("groupId").first().value().first().equals("org.apache.tomcat") &&
-                             it.get("version").isEmpty())
-                            toRemove.add(it)
-                        if ( it.get('groupId').first().value().first().equals("org.labkey") && it.get('artifactId').first().value().first().equals("java"))
-                        {
-                            it.get('artifactId').first().setValue(['labkey-client-api'])
+                    def dependencies = asNode().dependencies
+                    if (!dependencies.isEmpty())
+                    {
+                        dependencies.first().each {
+                            if (it.get("groupId").first().value().first().equals("org.apache.tomcat") &&
+                                    it.get("version").isEmpty())
+                                toRemove.add(it)
+                            if (it.get('groupId').first().value().first().equals("org.labkey") && it.get('artifactId').first().value().first().equals("java"))
+                            {
+                                it.get('artifactId').first().setValue(['labkey-client-api'])
+                            }
                         }
-                    }
-                    toRemove.each {
-                        asNode().dependencies.first().remove(it)
-                    }
-                    // add in the dependencies from the external configuration as well
-                    def dependenciesNode = asNode().dependencies.first()
-                    project.configurations.external.dependencies.each {
-                        def depNode = dependenciesNode.appendNode("dependency")
-                        depNode.appendNode("groupId", it.group)
-                        depNode.appendNode("artifactId", it.name)
-                        depNode.appendNode("version", it.version)
-                        depNode.appendNode("scope", "compile")
+                        toRemove.each {
+                            asNode().dependencies.first().remove(it)
+                        }
+                        // FIXME it's possible to have external dependencies but no dependencies.
+                        // add in the dependencies from the external configuration as well
+                        def dependenciesNode = asNode().dependencies.first()
+                        project.configurations.external.dependencies.each {
+                            def depNode = dependenciesNode.appendNode("dependency")
+                            depNode.appendNode("groupId", it.group)
+                            depNode.appendNode("artifactId", it.name)
+                            depNode.appendNode("version", it.version)
+                            depNode.appendNode("scope", "compile")
+                        }
                     }
                     if (pomProperties.getProperty("Organization") != null || pomProperties.getProperty("OrganizationURL") != null)
                     {

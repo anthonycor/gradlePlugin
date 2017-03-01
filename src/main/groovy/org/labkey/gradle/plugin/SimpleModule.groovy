@@ -448,7 +448,7 @@ class SimpleModule implements Plugin<Project>
                         }
                     }
 
-                    if (_project.hasProperty('doPublishing'))
+                    if (BuildUtils.shouldPublish(_project))
                     {
                         _project.artifactoryPublish {
                             _project.tasks.each {

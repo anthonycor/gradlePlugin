@@ -3,9 +3,10 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.DeleteSpec
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
-import org.gradle.api.tasks.Delete
+import org.gradle.api.publish.maven.MavenPublication
+import org.labkey.gradle.task.*
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 class Distribution implements Plugin<Project>
@@ -24,6 +25,8 @@ class Distribution implements Plugin<Project>
 
         addConfigurations(project)
         addTaskDependencies(project)
+        if (BuildUtils.shouldPublish(project))
+            addArtifacts(project)
     }
 
     private void addConfigurations(Project project)
@@ -31,6 +34,7 @@ class Distribution implements Plugin<Project>
         project.configurations
                 {
                     distribution
+                    publication
                 }
     }
 
@@ -68,6 +72,59 @@ class Distribution implements Plugin<Project>
             project.dependencies.add("distribution", it)
         }
     }
+
+    private void addArtifacts(Project project)
+    {
+        project.apply plugin: 'maven'
+        project.apply plugin: 'maven-publish'
+
+        project.afterEvaluate {
+            String artifactId = getArtifactId(project)
+            project.task("pomFile",
+                    group: GroupNames.PUBLISHING,
+                    description: "create the pom file for this project",
+                    type: PomFile,
+                    {PomFile pomFile ->
+                        pomFile.pomProperties = LabKeyExtension.getBasePomProperties(artifactId, "")
+                    }
+            )
+            project.publishing {
+                publications {
+                    distributions(MavenPublication) { pub ->
+                        project.configurations.publication.files {
+                            File file ->
+                                pub.artifactId(artifactId)
+                                pub.artifact(file)
+                        }
+                    }
+                }
+
+                project.artifactoryPublish {
+                    project.tasks.each {
+                        if (it instanceof ModuleDistribution ||
+                                it instanceof ClientApiDistribution ||
+                                it instanceof SourceDistribution ||
+                                it instanceof PipelineConfigDistribution)
+                        {
+                            dependsOn it
+                        }
+                    }
+                    dependsOn project.tasks.pomFile
+                    publications('distributions')
+                }
+            }
+        }
+    }
+
+    private String getArtifactId(Project project)
+    {
+        if (project.dist.artifactId != null)
+            return project.dist.artifactId
+        else if (project.tasks.findByName("distribution") != null)
+            return project.tasks.distribution.subDirName
+        return project.name
+    }
+
 }
 
 
@@ -82,6 +139,8 @@ class DistributionExtension
     String installerSrcDir = "${project.rootProject.projectDir}/server/installer"
     String extraSrcDir = "${project.rootProject.buildDir}/distExtra"
     String archiveDataDir = "${installerSrcDir}/archivedata"
+    String artifactId
+    String description
 
     private Project project
 
