@@ -53,6 +53,6 @@ class ModuleFinder extends SimpleFileVisitor<Path>
 
     static boolean isPotentialModule(Project p)
     {
-        return !p.name.startsWith(".") && !p.name.toLowerCase().contains("test") && !p.name.toLowerCase().equals("distributions")
+        return !p.name.startsWith(".") && !p.name.toLowerCase().equals("test") && !p.path.toLowerCase().contains(":distributions")
     }
 }
