@@ -121,7 +121,7 @@ class BuildUtils
                     String prefix = convertDirToPath(rootDir, directory)
                     settings.include directory.listFiles().findAll { File f ->
                         // exclude non-directories, explicitly excluded names, and directories beginning with a .
-                        f.isDirectory() && !excludedModules.contains(f.getName()) && !(f =~ ".*/\\..*") && !(f =~ "^\\..*")
+                        f.isDirectory() && !excludedModules.contains(f.getName()) &&  !(f.getName() =~ "^\\..*")
                     }.collect {
                         (String) "${prefix}:${it.getName()}"
                     }.toArray(new String[0])
@@ -381,5 +381,10 @@ class BuildUtils
         repoKey += "-local"
 
         return repoKey
+    }
+
+    static Boolean shouldPublish(project)
+    {
+        return project.hasProperty("doPublishing")
     }
 }
