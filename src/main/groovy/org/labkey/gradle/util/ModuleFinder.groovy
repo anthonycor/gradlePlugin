@@ -14,7 +14,7 @@ class ModuleFinder extends SimpleFileVisitor<Path>
     private File rootDir
     private List<String> excluded = []
 
-    private static List<String> NON_MODULE_DIRS = ["build", "buildSrc", "dist", "external", "gradle", "intellijBuild", "sampledata", "schemas", "test_secure", "tools", "vagrant", "webapps"]
+    private static List<String> NON_MODULE_DIRS = ["build", "buildSrc", "dist", "external", "intellijBuild", "sampledata", "schemas", "test_secure", "tools", "vagrant", "webapps"]
 
     ModuleFinder(File rootDir, String pattern)
     {
