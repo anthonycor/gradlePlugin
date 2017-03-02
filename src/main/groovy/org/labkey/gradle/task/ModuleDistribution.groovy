@@ -95,6 +95,7 @@ class ModuleDistribution extends DefaultTask
         if (distributionDir == null && subDirName != null)
             distributionDir = project.file("${distExtension.dir}/${subDirName}")
 
+        installerBuildDir.mkdirs()
         distributionDir.deleteDir()
         new File(distExtension.extraSrcDir).deleteDir()
         // because we gather up all modules put into this directory, we always want to start clean
