@@ -388,4 +388,9 @@ class BuildUtils
     {
         return project.hasProperty("doPublishing")
     }
+
+    static Boolean shouldPublishDistribution(project)
+    {
+        return project.hasProperty("doDistributionPublish")
+    }
 }
