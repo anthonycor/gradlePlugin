@@ -31,9 +31,7 @@ class ModuleFinder extends SimpleFileVisitor<Path>
     // Compares the glob pattern against the directory name.
     void find(Path directory)
     {
-        println("Checking ${directory} for match")
         if (directory != null && matcher.matches(directory)) {
-            println("MATCH FOUND in ${directory}")
             modulePaths += BuildUtils.convertDirToPath(rootDir, directory.toFile())
         }
     }
@@ -41,12 +39,10 @@ class ModuleFinder extends SimpleFileVisitor<Path>
 
     @Override
     FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        println("in preVisitDirectory: Considering ${dir.getFileName()}")
         if (dir.getFileName().toString().startsWith(".") ||
                 excluded.contains(dir.getFileName().toString()) ||
                 NON_MODULE_DIRS.contains(dir.getFileName().toString()))
         {
-            println("Skipping ${dir.getFileName()}")
             return FileVisitResult.SKIP_SUBTREE
         }
         else

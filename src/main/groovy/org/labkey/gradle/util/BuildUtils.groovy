@@ -107,7 +107,6 @@ class BuildUtils
         moduleDirs.each { String path ->
             if (path.contains("*"))
             {
-                println("Found a glob in path ${path}")
                 ModuleFinder finder = new ModuleFinder(rootDir, path, excludedModules)
                 Files.walkFileTree(Paths.get(rootDir.getAbsolutePath()), finder)
                 finder.modulePaths.each{String modulePath ->
