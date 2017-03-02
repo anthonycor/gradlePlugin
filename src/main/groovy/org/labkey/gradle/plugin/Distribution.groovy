@@ -25,8 +25,8 @@ class Distribution implements Plugin<Project>
 
         addConfigurations(project)
         addTaskDependencies(project)
-        if (BuildUtils.shouldPublish(project))
-            addArtifacts(project)
+//        if (BuildUtils.shouldPublish(project))
+//            addArtifacts(project)
     }
 
     private void addConfigurations(Project project)
