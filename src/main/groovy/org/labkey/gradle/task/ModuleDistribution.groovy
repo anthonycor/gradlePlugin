@@ -4,7 +4,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
@@ -57,7 +56,7 @@ class ModuleDistribution extends DefaultTask
     Boolean includeMassSpecBinaries = false
     String versionPrefix = null
     String subDirName
-    @OutputDirectory
+
     File installerBuildDir
 
     File distributionDir
@@ -96,6 +95,7 @@ class ModuleDistribution extends DefaultTask
         if (distributionDir == null && subDirName != null)
             distributionDir = project.file("${distExtension.dir}/${subDirName}")
 
+        distributionDir.deleteDir()
         new File(distExtension.extraSrcDir).deleteDir()
         // because we gather up all modules put into this directory, we always want to start clean
         // TODO we can probably avoid using this altogether by just copying from the distribution configuration
