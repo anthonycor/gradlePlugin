@@ -46,6 +46,7 @@ class ModuleFinder extends SimpleFileVisitor<Path>
                 excluded.contains(dir.getFileName().toString()) ||
                 NON_MODULE_DIRS.contains(dir.getFileName().toString()))
         {
+            println("Skipping ${dir.getFileName()}")
             return FileVisitResult.SKIP_SUBTREE
         }
         else
