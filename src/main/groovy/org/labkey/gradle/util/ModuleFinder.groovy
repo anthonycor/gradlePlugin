@@ -29,8 +29,11 @@ class ModuleFinder extends SimpleFileVisitor<Path>
     }
 
     // Compares the glob pattern against the directory name.
-    void find(Path directory) {
+    void find(Path directory)
+    {
+        println("Checking ${directory} for match")
         if (directory != null && matcher.matches(directory)) {
+            println("MATCH FOUND in ${directory}")
             modulePaths += BuildUtils.convertDirToPath(rootDir, directory.toFile())
         }
     }
