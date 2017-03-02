@@ -41,8 +41,9 @@ class ModuleFinder extends SimpleFileVisitor<Path>
 
     @Override
     FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        println("in preVisitDirectory: Considering ${dir.getFileName()}")
         if (dir.getFileName().toString().startsWith(".") ||
-                excluded.contains(dir.getFileName()) ||
+                excluded.contains(dir.getFileName().toString()) ||
                 NON_MODULE_DIRS.contains(dir.getFileName().toString()))
         {
             return FileVisitResult.SKIP_SUBTREE
