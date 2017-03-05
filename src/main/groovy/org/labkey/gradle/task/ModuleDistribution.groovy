@@ -88,7 +88,7 @@ class ModuleDistribution extends DefaultTask
         return archivePrefix
     }
 
-    private File getModulesDir()
+    public File getModulesDir()
     {
         return new File(project.buildDir, "modules")
     }
@@ -134,6 +134,13 @@ class ModuleDistribution extends DefaultTask
     private void packageInstallers()
     {
         if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS) {
+            project.copy {
+                CopySpec copy ->
+                    copy.from(getModulesDir())
+                    copy.into("${project.rootProject.buildDir}/distModules")
+                    copy.include("*.module")
+            }
+
             project.exec
             { ExecSpec spec ->
                 spec.commandLine FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/nsis2.46/makensis.exe")
