@@ -215,10 +215,6 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
-                tarfileset(dir: distExtension.extraSrcDir,
-                        prefix: "${archivePrefix}/") {
-                    include(name: "**/*")
-                }
                 tarfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib") {
                     // this exclusion is necessary because for some reason when buildFromSource=false,
                     // the tomcat bootstrap jar is included in the staged libraries and the LabKey boostrap jar is not.
@@ -248,6 +244,8 @@ class ModuleDistribution extends DefaultTask
                 tarfileset(dir: project.buildDir,
                         prefix: getArchivePrefix()) {
                     include(name: "VERSION")
+                    include(name: "labkeywebapp/**")
+                    include(name: "nlp/**")
                 }
                 tarfileset(dir: project.buildDir,
                         prefix: archivePrefix) {
@@ -283,10 +281,6 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
-                zipfileset(dir: distExtension.extraSrcDir,
-                        prefix: "${archivePrefix}/") {
-                    include(name: "**/*")
-                }
                 project.project(":server").configurations.tomcatJars.getFiles().collect({
                     tomcatJar ->
                         zipfileset(file: tomcatJar.path,
@@ -320,6 +314,8 @@ class ModuleDistribution extends DefaultTask
                 zipfileset(dir: "${project.buildDir}/",
                         prefix: "${archivePrefix}") {
                     include(name: "VERSION")
+                    include(name: "labkeywebapp/**")
+                    include(name: "nlp/**")
                 }
                 zipfileset(dir: "${project.buildDir}/",
                         prefix: "${archivePrefix}") {
@@ -355,7 +351,7 @@ class ModuleDistribution extends DefaultTask
     @OutputFile
     File getDistributionFile()
     {
-        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
+        File distExtraDir = new File(project.buildDir, DistributionExtension.DIST_FILE_DIR)
         return new File(distExtraDir,  DistributionExtension.DIST_FILE_NAME)
     }
 

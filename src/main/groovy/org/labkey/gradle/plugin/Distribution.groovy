@@ -155,14 +155,13 @@ class Distribution implements Plugin<Project>
 
 class DistributionExtension
 {
-    public static final String DIST_FILE_DIR = "distExtra/labkeywebapp/WEB-INF/classes"
+    public static final String DIST_FILE_DIR = "labkeywebapp/WEB-INF/classes"
     public static final String DIST_FILE_NAME = "distribution"
     public static final String VERSION_FILE_NAME = "VERSION"
 
     String dir = "${project.rootProject.projectDir}/dist"
     String modulesDir = "${project.rootProject.buildDir}/distModules"
     String installerSrcDir = "${project.rootProject.projectDir}/server/installer"
-    String extraSrcDir = "${project.rootProject.buildDir}/distExtra"
     String archiveDataDir = "${installerSrcDir}/archivedata"
     String artifactId
     String description
