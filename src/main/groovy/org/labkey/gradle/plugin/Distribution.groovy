@@ -11,6 +11,7 @@ import org.labkey.gradle.util.GroupNames
 
 class Distribution implements Plugin<Project>
 {
+    public static final String DISTRIBUTION_GROUP = "org.labkey.distribution"
     public static final String DIRECTORY = "distributions"
 
     static boolean isApplicable(Project project)
@@ -21,6 +22,7 @@ class Distribution implements Plugin<Project>
     @Override
     void apply(Project project)
     {
+        project.group = DISTRIBUTION_GROUP
         project.extensions.create("dist", DistributionExtension, project)
 
         addConfigurations(project)
@@ -34,7 +36,6 @@ class Distribution implements Plugin<Project>
         project.configurations
                 {
                     distribution
-                    publication
                 }
     }
 
@@ -87,16 +88,35 @@ class Distribution implements Plugin<Project>
                     description: "create the pom file for this project",
                     type: PomFile,
                     {PomFile pomFile ->
-                        pomFile.pomProperties = LabKeyExtension.getBasePomProperties(artifactId, "")
+                        pomFile.artifactCategory = "distributions"
+                        pomFile.pomProperties = LabKeyExtension.getBasePomProperties(artifactId, project.dist.description)
                     }
             )
             project.publishing {
                 publications {
                     distributions(MavenPublication) { pub ->
-                        project.configurations.publication.files {
-                            File file ->
-                                pub.artifactId(artifactId)
-                                pub.artifact(file)
+                        pub.artifactId(artifactId)
+                        project.tasks.each {
+                            if (it instanceof ModuleDistribution ||
+                                    it instanceof ClientApiDistribution ||
+                                    it instanceof SourceDistribution ||
+                                    it instanceof PipelineConfigDistribution)
+                            {
+                                it.outputs.files.each {File file ->
+                                    pub.artifact(file)
+                                    {
+                                        String fileName = file.getName()
+                                        if (fileName.endsWith("gz"))
+                                            extension "tar.gz"
+                                        if (fileName.contains("-src."))
+                                            classifier "src"
+                                        else if (fileName.contains(ClientApiDistribution.XML_SCHEMA_DOC))
+                                            classifier ClientApiDistribution.SCHEMA_DOC_CLASSIFIER
+                                        else if (fileName.contains(ClientApiDistribution.CLIENT_API_JSDOC))
+                                            classifier ClientApiDistribution.JSDOC_CLASSIFIER
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -123,7 +143,10 @@ class Distribution implements Plugin<Project>
         if (project.dist.artifactId != null)
             return project.dist.artifactId
         else if (project.tasks.findByName("distribution") != null)
-            return project.tasks.distribution.subDirName
+        {
+            if (project.tasks.distribution instanceof ModuleDistribution)
+                return ((ModuleDistribution) project.tasks.distribution).getArtifactId()
+        }
         return project.name
     }
 

@@ -4,6 +4,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.DistributionExtension
@@ -15,39 +16,6 @@ import java.nio.file.Paths
 
 class ModuleDistribution extends DefaultTask
 {
-    public static final String ALL_DISTRIBUTIONS = "all"
-
-    public static final String[] STANDARD_MODULES = [
-            ':server:internal',
-            ':server:api',
-            ':server:modules:announcements',
-            ':server:modules:audit',
-            ':server:modules:bigiron',
-            ':server:modules:core',
-            ':server:modules:dataintegration',
-            ':server:modules:elisa',
-            ':server:modules:elispotassay',
-            ':server:modules:experiment',
-            ':server:customModules:fcsexpress',
-            ':server:modules:filecontent',
-            ':server:modules:flow',
-            ':server:modules:issues',
-            ':server:modules:list',
-            ':server:modules:luminex',
-            ':server:modules:microarray',
-            ':server:modules:ms1',
-            ':server:modules:ms2',
-            ':server:modules:nab',
-            ':server:modules:pipeline',
-            ':server:modules:query',
-            ':server:modules:search',
-            ':server:modules:study',
-            ':server:modules:survey',
-            ':server:customModules:targetedms',
-            ':server:modules:visualization',
-            ':server:modules:wiki'
-    ]
-
     Boolean includeWindowsInstaller = false
     Boolean includeZipArchive = false
     Boolean includeTarGZArchive = false
@@ -56,8 +24,7 @@ class ModuleDistribution extends DefaultTask
     Boolean includeMassSpecBinaries = false
     String versionPrefix = null
     String subDirName
-
-    File installerBuildDir
+    String artifactName
 
     File distributionDir
 
@@ -70,7 +37,27 @@ class ModuleDistribution extends DefaultTask
         distExtension = project.extensions.findByType(DistributionExtension.class)
 
         this.dependsOn(project.project(":server").tasks.stageTomcatJars)
-        installerBuildDir = new File("${project.rootDir}/build/installer/${project.name}")
+    }
+
+    File getDistributionDir()
+    {
+        if (distributionDir == null && subDirName != null)
+            distributionDir = project.file("${distExtension.dir}/${subDirName}")
+        return distributionDir
+    }
+
+    @OutputFiles
+    List<File> getDistFiles()
+    {
+        List<File> distFiles = new ArrayList<>()
+
+        if (includeTarGZArchive)
+            distFiles.add(new File(getTarArchivePath()))
+        if (includeZipArchive)
+            distFiles.add(new File(getZipArchivePath()))
+        if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS)
+            distFiles.add(new File(getDistributionDir(), getWindowsInstallerName()))
+        return distFiles
     }
 
     @TaskAction
@@ -85,17 +72,24 @@ class ModuleDistribution extends DefaultTask
 
     }
 
-    private void init()
+    private String getVersionPrefix()
     {
         if (versionPrefix == null)
             versionPrefix = "Labkey${project.installerVersion}${extraFileIdentifier}"
+        return versionPrefix
+    }
 
-        archivePrefix = "${versionPrefix}-bin"
+    private String getArchivePrefix()
+    {
+        if (archivePrefix == null)
+            archivePrefix =  "${getVersionPrefix()}-bin"
+        return archivePrefix
+    }
 
-        if (distributionDir == null && subDirName != null)
-            distributionDir = project.file("${distExtension.dir}/${subDirName}")
-
-        installerBuildDir.mkdirs()
+    private void init()
+    {
+        // FIXME why is it necessary to do this mkdirs?
+        project.buildDir.mkdirs()
         distributionDir.deleteDir()
         new File(distExtension.extraSrcDir).deleteDir()
         // because we gather up all modules put into this directory, we always want to start clean
@@ -133,7 +127,7 @@ class ModuleDistribution extends DefaultTask
         { CopySpec copy ->
             copy.from("${project.rootProject.projectDir}/webapps")
             copy.include("labkey.xml")
-            copy.into(installerBuildDir)
+            copy.into(project.buildDir)
             copy.filter({ String line ->
                 return PropertiesUtils.replaceProps(line, copyProps, true)
             })
@@ -155,10 +149,10 @@ class ModuleDistribution extends DefaultTask
 
             project.copy
             { CopySpec copy ->
-                copy.from("${installerBuildDir}/..") // makensis puts the installer into build/installer without the project name subdirectory
+                copy.from("${project.buildDir}/..") // makensis puts the installer into build/installer without the project name subdirectory
                 copy.include("Setup_includeJRE.exe")
-                copy.into(distributionDir)
-                copy.rename("Setup_includeJRE.exe", "${versionPrefix}-Setup.exe")
+                copy.into(getDistributionDir())
+                copy.rename("Setup_includeJRE.exe", getWindowsInstallerName())
             }
         }
     }
@@ -175,15 +169,46 @@ class ModuleDistribution extends DefaultTask
         }
     }
 
+    private String getWindowsInstallerName()
+    {
+        return "${getVersionPrefix()}-Setup.exe"
+    }
+
+    String getArtifactId()
+    {
+        return subDirName
+    }
+
+    String getArtifactName()
+    {
+        if (artifactName == null)
+        {
+            if (makeDistribution)
+                artifactName = getArchivePrefix()
+            else
+                artifactName = getVersionPrefix()
+        }
+        return artifactName
+    }
+
+    private String getTarArchivePath()
+    {
+        return "${getDistributionDir()}/${getArtifactName()}.tar.gz"
+    }
+
+    private String getZipArchivePath()
+    {
+        return "${getDistributionDir()}/${getArtifactName()}.zip"
+    }
+
     private void tarArchives()
     {
-        String archiveFileName
+        String archivePrefix = getArchivePrefix()
         if (makeDistribution)
         {
             StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
 
-            archiveFileName = "${distributionDir}/${archivePrefix}.tar.gz"
-            ant.tar(tarfile: archiveFileName,
+            ant.tar(tarfile: getTarArchivePath(),
                     longfile: "gnu",
                     compression: "gzip") {
                 tarfileset(dir: staging.webappDir,
@@ -218,17 +243,17 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/pipeline-lib") {
                 }
 
-                tarfileset(file: "${installerBuildDir}/manual-upgrade.sh", prefix: archivePrefix, mode: 744)
+                tarfileset(file: "${project.buildDir}/manual-upgrade.sh", prefix: archivePrefix, mode: 744)
 
                 tarfileset(dir: distExtension.archiveDataDir,
                         prefix: archivePrefix) {
                     include(name: "README.txt")
                 }
-                tarfileset(dir: installerBuildDir,
-                        prefix: archivePrefix) {
+                tarfileset(dir: project.buildDir,
+                        prefix: getArchivePrefix()) {
                     include(name: "VERSION")
                 }
-                tarfileset(dir: installerBuildDir,
+                tarfileset(dir: project.buildDir,
                         prefix: archivePrefix) {
                     include(name: "labkey.xml")
                 }
@@ -236,8 +261,7 @@ class ModuleDistribution extends DefaultTask
         }
         else
         {
-            archiveFileName = "${distributionDir}/${versionPrefix}.tar.gz"
-            ant.tar(tarfile: archiveFileName,
+            ant.tar(tarfile: getTarArchivePath(),
                     longfile: "gnu",
                     compression: "gzip") {
                 tarfileset(dir: distExtension.modulesDir,
@@ -246,18 +270,15 @@ class ModuleDistribution extends DefaultTask
                 }
             }
         }
-        project.artifacts {
-            publication new File(archiveFileName)
-        }
+
     }
 
     private void zipArchives()
     {
-        String archiveFileName
+        String archivePrefix = this.getArchivePrefix()
         if (makeDistribution)
         {
-            archiveFileName = "${distributionDir}/${archivePrefix}.zip"
-            ant.zip(destfile: archiveFileName) {
+            ant.zip(destfile: getZipArchivePath()) {
                 zipfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
@@ -300,11 +321,11 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}") {
                     include(name: "README.txt")
                 }
-                zipfileset(dir: "${installerBuildDir}/",
+                zipfileset(dir: "${project.buildDir}/",
                         prefix: "${archivePrefix}") {
                     include(name: "VERSION")
                 }
-                zipfileset(dir: "${installerBuildDir}/",
+                zipfileset(dir: "${project.buildDir}/",
                         prefix: "${archivePrefix}") {
                     include(name: "labkey.xml")
                 }
@@ -312,17 +333,14 @@ class ModuleDistribution extends DefaultTask
         }
         else
         {
-            archiveFileName = "${distributionDir}/${versionPrefix}.zip"
-            ant.zip(destfile: archiveFileName) {
+            ant.zip(destfile: getZipArchivePath()) {
                 zipfileset(dir: distExtension.modulesDir,
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
             }
         }
-        project.artifacts {
-            publication new File(archiveFileName)
-        }
+
     }
 
     private void createDistributionFiles()
@@ -333,9 +351,9 @@ class ModuleDistribution extends DefaultTask
         project.copy({CopySpec copy ->
             copy.from(distExtension.archiveDataDir)
             copy.include "manual-upgrade.sh"
-            copy.into installerBuildDir
+            copy.into project.buildDir
         })
-        project.ant.fixcrlf (srcdir: installerBuildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
+        project.ant.fixcrlf (srcdir: project.buildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
     }
 
 
@@ -349,6 +367,6 @@ class ModuleDistribution extends DefaultTask
 
     private void writeVersionFile()
     {
-        Files.write(Paths.get(installerBuildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
+        Files.write(Paths.get(project.buildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
     }
 }

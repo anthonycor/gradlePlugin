@@ -15,7 +15,10 @@ class PomFile extends DefaultTask
     Properties pomProperties = null
 
     @OutputFile
-    File pomFile = new File(project.buildDir, "publications/${artifactCategory}/pom-default.xml")
+    File getPomFile()
+    {
+        return new File(project.buildDir, "publications/${artifactCategory}/pom-default.xml")
+    }
 
     @TaskAction
     void writePomFile()
@@ -73,6 +76,6 @@ class PomFile extends DefaultTask
                         licenseNode.appendNode("distribution", "repo")
                     }
                 }
-            }.writeTo(pomFile)
+            }.writeTo(getPomFile())
     }
 }
