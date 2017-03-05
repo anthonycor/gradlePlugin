@@ -2,18 +2,18 @@ package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 
 class ClientApiDistribution extends DefaultTask
 {
-    @OutputDirectory
+    public static final String CLIENT_API_JSDOC = "ClientAPI-JavaScript-Docs"
+    public static final String JSDOC_CLASSIFIER = "jsdoc"
+    public static final String XML_SCHEMA_DOC = "ClientAPI-XMLSchema-Docs"
+    public static final String SCHEMA_DOC_CLASSIFIER = "schema-doc"
+
     File javaDir
-
-    @OutputDirectory
     File javascriptDir
-
-    @OutputDirectory
     File xmlDir
 
     String apiDocsBuildDir
@@ -21,7 +21,6 @@ class ClientApiDistribution extends DefaultTask
 
     ClientApiDistribution()
     {
-
         javaDir = new File(project.dist.dir, "/client-api/java")
         javascriptDir = new File(project.dist.dir, "/client-api/javascript")
         xmlDir = new File(project.dist.dir, "/client-api/XML")
@@ -34,7 +33,8 @@ class ClientApiDistribution extends DefaultTask
     @TaskAction
     void doAction()
     {
-        createJavaDocs()
+        // we do this already in the remoteapi/java project
+//        createJavaDocs()
 
         createClientApiDocs()
 
@@ -43,13 +43,25 @@ class ClientApiDistribution extends DefaultTask
         createTeamCityArchives()
     }
 
+//    @OutputFile
+    File getJavaClientApiFile()
+    {
+        return new File("${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java.zip")
+    }
+
+//    @OutputFile
+    File getJavaClientApiSrcFile()
+    {
+        return new File("${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java-src.zip")
+    }
+
     private void createJavaDocs()
     {
         project.copy({CopySpec copy ->
             copy.from project.project(":remoteapi:java").tasks.fatJar
             copy.into javaDir
         })
-        ant.zip(destfile: "${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java.zip") {
+        ant.zip(destfile: getJavaClientApiFile()) {
             zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir,
                     prefix: "doc")
             zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/lib",
@@ -60,39 +72,75 @@ class ClientApiDistribution extends DefaultTask
             zipfileset(file:"${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}")
         }
 
-        ant.zip(destfile: "${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java-src.zip") {
+        ant.zip(destfile: getJavaClientApiSrcFile()) {
             zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/src")
         }
     }
 
+    @OutputFiles
+   List<File> getJavascriptDocsFiles()
+    {
+        List<File> docsOutput = new ArrayList<>()
+        docsOutput.add(getJavascriptDocsFile("zip"))
+        docsOutput.add(getJavascriptDocsFile("tar.gz"))
+        return docsOutput
+    }
+
+    private File getJavascriptDocsFile(String extension)
+    {
+        return new File("${javascriptDir}/${getJavascriptDocsPrefix()}.${extension}")
+    }
+
+    private String getJavascriptDocsPrefix()
+    {
+        return "LabKey${project.installerVersion}-${CLIENT_API_JSDOC}"
+    }
+
     private void createClientApiDocs()
     {
-        ant.zip(destfile: "${javascriptDir}/LabKey${project.installerVersion}-ClientAPI-JavaScript-Docs.zip"){
-            zipfileset(dir: apiDocsBuildDir,
-                    prefix: "LabKey${project.installerVersion}-ClientAPI-JavaScript-Docs")
+        String prefix = getJavascriptDocsPrefix()
+        ant.zip(destfile: getJavascriptDocsFile("zip")){
+            zipfileset(dir: apiDocsBuildDir, prefix: prefix)
         }
 
-        ant.tar(destfile: "${javascriptDir}/LabKey${project.installerVersion}-ClientAPI-JavaScript-Docs.tar.gz",
+        ant.tar(destfile: getJavascriptDocsFile("tar.gz"),
                 longfile:"gnu",
                 compression: "gzip") {
-            tarfileset(dir: apiDocsBuildDir,
-                    prefix: "LabKey${project.installerVersion}-ClientAPI-JavaScript-Docs")
+            tarfileset(dir: apiDocsBuildDir, prefix: prefix)
         }
     }
+
+    @OutputFiles
+    List<File> getXsdDocsFiles()
+    {
+        List<File> docsOutput = new ArrayList<>()
+        docsOutput.add(getXsdDocsFile("zip"))
+        docsOutput.add(getXsdDocsFile("tar.gz"))
+        return docsOutput
+    }
+    private File getXsdDocsFile(String extension)
+    {
+        return new File("${xmlDir}/${getXsdDocsPrefix()}.${extension}")
+    }
+
+    private String getXsdDocsPrefix()
+    {
+        return "LabKey${project.installerVersion}-${XML_SCHEMA_DOC}"
+    }
+
 
     private void createXsdDocs()
     {
 
-        ant.zip(destfile: "${xmlDir}/LabKey${project.installerVersion}-ClientAPI-XMLSchema-Docs.zip") {
-            zipfileset(dir: xsdDocsBuildDir,
-                    prefix: "LabKey${project.installerVersion}-ClientAPI-XMLSchema-Docs")
+        String prefix = getXsdDocsPrefix()
+        ant.zip(destfile: getXsdDocsFile("zip")) {
+            zipfileset(dir: xsdDocsBuildDir, prefix: prefix)
         }
 
-        ant.tar(destfile: "${xmlDir}/LabKey${project.installerVersion}-ClientAPI-XMLSchema-Docs.tar.gz",
+        ant.tar(destfile: getXsdDocsFile("tar.gz"),
                 longfile:"gnu",
                 compression: "gzip") {
-            tarfileset(dir: xsdDocsBuildDir,
-                    prefix: "LabKey${project.installerVersion}-ClientAPI-XMLSchema-Docs")
+            tarfileset(dir: xsdDocsBuildDir, prefix: prefix)
         }
     }
 
@@ -103,11 +151,11 @@ class ClientApiDistribution extends DefaultTask
             zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir)
         }
 
-        ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-JavaScript-Docs.zip") {
+        ant.zip(destfile: "${project.dist.dir}/TeamCity-${CLIENT_API_JSDOC}.zip") {
             zipfileset(dir: apiDocsBuildDir)
         }
 
-        ant.zip(destfile: "${project.dist.dir}/TeamCity-ClientAPI-XMLSchema-Docs.zip") {
+        ant.zip(destfile: "${project.dist.dir}/TeamCity-${XML_SCHEMA_DOC}.zip") {
             zipfileset(dir: xsdDocsBuildDir)
         }
     }
