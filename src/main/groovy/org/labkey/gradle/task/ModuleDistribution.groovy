@@ -4,7 +4,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
@@ -57,6 +56,11 @@ class ModuleDistribution extends DefaultTask
             distFiles.add(new File(getZipArchivePath()))
         if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS)
             distFiles.add(new File(getDistributionDir(), getWindowsInstallerName()))
+        if (makeDistribution)
+        {
+            distFiles.add(getDistributionFile())
+            distFiles.add(getVersionFile())
+        }
         return distFiles
     }
 
@@ -347,7 +351,6 @@ class ModuleDistribution extends DefaultTask
         project.ant.fixcrlf (srcdir: project.buildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
     }
 
-    @OutputFile
     File getDistributionFile()
     {
         File distExtraDir = new File(project.buildDir, DistributionExtension.DIST_FILE_DIR)
@@ -359,7 +362,6 @@ class ModuleDistribution extends DefaultTask
         Files.write(getDistributionFile().toPath(), project.name.getBytes())
     }
 
-    @OutputFile
     File getVersionFile()
     {
         return new File(project.buildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME)
