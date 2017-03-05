@@ -162,7 +162,7 @@ class ModuleDistribution extends DefaultTask
         }
     }
 
-    private String getWindowsInstallerName()
+    String getWindowsInstallerName()
     {
         return "${getVersionPrefix()}-Setup.exe"
     }
