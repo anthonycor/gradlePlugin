@@ -375,7 +375,7 @@ class BuildUtils
 
     static String getRepositoryKey(Project project)
     {
-        String repoKey = project.path.contains(":distributions") ? "dist" : "libs"
+        String repoKey = shouldPublishDistribution(project) ? "dist" : "libs"
         if (project.version.endsWith("-SNAPSHOT"))
             repoKey += project.version.endsWith("-SNAPSHOT") ? "-snapshot" : "-release"
         repoKey += "-local"
