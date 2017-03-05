@@ -4,6 +4,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
@@ -12,7 +13,6 @@ import org.labkey.gradle.plugin.StagingExtension
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files
-import java.nio.file.Paths
 
 class ModuleDistribution extends DefaultTask
 {
@@ -88,10 +88,6 @@ class ModuleDistribution extends DefaultTask
 
     private void init()
     {
-        // FIXME why is it necessary to do this mkdirs?
-        project.buildDir.mkdirs()
-        distributionDir.deleteDir()
-        new File(distExtension.extraSrcDir).deleteDir()
         // because we gather up all modules put into this directory, we always want to start clean
         // TODO we can probably avoid using this altogether by just copying from the distribution configuration
         new File(distExtension.modulesDir).deleteDir()
@@ -356,17 +352,26 @@ class ModuleDistribution extends DefaultTask
         project.ant.fixcrlf (srcdir: project.buildDir, includes: "manual-upgrade.sh VERSION", eol: "unix")
     }
 
+    @OutputFile
+    File getDistributionFile()
+    {
+        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
+        return new File(distExtraDir,  DistributionExtension.DIST_FILE_NAME)
+    }
 
     private void writeDistributionFile()
     {
-        File distExtraDir = new File(project.rootProject.buildDir, DistributionExtension.DIST_FILE_DIR)
-        if (!distExtraDir.exists())
-            distExtraDir.mkdirs()
-        Files.write(Paths.get(distExtraDir.absolutePath, DistributionExtension.DIST_FILE_NAME), project.name.getBytes())
+        Files.write(getDistributionFile().toPath(), project.name.getBytes())
+    }
+
+    @OutputFile
+    File getVersionFile()
+    {
+        return new File(project.buildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME)
     }
 
     private void writeVersionFile()
     {
-        Files.write(Paths.get(project.buildDir.absolutePath, DistributionExtension.VERSION_FILE_NAME), ((String) project.version).getBytes())
+        Files.write(getVersionFile().toPath(), ((String) project.version).getBytes())
     }
 }
