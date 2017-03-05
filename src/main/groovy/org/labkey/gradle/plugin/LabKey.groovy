@@ -3,6 +3,8 @@ package org.labkey.gradle.plugin
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.labkey.gradle.util.ModuleFinder
+
 /**
  * Defines a set of extension properties for ease of reference. This also adds a two extensions
  * for some basic properties.
@@ -20,8 +22,12 @@ class LabKey implements Plugin<Project>
     void apply(Project project)
     {
         project.group = LABKEY_GROUP
-        project.subprojects { subproject ->
-            buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
+        project.subprojects { Project subproject ->
+            if (ModuleFinder.isDistributionProject(subproject))
+                subproject.buildDir = "${project.rootProject.buildDir}/installer/${subproject.name}"
+            else
+                subproject.buildDir = "${project.rootProject.buildDir}/modules/${subproject.name}"
+
         }
 
         addConfigurations(project)
@@ -167,7 +173,8 @@ class LabKeyExtension
         pomProperties.put("ArtifactId", artifactPrefix)
         pomProperties.put("Organization", "LabKey")
         pomProperties.put("OrganizationURL", "http://www.labkey.org")
-        pomProperties.put("Description", description )
+        if (description != null)
+            pomProperties.put("Description", description )
         pomProperties.put("License", "The Apache Software License, Version 2.0")
         pomProperties.put("LicenseURL", "http://www.apache.org/licenses/LICENSE-2.0.txt")
         return pomProperties

@@ -52,8 +52,14 @@ class ModuleFinder extends SimpleFileVisitor<Path>
         }
     }
 
+    // This method is called before all plugins are applied, so we cannot use a check for the Distribution Plugin here.
+    static boolean isDistributionProject(Project p)
+    {
+        return p.path.toLowerCase().contains(":distributions")
+    }
+
     static boolean isPotentialModule(Project p)
     {
-        return !p.name.startsWith(".") && !p.name.toLowerCase().equals("test") && !p.path.toLowerCase().contains(":distributions")
+        return !p.name.startsWith(".") && !p.name.toLowerCase().equals("test") && !isDistributionProject(p)
     }
 }
