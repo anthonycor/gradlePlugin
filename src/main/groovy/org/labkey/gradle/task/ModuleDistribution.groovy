@@ -63,8 +63,6 @@ class ModuleDistribution extends DefaultTask
     @TaskAction
     void doAction()
     {
-        init()
-
         if (makeDistribution)
             createDistributionFiles()
         gatherModules()
@@ -86,19 +84,18 @@ class ModuleDistribution extends DefaultTask
         return archivePrefix
     }
 
-    private void init()
+    private File getModulesDir()
     {
-        // because we gather up all modules put into this directory, we always want to start clean
-        // TODO we can probably avoid using this altogether by just copying from the distribution configuration
-        new File(distExtension.modulesDir).deleteDir()
+        return new File(project.buildDir, "modules")
     }
 
     private void gatherModules()
     {
+        File modulesDir = getModulesDir()
         project.copy
         { CopySpec copy ->
             copy.from { project.configurations.distribution }
-            copy.into distExtension.modulesDir
+            copy.into modulesDir
         }
     }
 
@@ -200,6 +197,7 @@ class ModuleDistribution extends DefaultTask
     private void tarArchives()
     {
         String archivePrefix = getArchivePrefix()
+        File modulesDir = getModulesDir()
         if (makeDistribution)
         {
             StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
@@ -211,7 +209,7 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
                 }
-                tarfileset(dir: distExtension.modulesDir,
+                tarfileset(dir: modulesDir,
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
@@ -258,7 +256,7 @@ class ModuleDistribution extends DefaultTask
             ant.tar(tarfile: getTarArchivePath(),
                     longfile: "gnu",
                     compression: "gzip") {
-                tarfileset(dir: distExtension.modulesDir,
+                tarfileset(dir: modulesDir,
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
@@ -270,6 +268,7 @@ class ModuleDistribution extends DefaultTask
     private void zipArchives()
     {
         String archivePrefix = this.getArchivePrefix()
+        File modulesDir = getModulesDir()
         if (makeDistribution)
         {
             ant.zip(destfile: getZipArchivePath()) {
@@ -277,7 +276,7 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
                 }
-                zipfileset(dir: distExtension.modulesDir,
+                zipfileset(dir: modulesDir,
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
@@ -326,7 +325,7 @@ class ModuleDistribution extends DefaultTask
         else
         {
             ant.zip(destfile: getZipArchivePath()) {
-                zipfileset(dir: distExtension.modulesDir,
+                zipfileset(dir: modulesDir,
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }

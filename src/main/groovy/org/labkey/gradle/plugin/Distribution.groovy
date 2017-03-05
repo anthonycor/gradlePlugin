@@ -160,7 +160,6 @@ class DistributionExtension
     public static final String VERSION_FILE_NAME = "VERSION"
 
     String dir = "${project.rootProject.projectDir}/dist"
-    String modulesDir = "${project.rootProject.buildDir}/distModules"
     String installerSrcDir = "${project.rootProject.projectDir}/server/installer"
     String archiveDataDir = "${installerSrcDir}/archivedata"
     String artifactId
