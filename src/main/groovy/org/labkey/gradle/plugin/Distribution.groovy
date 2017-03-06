@@ -99,7 +99,6 @@ class Distribution implements Plugin<Project>
                         project.tasks.each {
                             if (it instanceof ModuleDistribution ||
                                     it instanceof ClientApiDistribution ||
-                                    it instanceof SourceDistribution ||
                                     it instanceof PipelineConfigDistribution)
                             {
                                 it.outputs.files.each {File file ->
@@ -125,7 +124,6 @@ class Distribution implements Plugin<Project>
                     project.tasks.each {
                         if (it instanceof ModuleDistribution ||
                                 it instanceof ClientApiDistribution ||
-                                it instanceof SourceDistribution ||
                                 it instanceof PipelineConfigDistribution)
                         {
                             dependsOn it
