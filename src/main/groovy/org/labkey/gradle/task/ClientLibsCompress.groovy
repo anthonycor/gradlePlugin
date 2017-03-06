@@ -24,9 +24,6 @@ class ClientLibsCompress extends DefaultTask
 
     String yuiCompressorJar
 
-    // we leave this in here for now because release 17.1 doesn't have the property defined.
-    String yuiCompressorVersion="2.4.8a"
-
     // TODO get rid of this
     @OutputFile
     File upToDateFile = new File(workingDir, ".clientlibrary.uptodate")
@@ -39,7 +36,7 @@ class ClientLibsCompress extends DefaultTask
                 classname: "labkey.ant.ClientLibraryBuilder",
                 classpath: "${project.labkey.externalDir}/ant/labkeytasks/labkeytasks.jar"
         )
-        yuiCompressorJar = "${project.labkey.externalLibDir}/build/yuicompressor-${yuiCompressorVersion}.jar"
+        yuiCompressorJar = "${project.labkey.externalLibDir}/build/yuicompressor-${project.yuiCompressorVersion}.jar"
     }
 
     @InputFiles
