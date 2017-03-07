@@ -88,7 +88,7 @@ class ModuleDistribution extends DefaultTask
         return archivePrefix
     }
 
-    public File getModulesDir()
+    File getModulesDir()
     {
         return new File(project.buildDir, "modules")
     }
@@ -208,7 +208,6 @@ class ModuleDistribution extends DefaultTask
     private void tarArchives()
     {
         String archivePrefix = getArchivePrefix()
-        File modulesDir = getModulesDir()
         if (makeDistribution)
         {
             StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
@@ -220,7 +219,7 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
                 }
-                tarfileset(dir: modulesDir,
+                tarfileset(dir: getModulesDir(),
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
@@ -267,7 +266,7 @@ class ModuleDistribution extends DefaultTask
             ant.tar(tarfile: getTarArchivePath(),
                     longfile: "gnu",
                     compression: "gzip") {
-                tarfileset(dir: modulesDir,
+                tarfileset(dir: getModulesDir(),
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
@@ -279,7 +278,6 @@ class ModuleDistribution extends DefaultTask
     private void zipArchives()
     {
         String archivePrefix = this.getArchivePrefix()
-        File modulesDir = getModulesDir()
         if (makeDistribution)
         {
             ant.zip(destfile: getZipArchivePath()) {
@@ -287,7 +285,7 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
                 }
-                zipfileset(dir: modulesDir,
+                zipfileset(dir: getModulesDir(),
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
@@ -336,7 +334,7 @@ class ModuleDistribution extends DefaultTask
         else
         {
             ant.zip(destfile: getZipArchivePath()) {
-                zipfileset(dir: modulesDir,
+                zipfileset(dir: getModulesDir(),
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
