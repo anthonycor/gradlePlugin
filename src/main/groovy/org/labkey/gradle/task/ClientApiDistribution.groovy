@@ -2,6 +2,7 @@ package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 
@@ -34,7 +35,7 @@ class ClientApiDistribution extends DefaultTask
     void doAction()
     {
         // we do this already in the remoteapi/java project
-//        createJavaDocs()
+        createJavaDocs()
 
         createClientApiDocs()
 
@@ -43,13 +44,13 @@ class ClientApiDistribution extends DefaultTask
         createTeamCityArchives()
     }
 
-//    @OutputFile
+    @OutputFile
     File getJavaClientApiFile()
     {
         return new File("${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java.zip")
     }
 
-//    @OutputFile
+    @OutputFile
     File getJavaClientApiSrcFile()
     {
         return new File("${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java-src.zip")
