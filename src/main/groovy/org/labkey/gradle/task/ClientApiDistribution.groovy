@@ -94,7 +94,7 @@ class ClientApiDistribution extends DefaultTask
 
     private String getJavascriptDocsPrefix()
     {
-        return "LabKey${project.installerVersion}-${CLIENT_API_JSDOC}"
+        return "LabKey${project.rootProject.installerVersion}-${CLIENT_API_JSDOC}"
     }
 
     private void createClientApiDocs()
@@ -126,7 +126,7 @@ class ClientApiDistribution extends DefaultTask
 
     private String getXsdDocsPrefix()
     {
-        return "LabKey${project.installerVersion}-${XML_SCHEMA_DOC}"
+        return "LabKey${project.rootProject.installerVersion}-${XML_SCHEMA_DOC}"
     }
 
 

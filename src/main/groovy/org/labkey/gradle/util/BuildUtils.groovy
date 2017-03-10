@@ -177,7 +177,7 @@ class BuildUtils
         if (project.hasProperty("versioning"))
         {
             String branch = project.versioning.info.branchId
-            if (["trunk", "master", "develop"].contains(branch))
+            if (["trunk", "master", "develop", "none"].contains(branch))
                 return project.labkeyVersion
             else
             {

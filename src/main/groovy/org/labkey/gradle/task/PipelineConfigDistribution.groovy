@@ -19,7 +19,7 @@ class PipelineConfigDistribution extends DefaultTask
 
     private File getConfigFile(String extension)
     {
-        return new File("${project.dist.dir}/LabKey${project.installerVersion}-${CLASSIFIER}.${extension}")
+        return new File("${project.dist.dir}/LabKey${project.rootProject.installerVersion}-${CLASSIFIER}.${extension}")
     }
 
     @TaskAction

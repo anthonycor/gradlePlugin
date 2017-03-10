@@ -18,7 +18,7 @@ class ModuleDistribution extends DefaultTask
     Boolean includeWindowsInstaller = false
     Boolean includeZipArchive = false
     Boolean includeTarGZArchive = false
-    Boolean makeDistribution = true // set to false for the "extra modules"
+    Boolean makeDistribution = true // set to false for just an archive of modules
     String extraFileIdentifier = ""
     Boolean includeMassSpecBinaries = false
     String versionPrefix = null
@@ -77,7 +77,7 @@ class ModuleDistribution extends DefaultTask
     private String getVersionPrefix()
     {
         if (versionPrefix == null)
-            versionPrefix = "Labkey${project.installerVersion}${extraFileIdentifier}"
+            versionPrefix = "Labkey${project.rootProject.installerVersion}${extraFileIdentifier}"
         return versionPrefix
     }
 
@@ -96,6 +96,7 @@ class ModuleDistribution extends DefaultTask
     private void gatherModules()
     {
         File modulesDir = getModulesDir()
+        modulesDir.deleteDir()
         project.copy
         { CopySpec copy ->
             copy.from { project.configurations.distribution }
@@ -146,7 +147,7 @@ class ModuleDistribution extends DefaultTask
                 spec.commandLine FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/nsis2.46/makensis.exe")
                 spec.args = [
                         "/DPRODUCT_VERSION=\"${project.version}\"",
-                        "/DPRODUCT_REVISION=\"${project.vcsRevision}\"",
+                        "/DPRODUCT_REVISION=\"${project.rootProject.vcsRevision}\"",
                         FilenameUtils.separatorsToSystem("${distExtension.installerSrcDir}/labkey_installer.nsi")
                 ]
             }
