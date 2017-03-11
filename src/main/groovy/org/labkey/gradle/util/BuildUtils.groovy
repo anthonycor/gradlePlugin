@@ -145,13 +145,14 @@ class BuildUtils
     static List<String> whyNotBuildFromSource(Project project, String property)
     {
         List<String> reasons = []
-        if (!project.hasProperty(property))
+        String value = TeamCityExtension.getTeamCityProperty(project, property, null)
+        if (value == null)
         {
             reasons.add("Project does not have ${property} property")
             if (isSvnModule(project))
                 reasons.add("svn module without ${property} property set to true")
         }
-        else if (!Boolean.valueOf((String) project.property(property)))
+        else if (!Boolean.valueOf((String) value))
             reasons.add("${property} property is false")
 
         return reasons
