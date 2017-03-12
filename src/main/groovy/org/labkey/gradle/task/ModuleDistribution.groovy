@@ -90,7 +90,10 @@ class ModuleDistribution extends DefaultTask
 
     File getModulesDir()
     {
-        return new File(project.buildDir, "modules")
+        // we use a common directory to save on disk space for TeamCity.  This mimics the behavior of the ant build.
+        // (This is just a conjecture about why it continues to run out of space and not be able to copy files from one place to the other).
+        return new File("${project.rootProject.buildDir}/distModules")
+//        return new File(project.buildDir, "modules")
     }
 
     private void gatherModules()
@@ -135,12 +138,12 @@ class ModuleDistribution extends DefaultTask
     private void packageInstallers()
     {
         if (includeWindowsInstaller && SystemUtils.IS_OS_WINDOWS) {
-            project.copy {
-                CopySpec copy ->
-                    copy.from(getModulesDir())
-                    copy.into("${project.rootProject.buildDir}/distModules")
-                    copy.include("*.module")
-            }
+//            project.copy {
+//                CopySpec copy ->
+//                    copy.from(getModulesDir())
+//                    copy.into("${project.rootProject.buildDir}/distModules")
+//                    copy.include("*.module")
+//            }
 
             project.exec
             { ExecSpec spec ->
