@@ -3,8 +3,10 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.DeleteSpec
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.*
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -12,12 +14,6 @@ import org.labkey.gradle.util.GroupNames
 class Distribution implements Plugin<Project>
 {
     public static final String DISTRIBUTION_GROUP = "org.labkey.distribution"
-    public static final String DIRECTORY = "distributions"
-
-    static boolean isApplicable(Project project)
-    {
-        return project.file(DIRECTORY).exists()
-    }
 
     @Override
     void apply(Project project)
@@ -26,6 +22,7 @@ class Distribution implements Plugin<Project>
         project.extensions.create("dist", DistributionExtension, project)
 
         addConfigurations(project)
+        addTasks(project)
         addTaskDependencies(project)
         if (BuildUtils.shouldPublishDistribution(project))
             addArtifacts(project)
@@ -37,6 +34,29 @@ class Distribution implements Plugin<Project>
                 {
                     distribution
                 }
+    }
+
+    private void addTasks(Project project)
+    {
+        project.task(
+                'cleanDist',
+                group: GroupNames.DISTRIBUTION,
+                type: Delete,
+                description: "Removes the distributions directory ${project.dist.dir}",
+                { DeleteSpec spec ->
+                    spec.delete project.dist.dir
+                }
+        )
+        project.task(
+                'clean',
+                group: GroupNames.BUILD,
+                type: Delete,
+                description: "Removes the distribution build directory ${project.buildDir}",
+                {
+                    DeleteSpec spec ->
+                        spec.delete project.buildDir
+                }
+        )
     }
 
     private void addTaskDependencies(Project project)
