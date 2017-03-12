@@ -1,7 +1,6 @@
 package org.labkey.gradle.util
 
 import org.gradle.api.Project
-
 /**
  * Created by susanh on 12/19/16.
  */
@@ -93,18 +92,29 @@ class DatabaseProperties
         if (this.configProperties.getProperty(JDBC_DATABASE_PROP) == null)
         {
             if (bootstrap)
-                this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(BOOTSTRAP_DB_PROP))
+                this.configProperties.setProperty(JDBC_DATABASE_PROP, getConfigProperty(BOOTSTRAP_DB_PROP))
             else
-                this.configProperties.setProperty(JDBC_DATABASE_PROP, (String) this.configProperties.get(DEFAULT_DB_PROP))
+                this.configProperties.setProperty(JDBC_DATABASE_PROP, getConfigProperty(DEFAULT_DB_PROP))
         }
         if (this.configProperties.getProperty(JDBC_HOST_PROP) == null)
-            this.configProperties.setProperty(JDBC_HOST_PROP, (String) this.configProperties.get(DEFAULT_HOST_PROP))
+            this.configProperties.setProperty(JDBC_HOST_PROP, getConfigProperty(DEFAULT_HOST_PROP))
         if (this.configProperties.getProperty(JDBC_PORT_PROP) == null)
-            this.configProperties.setProperty(JDBC_PORT_PROP, (String) this.configProperties.get(DEFAULT_PORT_PROP))
+            this.configProperties.setProperty(JDBC_PORT_PROP, getConfigProperty(DEFAULT_PORT_PROP))
         if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
             this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
         if (doInterpolation)
             setJdbcUrl()
+    }
+
+    private String getConfigProperty(String property, defaultValue="")
+    {
+        if (this.configProperties.get(property) != null)
+            return (String) this.configProperties.get(property)
+        else
+        {
+            project.logger.info("Default database config property ${property} not defined; returning '${defaultValue}'.")
+            return defaultValue
+        }
     }
 
     void setJdbcUrl()
