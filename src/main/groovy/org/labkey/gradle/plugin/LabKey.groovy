@@ -1,10 +1,8 @@
 package org.labkey.gradle.plugin
 
-import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.labkey.gradle.util.ModuleFinder
-
 /**
  * Defines a set of extension properties for ease of reference. This also adds a two extensions
  * for some basic properties.
@@ -96,8 +94,7 @@ class LabKeyExtension
     private static enum  DeployMode {
 
         dev("Development"),
-        prod("Production"),
-        test("Test")
+        prod("Production")
 
         private String _displayName;
 
@@ -149,10 +146,7 @@ class LabKeyExtension
 
     static boolean isDevMode(Project project)
     {
-        String sysPropDevMode = System.getProperty("devMode")
-        if (!StringUtils.isEmpty(sysPropDevMode))
-            return Boolean.valueOf(sysPropDevMode)
-        return project.hasProperty(DEPLOY_MODE_PROPERTY) && DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY));
+        return project.hasProperty(DEPLOY_MODE_PROPERTY) && DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY))
     }
 
     void setDirectories(Project project)
