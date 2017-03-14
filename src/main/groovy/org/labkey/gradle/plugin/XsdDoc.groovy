@@ -17,24 +17,31 @@ class XsdDoc implements Plugin<Project>
         project.extensions.create("xsdDoc", XsdDocExtension)
         project.xsdDoc.root = "${project.rootDir}/${project.xsdDoc.root}"
         project.xsdDoc.outputDir = "${project.rootProject.buildDir}/client-api/xml-schemas/docs"
-        // FIXME we need a more flexible way to specify these.  Is this a subset of xsds or can we find all?
+        // This a subset of xsds because dependencies get pulled in.
         project.xsdDoc.xsdFiles = [
+                project.project(":schemas").file("clientLibrary.xsd"),
                 project.project(":schemas").file("apiTest.xsd"),
                 project.project(":schemas").file("cohorts.xsd"),
                 project.project(":schemas").file("datasets.xsd"),
                 project.project(":schemas").file("domainTemplate.xsd"),
+                project.project(":schemas").file("externalSchema.xsd"),
+                project.project(":schemas").file("folder.xsd"),
                 project.project(":schemas").file("folderType.xsd"),
                 project.project(":schemas").file("freezerProExport.xsd"),
+                project.project(":schemas").file("module.xsd"),
+                project.project(":schemas").file("pages.xsd"),
+                project.project(":schemas").file("participantGroups.xsd"),
+                project.project(":schemas").file("pipelineOptions.xsd"),
+                project.project(":schemas").file("qcStates.xsd"),
                 project.project(":schemas").file("query.xsd"),
-                project.project(":schemas").file("queryCustomView.xsd"),
                 project.project(":schemas").file("redcapExport.xsd"),
                 project.project(":schemas").file("report.xsd"),
-                project.project(":schemas").file("study.xsd"),
+                project.project(":schemas").file("reportProps.xsd"),
                 project.project(":schemas").file("studyDesign.xsd"),
-                project.project(":schemas").file("tableInfo.xsd"),
+                project.project(":schemas").file("studyViews.xsd"),
                 project.project(":schemas").file("view.xsd"),
-                project.project(":schemas").file("visitMap.xsd"),
-                project.project(":schemas").file("webpart.xsd")
+                project.project(":schemas").file("viewCategory.xsd"),
+                project.project(":schemas").file("visitMap.xsd")
         ]
         if (project.findProject(":server:modules:study") != null)
         {
