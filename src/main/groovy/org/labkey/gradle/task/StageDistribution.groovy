@@ -8,6 +8,8 @@ import org.gradle.api.file.RelativePath
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
+import java.nio.file.Paths
+
 class StageDistribution extends DefaultTask
 {
     File distributionFile = null
@@ -28,7 +30,14 @@ class StageDistribution extends DefaultTask
     @TaskAction
     void action()
     {
-        File distDir = project.hasProperty("distDir") ? new File(project.rootDir, (String) project.property("distDir")) : new File("${project.rootDir}/dist")
+        File distDir = new File(project.rootDir, "dist")
+        if (project.hasProperty("distDir"))
+        {
+            if (Paths.get(project.property('distDir')).isAbsolute())
+                distDir = new File(project.property('distDir'));
+            else
+                distDir = new File(project.rootDir, (String) project.property("distDir"))
+        }
         if (!distDir.exists())
             throw new GradleException("Distribution directory ${distDir} not found")
         String extension = project.hasProperty("distType") ? project.property('distType') : "tar.gz"
