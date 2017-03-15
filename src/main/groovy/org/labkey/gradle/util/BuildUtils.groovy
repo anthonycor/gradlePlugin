@@ -358,6 +358,10 @@ class BuildUtils
         {
             moduleName = "labkey-client-api"
         }
+        else if (projectPath.equals(":server:bootstrap"))
+        {
+            moduleName = "labkeyBootstrap"
+        }
         else
         {
             int index = projectPath.lastIndexOf(":")
