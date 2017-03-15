@@ -116,7 +116,7 @@ class Gwt implements Plugin<Project>
                                 project.file(outputDir).mkdirs()
                             }
 
-                            if (LabKeyExtension.isDevMode(project))
+                            if (!LabKeyExtension.isDevMode(project))
                             {
                                 java.doLast new GzipAction()
                             }
