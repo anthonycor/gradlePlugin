@@ -2,15 +2,13 @@ package org.labkey.gradle.util
 
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
-import org.labkey.gradle.plugin.Api
-import org.labkey.gradle.plugin.Jsp
-import org.labkey.gradle.plugin.TeamCityExtension
-import org.labkey.gradle.plugin.XmlBeans
+import org.labkey.gradle.plugin.*
 
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
 /**
  * Static utility methods and constants for use in the build and settings scripts.
  */
@@ -360,7 +358,7 @@ class BuildUtils
         }
         else if (projectPath.equals(":server:bootstrap"))
         {
-            moduleName = "labkeyBootstrap"
+            moduleName = ServerBootstrap.JAR_BASE_NAME
         }
         else
         {

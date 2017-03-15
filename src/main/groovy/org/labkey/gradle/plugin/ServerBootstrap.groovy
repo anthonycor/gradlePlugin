@@ -54,7 +54,7 @@ class ServerBootstrap implements Plugin<Project>
     private void addTasks(Project project)
     {
         project.jar {
-            baseName "labkeyBootstrap"
+            baseName ServerBootstrap.JAR_BASE_NAME
         }
         project.processResources.enabled = false
         project.jar.manifest {
