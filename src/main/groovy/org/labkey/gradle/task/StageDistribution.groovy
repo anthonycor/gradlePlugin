@@ -105,13 +105,11 @@ class StageDistribution extends DefaultTask
             spec.includeEmptyDirs = false
         })
 
-        println("About to copy tomcatJars to ${tomcatJarStagingDir} from ${distributionFile}");
         project.copy({ CopySpec spec ->
             spec.from isTar ? project.tarTree(distributionFile).files : project.zipTree(distributionFile).files
             spec.into tomcatJarStagingDir
             project.project(":server").configurations.tomcatJars.files.each {
                 File file ->
-                    println("Copying ${file} to ${tomcatJarStagingDir}")
                     spec.include file.getName()
             }
 
