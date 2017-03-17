@@ -25,21 +25,44 @@ class BuildUtils
     public static final String TEST_MODULES_DIR = "server/test/modules"
 
     // the set of modules required for minimal LabKey server functionality
-    public static final List<String> BASE_MODULES = [
-            ":server:bootstrap",
-            ":server:api",
-            ":schemas",
-            ":server:internal",
-            ':remoteapi:java',
-            ":server:modules:announcements",
-            ":server:modules:audit",
-            ":server:modules:core",
-            ":server:modules:experiment",
-            ":server:modules:filecontent",
-            ":server:modules:pipeline",
-            ":server:modules:query",
-            ":server:modules:wiki"
-    ]
+    public static final List<String> BASE_MODULES =
+            [
+                    ":server:bootstrap",
+                    ":server:api",
+                    ":schemas",
+                    ":server:internal",
+                    ':remoteapi:java',
+                    ":server:modules:announcements",
+                    ":server:modules:audit",
+                    ":server:modules:core",
+                    ":server:modules:experiment",
+                    ":server:modules:filecontent",
+                    ":server:modules:pipeline",
+                    ":server:modules:query",
+                    ":server:modules:wiki"
+            ]
+
+    public static final List<String> COMMUNITY_MODULES = BASE_MODULES +
+            [
+                    ':server:modules:bigiron',
+                    ':server:modules:dataintegration',
+                    ':server:modules:elisa',
+                    ':server:modules:elispotassay',
+                    ':server:customModules:fcsexpress',
+                    ':server:modules:flow',
+                    ':server:modules:issues',
+                    ':server:modules:list',
+                    ':server:modules:luminex',
+                    ':server:modules:microarray',
+                    ':server:modules:ms1',
+                    ':server:modules:ms2',
+                    ':server:modules:nab',
+                    ':server:modules:search',
+                    ':server:modules:study',
+                    ':server:modules:survey',
+                    ':server:customModules:targetedms',
+                    ':server:modules:visualization'
+            ]
 
     public static final List<String> EHR_MODULE_NAMES = [
             "EHR_ComplianceDB",
