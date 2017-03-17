@@ -93,30 +93,13 @@ class XsdDoc implements Plugin<Project>
                             "-d", "${project.rootProject.buildDir}/client-api/xml-schemas/docs", // output directory
                             "-nodialog", // do not launch the generator GUI
                             "-launchviewer=false", //  do not launch the default viewer for the output file
-                            //     Specify one or many data source XML files to be processed
-                            //     by the specified template. (Both local pathnames and URLs
-                            //     are allowed.)
-                            project.project(":schemas").file("apiTest.xsd").path,
-                            project.project(":server:modules:study").file("schemas/assayProvider.xsd").path,
-                            project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd").path,
-                            project.project(":server:modules:study").file("schemas/studyPipelineTasks.xsd").path,
-                            project.project(":server:modules:dataintegration").file("schemas/etl.xsd").path,
-                            project.project(":schemas").file("cohorts.xsd").path,
-                            project.project(":schemas").file("datasets.xsd").path,
-                            project.project(":schemas").file("domainTemplate.xsd").path,
-                            project.project(":schemas").file("folderType.xsd").path,
-                            project.project(":schemas").file("freezerProExport.xsd").path,
-                            project.project(":schemas").file("query.xsd").path,
-                            project.project(":schemas").file("queryCustomView.xsd").path,
-                            project.project(":schemas").file("redcapExport.xsd").path,
-                            project.project(":schemas").file("report.xsd").path,
-                            project.project(":schemas").file("study.xsd").path,
-                            project.project(":schemas").file("studyDesign.xsd").path,
-                            project.project(":schemas").file("tableInfo.xsd").path,
-                            project.project(":schemas").file("view.xsd").path,
-                            project.project(":schemas").file("visitMap.xsd").path,
-                            project.project(":schemas").file("webpart.xsd").path
                     ]
+                    //     Specify one or many data source XML files to be processed
+                    //     by the specified template. (Both local pathnames and URLs
+                    //     are allowed.)
+                    project.xsdDoc.xsdFiles.each {File file ->
+                        args += file.path
+                    }
                 }
         )
     }
