@@ -125,7 +125,7 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 description: "Stage modules and jar files into ${staging.dir}",
                 { Task task ->
-                    task.dependsOn stageApiTask
+//                    task.dependsOn stageApiTask
                     task.dependsOn stageModulesTask
                     task.dependsOn stageJspJarsTask
                     task.dependsOn stageJarsTask
