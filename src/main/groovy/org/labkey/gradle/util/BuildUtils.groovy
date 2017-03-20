@@ -311,7 +311,7 @@ class BuildUtils
                                            Closure specialParams)
     {
        addLabKeyDependency(parentProject, parentProjectConfig, depProjectPath, depProjectConfig, depVersion, depExtension,
-              !"jars".equals(parentProjectConfig) && !"jspJars".equals(parentProjectConfig),  specialParams)
+              !"jars".equals(parentProjectConfig),  specialParams)
     }
 
     static void addLabKeyDependency(Project parentProject,
