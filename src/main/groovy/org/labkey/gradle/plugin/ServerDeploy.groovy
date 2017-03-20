@@ -60,20 +60,6 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
-        // N.B. It might be preferable to not have the stageApiTask and declare
-        // dependencies or exclusions such that we can pull the :server:api transitive
-        // dependencies but exclude the jars from the tomcat lib.
-        Task stageApiTask = project.task(
-                "stageApi",
-                group: GroupNames.DEPLOY,
-                type: Copy,
-                description: "Stage the api jar files and the dependencies into ${staging.dir}",
-                {
-                    from project.project(":server:api").configurations.external
-                    into staging.libDir
-                }
-        )
-
         Task stageJarsTask = project.task(
                 "stageJars",
                 group: GroupNames.DEPLOY,
@@ -82,17 +68,6 @@ class ServerDeploy implements Plugin<Project>
                 {CopySpec copy ->
                     copy.from project.configurations.jars
                     copy.into staging.libDir
-                }
-        )
-
-        Task stageJspJarsTask = project.task(
-                "stageJspJars",
-                group: GroupNames.DEPLOY,
-                type: Copy,
-                description: "Stage select jsp jar files into ${staging.dir} ",
-                { CopySpec copy ->
-                    copy.from project.configurations.jspJars
-                    copy.into staging.jspDir
                 }
         )
 
@@ -125,9 +100,7 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 description: "Stage modules and jar files into ${staging.dir}",
                 { Task task ->
-//                    task.dependsOn stageApiTask
                     task.dependsOn stageModulesTask
-                    task.dependsOn stageJspJarsTask
                     task.dependsOn stageJarsTask
                     task.dependsOn stageTomcatJarsTask
                     task.dependsOn stageRemotePipelineJarsTask
@@ -228,6 +201,7 @@ class ServerDeploy implements Plugin<Project>
         Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
             project.delete path.toString()
         }
+        // FIXME this fails when cleaning after changing version but before publishing any artifacts.
         project.configurations.tomcatJars.files.each {File jarFile ->
             File libFile = new File("${project.tomcatDir}/lib/${jarFile.getName()}")
             if (libFile.exists())

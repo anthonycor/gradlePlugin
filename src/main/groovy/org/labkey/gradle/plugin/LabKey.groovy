@@ -46,7 +46,6 @@ class LabKey implements Plugin<Project>
                 {
                     modules
                     jars
-                    jspJars { transitive = false }
                     // we don't want this to be transitive because we use this configuration to
                     // clean out the tomcat/lib directory when we do a cleanDeploy and the transitive
                     // dependencies include some of the jars that are native to tomcat.
