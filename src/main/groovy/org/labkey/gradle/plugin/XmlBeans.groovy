@@ -6,6 +6,7 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.SchemaCompile
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 /**
@@ -36,8 +37,12 @@ class XmlBeans implements Plugin<Project>
         project.configurations
                 {
                     xmlbeans
-                    xmlSchema // N.B.  This cannot be called xmlBeans or it won't be found
+                    xmlSchema // Used for declaring artifacts
                 }
+        if (!project.name.equals("schemas"))
+        {
+            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: ":schemas", depProjectConfig: 'xmlSchema')
+        }
         project.dependencies
                 {
                     xmlbeans "org.apache.xmlbeans:xbean:${project.xmlbeansVersion}"
