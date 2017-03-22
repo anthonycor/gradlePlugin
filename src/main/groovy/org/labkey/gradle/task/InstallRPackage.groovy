@@ -7,6 +7,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.TeamCityExtension
+
 /**
  * Created by susanh on 3/20/17.
  */
@@ -62,8 +63,6 @@ class InstallRPackage extends DefaultTask
                 spec.standardOutput = stream
         }
         String output = stream.toString()
-        Boolean returnVal = output.contains("library ${name} is installed")
-        println("output is ${output}; returning ${returnVal} ")
         return output.contains("library ${name} is installed")
     }
 
