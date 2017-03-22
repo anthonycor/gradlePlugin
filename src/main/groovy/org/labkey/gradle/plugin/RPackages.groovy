@@ -21,13 +21,15 @@ class RPackages implements Plugin<Project>
 
     private static void addTasks(Project project)
     {
+        String rLibsUserPath = InstallRPackage.getRLibsUserPath(project)
         project.task("clean",
             type: Delete,
             group: GroupNames.DEPLOY,
-            description: "Delete user directory containing R libraries (${InstallRPackage.getRLibsUserPath(project)})",
+            description: "Delete user directory containing R libraries (${rLibsUserPath})",
                 {
                     DeleteSpec delete ->
-                        delete.delete InstallRPackage.getRLibsUserPath(project)
+                        if (rLibsUserPath != null)
+                            delete.delete rLibsUserPath
                 }
         )
         project.task("installRLabKey",
