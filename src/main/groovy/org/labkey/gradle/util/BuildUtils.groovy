@@ -107,6 +107,7 @@ class BuildUtils
      */
     static void includeTestModules(Settings settings, File rootDir)
     {
+        settings.include ":sampledata:qc"
         settings.include TEST_MODULE
         includeModules(settings, rootDir, [TEST_MODULES_DIR], [])
     }

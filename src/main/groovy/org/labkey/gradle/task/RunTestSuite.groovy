@@ -20,7 +20,8 @@ class RunTestSuite extends RunUiTest
 
         scanForTestClasses = false
         include "org/labkey/test/Runner.class"
-
+        if (project.findProject(":sampledata:qc") != null)
+            dependsOn(project.project(":sampledata:qc").tasks.jar)
         dependsOn(project.tasks.writeSampleDataFile)
 
         dependsOn(project.tasks.ensurePassword)
