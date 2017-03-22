@@ -11,14 +11,6 @@ class InstallRuminex extends InstallRPackage
     void copyFiles()
     {
         File rLibsUserDir= getInstallDir()
-        project.copy {
-            CopySpec copy ->
-                copy.from(project.rootProject.file('remoteapi/r/test'))
-                copy.into(rLibsUserDir)
-                copy.include("listArchive.zip")
-                copy.include("vignette.R")
-                copy.include("instwin.r")
-        }
         installRPackage("install-ruminex-dependencies.R")
         project.copy {
             CopySpec copy ->
