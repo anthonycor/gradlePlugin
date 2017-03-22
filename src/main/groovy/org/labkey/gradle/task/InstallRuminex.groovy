@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 class InstallRuminex extends InstallRPackage
 {
     @TaskAction
-    void copyFiles()
+    void doInstall()
     {
         File rLibsUserDir= getInstallDir()
         installRPackage("install-ruminex-dependencies.R")
@@ -17,10 +17,9 @@ class InstallRuminex extends InstallRPackage
                 copy.from project.projectDir
                 copy.into(rLibsUserDir)
                 copy.include("Ruminex*.tar.gz")
-                copy.rename("Ruminex*.tar.gz", "Ruminex.tar.gz")
+                copy.rename("Ruminex.*.tar.gz", "Ruminex.tar.gz")
         }
         installFromArchive("Ruminex.tar.gz")
     }
-
 
 }

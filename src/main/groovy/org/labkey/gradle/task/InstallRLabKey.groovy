@@ -40,7 +40,7 @@ class InstallRLabKey extends InstallRPackage
                     copy.from project.rootProject.file('remoteapi/r/latest')
                     copy.into(rLibsUserDir)
                     copy.include("Rlabkey*.tar.gz")
-                    copy.rename("Rlabkey*.tar.gz", "Rlabkey.tar.gz")
+                    copy.rename("Rlabkey.*.tar.gz", "Rlabkey.tar.gz")
             }
             installFromArchive("Rlabkey.tar.gz")
         }
