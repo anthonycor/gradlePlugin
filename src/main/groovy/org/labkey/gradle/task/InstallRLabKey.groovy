@@ -11,9 +11,11 @@ class InstallRLabKey extends InstallRPackage
     void doInstall()
     {
         File rLibsUserDir= getInstallDir()
+        File remoteApiDir = project.file('../../remoteapi/r')
+
         project.copy {
             CopySpec copy ->
-                copy.from(project.rootProject.file('remoteapi/r/test'))
+                copy.from(new File(remoteApiDir, 'test'))
                 copy.into(rLibsUserDir)
                 copy.include("listArchive.zip")
                 copy.include("vignette.R")
@@ -24,7 +26,7 @@ class InstallRLabKey extends InstallRPackage
         {
             project.copy {
                 CopySpec copy ->
-                    copy.from project.rootProject.file('remoteapi/r/latest')
+                    copy.from new File(remoteApiDir,'latest')
                     copy.into rLibsUserDir
                     copy.include("Rlabkey*.zip")
             }
@@ -37,7 +39,7 @@ class InstallRLabKey extends InstallRPackage
         {
             project.copy {
                 CopySpec copy ->
-                    copy.from project.rootProject.file('remoteapi/r/latest')
+                    copy.from new File(remoteApiDir, 'latest')
                     copy.into(rLibsUserDir)
                     copy.include("Rlabkey*.tar.gz")
                     copy.rename("Rlabkey.*.tar.gz", "Rlabkey.tar.gz")

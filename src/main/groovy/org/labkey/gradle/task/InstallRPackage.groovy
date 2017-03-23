@@ -5,9 +5,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.TeamCityExtension
-
 /**
  * Created by susanh on 3/20/17.
  */
@@ -52,18 +50,18 @@ class InstallRPackage extends DefaultTask
 
     Boolean isPackageInstalled(String name)
     {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream()
-        project.exec{
-            ExecSpec spec -> spec.executable rPath
-                spec.workingDir project.projectDir
-                spec.standardInput = new FileInputStream(project.file("check-installed.R"))
-                spec.ignoreExitValue = true
-                spec.args = ["--slave", "--vanilla", "--args ${name}"]
-                spec.environment("R_LIBS_USER", getRLibsUserPath(project))
-                spec.standardOutput = stream
-        }
-        String output = stream.toString()
-        return output.contains("library ${name} is installed")
+        String exitCode
+        ant.exec(executable: rPath,
+                dir: project.projectDir,
+                input:project.file("check-installed.R"),
+                failifexecutionfails: true,
+                searchpath: true,
+                resultproperty: exitCode )
+                {
+                    arg(line: "--slave --vanilla --args ${name}")
+                    env(key: "R_LIBS_USER", value: rLibsUserDir.getAbsolutePath())
+                }
+        return exitCode == "0"
     }
 
     static String getRTermPath()
