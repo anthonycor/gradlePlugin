@@ -121,12 +121,13 @@ class Jsp implements Plugin<Project>
 
         Task copyTags = project.task('copyTagLibs', group: GroupNames.JSP, type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
                 { CopySpec copy ->
-                    copy.from project.staging.webInfDir
-                    copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp/WEB-INF"
-                    copy.include 'web.xml'
-                    copy.include '*.tld'
-                    copy.include 'tags/**'
+                    copy.from project.project(":server:api").sourceSets.webapp.output
+                    copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
+                    copy.include 'WEB-INF/web.xml'
+                    copy.include 'WEB-INF/*.tld'
+                    copy.include 'WEB-INF/tags/**'
                 })
+        copyTags.dependsOn(project.project(":server:api").tasks.processWebappResources)
 
         Task jspCompileTask = project.task('jsp2Java',
                 group: GroupNames.JSP,
@@ -152,9 +153,9 @@ class Jsp implements Plugin<Project>
                 type: Jar,
                 description: "produce jar file of jsps",
                 { Jar jar ->
-                    jar.classifier CLASSIFIER
+                    jar.classifier = CLASSIFIER
                     jar.from "${project.buildDir}/${project.jspCompile.classDir}"
-                    jar.baseName "${project.name}${BASE_NAME_EXTENSION}"
+                    jar.baseName = "${project.name}${BASE_NAME_EXTENSION}"
                     destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 }
         )
