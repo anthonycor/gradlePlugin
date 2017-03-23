@@ -121,13 +121,14 @@ class Jsp implements Plugin<Project>
 
         Task copyTags = project.task('copyTagLibs', group: GroupNames.JSP, type: Copy, description: "Copy the tag library (.tld) files to jsp compile directory",
                 { CopySpec copy ->
-                    copy.from project.project(":server:api").sourceSets.webapp.output
+                    copy.from "${project.rootProject.buildDir}/webapp"
                     copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
                     copy.include 'WEB-INF/web.xml'
                     copy.include 'WEB-INF/*.tld'
                     copy.include 'WEB-INF/tags/**'
                 })
-        copyTags.dependsOn(project.project(":server:api").tasks.processWebappResources)
+        if (!project.path.equals(":server:api"))
+            copyTags.dependsOn(project.project(":server:api").tasks.copyTagLibsBase)
 
         Task jspCompileTask = project.task('jsp2Java',
                 group: GroupNames.JSP,
