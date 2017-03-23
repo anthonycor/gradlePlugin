@@ -115,6 +115,8 @@ class ServerDeploy implements Plugin<Project>
                 description: "Installs labkey.xml and various jar files into the tomcat directory.  Sets default database properties."
         )
         deployAppTask.dependsOn(setup)
+        // stage the application first to try to avoid multiple Tomcat restarts
+        setup.mustRunAfter(project.tasks.stageApp)
 
         Task log4jTask = project.task(
                 'configureLog4j',
@@ -123,6 +125,8 @@ class ServerDeploy implements Plugin<Project>
                 description: "Edit and copy log4j.xml file",
         )
         deployAppTask.dependsOn(log4jTask)
+        // stage the application first to try to avoid multiple Tomcat restarts
+        log4jTask.mustRunAfter(project.tasks.stageApp)
 
         project.task(
                 "stageDistribution",
@@ -140,6 +144,9 @@ class ServerDeploy implements Plugin<Project>
         deployDistTask.dependsOn(project.tasks.stageDistribution)
         deployDistTask.dependsOn(log4jTask)
         deployDistTask.dependsOn(setup)
+        // This may prevent multiple Tomcat restarts
+        setup.mustRunAfter(project.tasks.stageDistribution)
+        log4jTask.mustRunAfter(project.tasks.stageDistribution)
 
         project.task(
                 'undeployModules',
