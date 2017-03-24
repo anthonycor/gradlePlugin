@@ -50,7 +50,7 @@ class InstallRPackage extends DefaultTask
 
     Boolean isPackageInstalled(String name)
     {
-        String exitCode
+        String exitCode = ""
         ant.exec(executable: rPath,
                 dir: project.projectDir,
                 input:project.file("check-installed.R"),
