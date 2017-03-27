@@ -84,13 +84,6 @@ class TestRunner extends UiTest
         BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: ":remoteapi:java")
     }
 
-    @Override
-    protected void addArtifacts(Project project)
-    {
-        project.artifacts {
-            uiTestCompile project.tasks.testJar
-        }
-    }
 
     private void addPasswordTasks(Project project)
     {
