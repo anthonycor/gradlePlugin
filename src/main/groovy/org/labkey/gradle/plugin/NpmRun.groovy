@@ -94,7 +94,7 @@ class NpmRun implements Plugin<Project>
         project.tasks.npmInstall {
             dependsOn "npm_prune"
             inputs.file project.file(NPM_PROJECT_FILE)
-            outputs.dir project.file("node_modules")
+            outputs.files project.fileTree(dir: "node_modules", include: "**")
         }
     }
 
@@ -106,7 +106,7 @@ class NpmRun implements Plugin<Project>
         task.inputs.file task.project.file(TYPINGS_FILE)
         task.inputs.dir task.project.file(WEBPACK_DIR)
         task.inputs.files task.project.fileTree(dir: "src", includes: ["client/**/*", "theme/**/*"])
-        task.outputs.dir  task.project.fileTree(dir: "resources", includes: ["**/gen"])
+        task.outputs.files task.project.fileTree(dir: "resources", includes: ["web/**/gen/**/*"])
     }
 }
 
