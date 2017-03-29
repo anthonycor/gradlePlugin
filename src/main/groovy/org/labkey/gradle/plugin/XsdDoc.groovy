@@ -27,14 +27,12 @@ class XsdDoc implements Plugin<Project>
                 project.project(":schemas").file("externalSchema.xsd"),
                 project.project(":schemas").file("folder.xsd"),
                 project.project(":schemas").file("folderType.xsd"),
-                project.project(":schemas").file("freezerProExport.xsd"),
                 project.project(":schemas").file("module.xsd"),
                 project.project(":schemas").file("pages.xsd"),
                 project.project(":schemas").file("participantGroups.xsd"),
                 project.project(":schemas").file("pipelineOptions.xsd"),
                 project.project(":schemas").file("qcStates.xsd"),
                 project.project(":schemas").file("query.xsd"),
-                project.project(":schemas").file("redcapExport.xsd"),
                 project.project(":schemas").file("report.xsd"),
                 project.project(":schemas").file("reportProps.xsd"),
                 project.project(":schemas").file("studyDesign.xsd"),
@@ -52,6 +50,11 @@ class XsdDoc implements Plugin<Project>
             project.xsdDoc.xsdFiles += project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd")
         if (project.findProject(":server:modules:dataintegration")  != null)
             project.xsdDoc.xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
+        if (project.findProject(":server:customModules:redcap") != null)
+            project.xsdDoc.xsdFiles += project.project(":server:customModules:redcap").file("schemas/redcapExport.xsd")
+        if (project.findProject(":server:customModules:freezerpro") != null)
+            project.xsdDoc.xsdFiles += project.project(":server:customModules:freezerpro").file("schemas/freezerProExport.xsd")
+
         addDependencies(project)
         addTasks(project)
     }
