@@ -7,6 +7,7 @@ import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.plugin.LabKeyExtension
 import org.xml.sax.Attributes
 import org.xml.sax.SAXException
 import org.xml.sax.helpers.DefaultHandler
@@ -22,6 +23,7 @@ class ClientLibsCompress extends DefaultTask
 
     File workingDir = project.clientLibs.workingDir
 
+    // TODO get rid of this reference
     String yuiCompressorJar
 
     // TODO get rid of this
@@ -30,21 +32,13 @@ class ClientLibsCompress extends DefaultTask
 
     ClientLibsCompress()
     {
-        // TODO get rid of this in favor of porting to Gradle.
-        ant.taskdef(
-                name: "compressClientLibs",
-                classname: "labkey.ant.ClientLibraryBuilder",
-                classpath: "${project.labkey.externalDir}/ant/labkeytasks/labkeytasks.jar"
-        )
         yuiCompressorJar = "${project.labkey.externalLibDir}/build/yuicompressor-${project.yuiCompressorVersion}.jar"
     }
 
     @InputFiles
     FileTree getLibXmlFiles()
     {
-        return project.fileTree(dir: workingDir,
-                includes: ["**/*${LIB_XML_EXTENSION}"]
-        )
+        return project.fileTree(dir: workingDir, includes: ["**/*${LIB_XML_EXTENSION}"])
     }
 
     @TaskAction
@@ -52,14 +46,7 @@ class ClientLibsCompress extends DefaultTask
     {
         FileTree libXmlFiles = getLibXmlFiles()
         libXmlFiles.files.each() {
-            File file ->
-                ant.compressClientLibs(
-                        srcFile: file.getAbsolutePath(),
-                        sourcedir: workingDir,
-                        yuicompressorjar: yuiCompressorJar
-                )
-                // uncomment this when we have completely converted the ClientLibaryBuilder class to Groovy
-//                compressSingleFile(file.getAbsolutePath())
+            File file -> compressSingleFile(file.getAbsolutePath())
         }
 
         // this file is used by the ClientLibraryBuilder to determine if things are up to date
@@ -99,14 +86,14 @@ class ClientLibsCompress extends DefaultTask
         private File _outputDir;
         private File _sourceDir;
 
-        public XmlImporter(File xml, File outputDir, File sourceDir)
+        XmlImporter(File xml, File outputDir, File sourceDir)
         {
             _xmlFile = xml;
             _sourceDir = sourceDir;
             _outputDir = outputDir;
         }
 
-        public void endDocument() throws SAXException
+        void endDocument() throws SAXException
         {
             if (_doCompile)
             {
@@ -128,7 +115,7 @@ class ClientLibsCompress extends DefaultTask
             }
         }
 
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+        void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
         {
             if ("library".equals(localName))
             {
@@ -179,7 +166,7 @@ class ClientLibsCompress extends DefaultTask
             }
         }
 
-        public void endElement(String uri, String localName, String qName) throws SAXException
+        void endElement(String uri, String localName, String qName) throws SAXException
         {
             if ("library".equals(localName))
                 _withinScriptsTag = false;
@@ -270,6 +257,14 @@ class ClientLibsCompress extends DefaultTask
                 project.logger.error(String.join("\n", getCompressorErrors(srcFiles)));
                 throw new RuntimeException("ERROR: YUICompressor did not run properly for '" + extension + "' files in " +
                         _xmlFile.getName() + ". See log for more details.");
+            }
+            if (!LabKeyExtension.isDevMode(project))
+            {
+                project.logger.info("Compressing " + extension + " files");
+                project.ant.gzip(
+                        src: minFile,
+                        destfile: "${minFile.toString()}.gz"
+                )
             }
         }
 
