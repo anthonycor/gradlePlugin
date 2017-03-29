@@ -127,8 +127,7 @@ class Jsp implements Plugin<Project>
                     copy.include 'WEB-INF/*.tld'
                     copy.include 'WEB-INF/tags/**'
                 })
-        if (!project.path.equals(":server:api"))
-            copyTags.dependsOn(project.project(":server:api").tasks.copyTagLibsBase)
+        copyTags.dependsOn(project.rootProject.tasks.copyTagLibsBase)
 
         Task jspCompileTask = project.task('jsp2Java',
                 group: GroupNames.JSP,
