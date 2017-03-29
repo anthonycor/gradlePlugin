@@ -84,15 +84,18 @@ class Distribution implements Plugin<Project>
      * to easily build upon one another.
      * @param project the project that is to inherit dependencies
      * @param inheritedProjectPath the project whose dependencies are inherited
+     * @param list of paths for modules that are to be included from the set of inherited modules (e.g., [":server:modules:search"])
      */
-    static void inheritDependencies(Project project, String inheritedProjectPath)
+    static void inheritDependencies(Project project, String inheritedProjectPath, List<String> excludedModules=[])
     {
         // Unless otherwise indicated, projects are evaluated in alphanumeric order, so
         // we explicitly indicate that the project to be inherited from must be evaluated first.
         // Otherwise, there will be no dependencies to inherit.
         project.evaluationDependsOn(inheritedProjectPath)
         project.project(inheritedProjectPath).configurations.distribution.dependencies.each {
-            project.dependencies.add("distribution", it)
+            DefaultProjectDependency dep ->
+                if (!excludedModules.contains(dep.dependencyProject.path))
+                    project.dependencies.add("distribution", dep)
         }
     }
 
