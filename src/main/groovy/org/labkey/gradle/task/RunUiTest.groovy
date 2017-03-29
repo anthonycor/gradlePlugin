@@ -17,6 +17,7 @@ class RunUiTest extends Test
 
     RunUiTest()
     {
+        testLogging.showStandardStreams = true
         testExt = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
         setSystemProperties()
         setJvmArgs()
@@ -29,11 +30,6 @@ class RunUiTest extends Test
         }
         setClasspath (project.sourceSets.uiTest.runtimeClasspath)
         setTestClassesDir (project.sourceSets.uiTest.output.classesDir)
-
-        // listen to standard out and standard error of the test JVM(s)
-        onOutput { descriptor, event ->
-            logger.lifecycle("[" + descriptor.getName() + "] " + event.message )
-        }
 
         outputs.upToDateWhen( { return false }) // always run tests when asked to
     }
