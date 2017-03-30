@@ -272,15 +272,17 @@ class TeamCity extends Tomcat
     {
         if (SystemUtils.IS_OS_WINDOWS)
         {
-            project.exec({ ExecSpec spec ->
-                spec.commandLine ("taskkill", "/F /IM firefox.exe")
-            })
+            project.ant.exec(executable: "taskkill")
+                    {
+                        arg(line: "/F /IM firefox.exe")
+                    }
         }
         else if (SystemUtils.IS_OS_UNIX)
         {
-            project.exec( { ExecSpec spec ->
-                spec.commandLine ("killall", "-q firefox")
-            })
+            project.ant.exec(executable: "killall")
+                    {
+                        arg(line: "-q firefox")
+                    }
         }
     }
 
