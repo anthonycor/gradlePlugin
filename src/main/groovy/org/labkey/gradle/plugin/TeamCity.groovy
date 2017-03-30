@@ -5,7 +5,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
-import org.gradle.process.ExecSpec
 import org.gradle.process.JavaExecSpec
 import org.labkey.gradle.task.DoThenSetup
 import org.labkey.gradle.task.RunTestSuite
@@ -250,21 +249,25 @@ class TeamCity extends Tomcat
     {
         if (SystemUtils.IS_OS_WINDOWS)
         {
-            project.exec({ ExecSpec spec ->
-                spec.commandLine "taskkill", "/F /IM chromedriver.exe"
-            })
+            project.ant.exec(executable: "taskkill")
+                    {
+                        arg(line:"/F /IM chromedriver.exe" )
+                    }
         }
         else if (SystemUtils.IS_OS_UNIX)
         {
-            project.exec( { ExecSpec spec ->
-                spec.commandLine "killall", "-q -KILL chromedriver"
-            })
-            project.exec( { ExecSpec spec ->
-                spec.commandLine "killall", "-q -KILL chrome"
-            })
-            project.exec( { ExecSpec spec ->
-                spec.commandLine "killall", "-q KILL BrowserBlocking"
-            })
+            project.ant.exec(executable: "killall")
+                    {
+                        arg(line:  "-q -KILL chromedriver")
+                    }
+            project.ant.exec(executable: "killall")
+                    {
+                        arg(line: "-q -KILL chrome")
+                    }
+            project.ant.exec(executable: "killall")
+                    {
+                        arg(line: "-q KILL BrowserBlocking")
+                    }
         }
     }
 
