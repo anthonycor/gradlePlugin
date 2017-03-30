@@ -94,6 +94,12 @@ class Jsp implements Plugin<Project>
                             'org.apache.tomcat:bootstrap',
                             'org.apache.tomcat:tomcat-juli'
                 }
+        // We need this declaration for IntelliJ to be able to find the .tld files, but if we include
+        // it for the command line, there will be lots of warnings about .tld files on the classpath where
+        // they don't belong ("CLASSPATH element .../labkey.tld is not a JAR.").  These warnings may appear if
+        // building within IntelliJ but perhaps we can live with that (for now).
+        if (System.properties.'idea.active')
+            project.dependencies.add("compile", project.rootProject.tasks.copyTagLibsBase.inputs.files)
     }
 
     private void addJspTasks(Project project)
