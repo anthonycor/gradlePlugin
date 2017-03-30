@@ -80,6 +80,7 @@ class TestRunner extends UiTest
             compile "org.seleniumhq.selenium:selenium-server:${project.seleniumVersion}"
             compile "com.googlecode.sardine:sardine:${project.sardineVersion}"
             compile "junit:junit:${project.junitVersion}"
+            compile "org.reflections:reflections:${project.reflectionsVersion}"
         }
         BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: ":remoteapi:java")
     }
