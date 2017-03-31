@@ -8,7 +8,6 @@ import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.task.SchemaCompile
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
-
 /**
  * Class that will convert xsd files into a jar file
  */
@@ -61,11 +60,7 @@ class XmlBeans implements Plugin<Project>
         Task schemasCompile = project.task('schemasCompile',
                 group: GroupNames.XML_SCHEMA,
                 type: SchemaCompile,
-                description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes",
-                {
-                    inputs.dir  project.xmlBeans.schemasDir
-                    outputs.dir "$project.labkey.srcGenDir/$project.xmlBeans.classDir"
-                }
+                description: "compile XML schemas from directory '$project.xmlBeans.schemasDir' into Java classes"
         )
         schemasCompile.onlyIf {
             isApplicable(project)
