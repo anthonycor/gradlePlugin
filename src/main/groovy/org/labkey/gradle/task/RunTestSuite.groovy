@@ -73,7 +73,10 @@ class RunTestSuite extends RunUiTest
             for (String key : testConfig.keySet())
             {
                 if (!StringUtils.isEmpty((String) project.teamcity[key]))
+                {
+                    println("Setting systemProperty ${key} to ${project.teamcity[key]}")
                     systemProperty key, project.teamcity[key]
+                }
             }
         }
     }
