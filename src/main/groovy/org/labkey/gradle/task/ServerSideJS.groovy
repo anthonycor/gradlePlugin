@@ -44,12 +44,12 @@ class ServerSideJS extends DefaultTask
                     {
                         header(file: "${scriptFragmentsDir}/Ext.header.js")
                         fileset(file: new File(ext3SrcDir, "Ext.js"))
-                        fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
+                        fileset(file: "${scriptFragmentsDir}/Ext.middle.js")
                         fileset(file: new File(ext3SrcDir, "Observable.js"))
                         fileset(file: new File(ext3SrcDir, "JSON.js"))
                         fileset(file: new File(ext3SrcDir, "Connection.js"))
                         fileset(file: new File(ext3SrcDir, "Format.js"))
-                        footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
+                        footer(file: "${scriptFragmentsDir}/Ext.footer.js")
                     }
         }
     }
