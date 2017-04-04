@@ -3,11 +3,16 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.DeleteSpec
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Delete
-import org.labkey.gradle.task.*
+import org.labkey.gradle.task.ClientApiDistribution
+import org.labkey.gradle.task.ModuleDistribution
+import org.labkey.gradle.task.PipelineConfigDistribution
+import org.labkey.gradle.task.PomFile
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
@@ -93,8 +98,8 @@ class Distribution implements Plugin<Project>
         // Otherwise, there will be no dependencies to inherit.
         project.evaluationDependsOn(inheritedProjectPath)
         project.project(inheritedProjectPath).configurations.distribution.dependencies.each {
-            DefaultProjectDependency dep ->
-                if (!excludedModules.contains(dep.dependencyProject.path))
+            Dependency dep ->
+                if (dep instanceof ProjectDependency && !excludedModules.contains(dep.dependencyProject.path))
                     project.dependencies.add("distribution", dep)
         }
     }
