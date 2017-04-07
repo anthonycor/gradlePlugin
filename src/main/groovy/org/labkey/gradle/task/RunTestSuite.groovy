@@ -69,6 +69,7 @@ class RunTestSuite extends RunUiTest
             systemProperty "tomcat.debug", project.teamcity["tomcat.debug"]
             systemProperty "labkey.port", project.teamcity['tomcat.port']
             systemProperty "maxTestFailures", project.teamcity['maxTestFailures']
+            systemProperty 'test.credentials.file', project.teamcity['test.credentials.file']
 
             Properties testConfig = testExt.getConfig()
             for (String key : testConfig.keySet())
