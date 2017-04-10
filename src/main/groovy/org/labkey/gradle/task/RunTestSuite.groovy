@@ -70,11 +70,6 @@ class RunTestSuite extends RunUiTest
             systemProperty "labkey.port", project.teamcity['tomcat.port']
             systemProperty "maxTestFailures", project.teamcity['maxTestFailures']
             systemProperty 'test.credentials.file', project.teamcity['test.credentials.file']
-            println("System properties are: ")
-            System.properties.each {
-                println("${it.key}: ${it.value}")
-            }
-
             Properties testConfig = testExt.getConfig()
             for (String key : testConfig.keySet())
             {
@@ -82,6 +77,10 @@ class RunTestSuite extends RunUiTest
                 {
                     systemProperty key, project.teamcity[key]
                 }
+            }
+            println("System properties are: ")
+            systemProperties.each {
+                println("${it.key}: ${it.value}")
             }
         }
     }
