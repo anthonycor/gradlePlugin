@@ -131,7 +131,7 @@ class DeployApp extends DefaultTask
     private void deployBinariesViaProjectCopy(String osDirectory)
     {
         project.copy { CopySpec copy ->
-            copy.from "${project.labkey.externalDir}/${osDirectory}/bin/"
+            copy.from project.fileTree("${project.labkey.externalDir}/${osDirectory}").files
             copy.into "${project.serverDeploy.binDir}"
         }
     }
