@@ -30,7 +30,7 @@ class RunUiTest extends Test
         }
         setClasspath (project.sourceSets.uiTest.runtimeClasspath)
         setTestClassesDir (project.sourceSets.uiTest.output.classesDir)
-
+        ignoreFailures true // Failing tests should not cause task to fail
         outputs.upToDateWhen( { return false }) // always run tests when asked to
     }
 
