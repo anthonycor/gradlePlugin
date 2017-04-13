@@ -78,10 +78,6 @@ class RunTestSuite extends RunUiTest
                     systemProperty key, project.teamcity[key]
                 }
             }
-            println("System properties are: ")
-            systemProperties.each {
-                println("${it.key}: ${it.value}")
-            }
         }
     }
 }
