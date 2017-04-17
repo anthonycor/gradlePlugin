@@ -40,7 +40,8 @@ class TeamCity extends Tomcat
             project.tomcat.trustStorePassword = "-Djavax.net.ssl.trustStorePassword=changeit"
         }
         project.tomcat.recompileJsp = false
-        project.tomcat.catalinaOpts = "-Xdebug -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
+        project.tomcatDebug = getTeamCityProperty("tomcat.debug")
+        project.tomcat.catalinaOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${project.tomcatDebug} -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
 
         addTasks(project)
     }
