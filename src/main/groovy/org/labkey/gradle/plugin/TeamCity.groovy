@@ -40,8 +40,8 @@ class TeamCity extends Tomcat
             project.tomcat.trustStorePassword = "-Djavax.net.ssl.trustStorePassword=changeit"
         }
         project.tomcat.recompileJsp = false
-        project.tomcatDebug = extension.getTeamCityProperty("tomcat.debug") // Tomcat intermittently hangs on shutdown if we don't specify a debug port
-        project.tomcat.catalinaOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${project.tomcatDebug} -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
+        project.tomcat.debugPort = extension.getTeamCityProperty("tomcat.debug") // Tomcat intermittently hangs on shutdown if we don't specify a debug port
+        project.tomcat.catalinaOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${project.tomcat.debugPort} -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
 
         addTasks(project)
     }
@@ -357,6 +357,8 @@ class TeamCityExtension
             validationMessages.add("'agent.name' property not specified")
         if (getTeamCityProperty('teamcity.projectName').isEmpty())
             validationMessages.add("'teamcity.projectName' property not specified")
+        if (getTeamCityProperty('tomcat.debug').isEmpty())
+            validationMessages.add("'tomcat.debug' property (for debug port) not specified")
     }
 
     private void setDatabaseProperties()

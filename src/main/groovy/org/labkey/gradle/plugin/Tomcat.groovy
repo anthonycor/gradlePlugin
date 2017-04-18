@@ -70,4 +70,5 @@ class TomcatExtension
     String trustStore = ""
     String trustStorePassword = ""
     String catalinaOpts = ""
+    String debugPort = null // this is used for TeamCity catalina options
 }
