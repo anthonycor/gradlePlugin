@@ -31,6 +31,7 @@ class XsdDoc implements Plugin<Project>
                 project.project(":schemas").file("pages.xsd"),
                 project.project(":schemas").file("participantGroups.xsd"),
                 project.project(":schemas").file("pipelineOptions.xsd"),
+                project.project(":schemas").file("pipelineProtocolProps.xsd"),
                 project.project(":schemas").file("qcStates.xsd"),
                 project.project(":schemas").file("query.xsd"),
                 project.project(":schemas").file("report.xsd"),
@@ -46,14 +47,16 @@ class XsdDoc implements Plugin<Project>
             project.xsdDoc.xsdFiles += [project.project(":server:modules:study").file("schemas/assayProvider.xsd"),
                                         project.project(":server:modules:study").file("schemas/studyPipelineTasks.xsd")]
         }
+        if (project.findProject(":server:modules:list") != null)
+            project.xsdDoc.xsdFiles += project.project(":server:modules:list").file("schemas/lists.xsd");
         if (project.findProject(":server:modules:pipeline")  != null)
             project.xsdDoc.xsdFiles += project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd")
         if (project.findProject(":server:modules:dataintegration")  != null)
             project.xsdDoc.xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
-        if (project.findProject(":server:customModules:redcap") != null)
-            project.xsdDoc.xsdFiles += project.project(":server:customModules:redcap").file("schemas/redcapExport.xsd")
-        if (project.findProject(":server:customModules:freezerpro") != null)
-            project.xsdDoc.xsdFiles += project.project(":server:customModules:freezerpro").file("schemas/freezerProExport.xsd")
+        if (project.findProject(":server:optionalModules:redcap") != null)
+            project.xsdDoc.xsdFiles += project.project(":server:optionalModules:redcap").file("schemas/redcapExport.xsd")
+        if (project.findProject(":server:optionalModules:freezerpro") != null)
+            project.xsdDoc.xsdFiles += project.project(":server:optionalModules:freezerpro").file("schemas/freezerProExport.xsd")
 
         addDependencies(project)
         addTasks(project)
