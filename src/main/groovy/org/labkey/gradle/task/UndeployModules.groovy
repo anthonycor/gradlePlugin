@@ -21,12 +21,12 @@ class UndeployModules extends DefaultTask
             if ((p.plugins.findPlugin(SimpleModule.class) != null || p.plugins.findPlugin(Module.class) != null) &&
                     (dbType == null || !SimpleModule.shouldDoBuild(p) || !SimpleModule.isDatabaseSupported(p, dbType)))
             {
-                println("Undeploying module ${p.path}")
+                project.logger.info("Undeploying module ${p.path} for dbType ${dbType}")
                 SimpleModule.undeployModule(p)
             }
             else
             {
-                println("Module ${p.path} left in deployment for dbType ${dbType}")
+                project.logger.info("Module ${p.path} left in deployment for dbType ${dbType}")
             }
         }
     }

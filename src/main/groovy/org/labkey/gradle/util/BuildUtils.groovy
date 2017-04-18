@@ -274,7 +274,7 @@ class BuildUtils
             distributionProject.configurations {
                 config
             }
-        println("${distributionProject.path}: adding ${depProjectPath} as dependency for config ${config}")
+        distributionProject.logger.info("${distributionProject.path}: adding ${depProjectPath} as dependency for config ${config}")
         addLabKeyDependency(project: distributionProject, config: config, depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module")
     }
 
