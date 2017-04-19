@@ -209,8 +209,23 @@ class ServerDeploy implements Plugin<Project>
             project.delete path.toString()
         }
         // FIXME this fails when cleaning after changing version but before publishing any artifacts.
+        // We may want to do some globbing on prefix without the version number
+//        FileTree tree = project.fileTree(dir: "${project.tomcatDir}/lib",
+//                includes: ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar", "${ServerBootstrap.JAR_BASE_NAME}*.jar"]
+//        )
+//        project.delete tree
+
         project.configurations.tomcatJars.files.each {File jarFile ->
             File libFile = new File("${project.tomcatDir}/lib/${jarFile.getName()}")
+            if (libFile.exists())
+                project.delete libFile.getAbsolutePath()
+        }
+
+        // also get rid of (un-versioned) jars that were deployed from ant, if there are any
+        List<String> jarsFromAntDeploy = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar"]
+
+        jarsFromAntDeploy.each{String name ->
+            File libFile = new File("${project.tomcatDir}/lib/${name}")
             if (libFile.exists())
                 project.delete libFile.getAbsolutePath()
         }
