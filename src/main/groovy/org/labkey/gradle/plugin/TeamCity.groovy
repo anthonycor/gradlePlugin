@@ -43,6 +43,7 @@ class TeamCity extends Tomcat
         project.tomcat.debugPort = extension.getTeamCityProperty("tomcat.debug") // Tomcat intermittently hangs on shutdown if we don't specify a debug port
         project.tomcat.catalinaOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${project.tomcat.debugPort} -Dproject.root=${project.rootProject.projectDir.absolutePath} -Xnoagent -Djava.compiler=NONE "
 
+        println("In TeamCity apply method, catalinaOpts is ${project.tomcat.catalinaOpts}");
         addTasks(project)
     }
 
@@ -293,12 +294,14 @@ class TeamCity extends Tomcat
 
     private void ensureShutdown(Project project)
     {
-        if (!extension.getTeamCityProperty("tomcat.debug").isEmpty())
+        String debugPort = extension.getTeamCityProperty("tomcat.debug")
+        if (!debugPort.isEmpty())
         {
+            println("Ensuring shutdown using port ${debugPort}")
             project.javaexec({ JavaExecSpec spec ->
                 spec.main = "org.labkey.test.debug.ThreadDumpAndKill"
                 spec.classpath { [project.sourceSets.debug.output.classesDir, project.configurations.debugCompile] }
-                spec.args = [project.teamcity['tomcat.debug']]
+                spec.args = [debugPort]
             })
         }
     }
