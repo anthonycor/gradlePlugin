@@ -53,7 +53,6 @@ class RunUiTest extends Test
             jvmArgsList += [tomcat.trustStore, tomcat.trustStorePassword]
         }
 
-        println("in RunUiTest jvmArgsList is ${jvmArgsList}")
         jvmArgs jvmArgsList
     }
 

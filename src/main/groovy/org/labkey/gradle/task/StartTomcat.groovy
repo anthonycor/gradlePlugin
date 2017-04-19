@@ -55,7 +55,7 @@ class StartTomcat extends DefaultTask
                 catalinaOpts += "-DsequencePipelineEnabled=${TeamCityExtension.getTeamCityProperty(project, "sequencePipelineEnabled", false)}"
             }
 
-            println("setting CATALINA_OPTS to ${catalinaOpts}")
+            project.logger.debug("setting CATALINA_OPTS to ${catalinaOpts}")
             env(
                     key: "CATALINA_OPTS",
                     value: catalinaOpts
