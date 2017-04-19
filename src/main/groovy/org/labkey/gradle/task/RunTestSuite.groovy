@@ -45,11 +45,13 @@ class RunTestSuite extends RunUiTest
         }
     }
 
-    protected String getDebugPort()
-    {
-        return !TeamCityExtension.isOnTeamCity(project) ? super.getDebugPort() : project.teamcity["tomcat.debug"]
-    }
+//    @Override
+//    protected String getDebugPort()
+//    {
+//        return !TeamCityExtension.isOnTeamCity(project) ? super.getDebugPort() : project.teamcity["tomcat.debug"]
+//    }
 
+    @Override
     protected void setSystemProperties()
     {
         super.setSystemProperties()
