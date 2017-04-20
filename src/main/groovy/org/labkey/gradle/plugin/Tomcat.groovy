@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.DeleteSpec
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.task.StartTomcat
@@ -50,15 +51,23 @@ class Tomcat implements Plugin<Project>
                     DeleteSpec spec -> spec.delete project.fileTree("${project.tomcatDir}/logs")
                 }
         )
-        project.task(
+        Task cleanTempTask = project.task(
                 "cleanTemp",
                 group: GroupNames.WEB_APPLICATION,
-                description: "Delete  temp files from ${project.tomcatDir}",
-                type: Delete,
-                {
-                   DeleteSpec spec -> spec.delete project.fileTree("${project.tomcatDir}/temp")
-                }
+                description: "Delete temp files from ${project.tomcatDir}"
         )
+        // Note that we use the AntBuilder here because a fileTree in Gradle is a set of FILES only.
+        // Deleting a file tree will delete all the leaves of the directory structure, but none of the
+        // directories.
+        cleanTempTask.doLast {
+            project.ant.delete(includeEmptyDirs: true)
+                    {
+                        fileset(dir: "${project.tomcatDir}/temp")
+                                {
+                                    include(name: "**/*")
+                                }
+                    }
+        }
     }
 }
 
