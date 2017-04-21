@@ -23,8 +23,6 @@ class ClientLibraries implements Plugin<Project>
     @Override
     void apply(Project project)
     {
-        project.extensions.create("clientLibs", ClientLibrariesExtension)
-        project.clientLibs.workingDir = new File((String) project.labkey.explodedModuleWebDir)
         addTasks(project)
     }
 
@@ -34,16 +32,9 @@ class ClientLibraries implements Plugin<Project>
                 group: GroupNames.CLIENT_LIBRARIES,
                 type: ClientLibsCompress,
                 description: 'create minified, compressed javascript file using .lib.xml sources',
-                dependsOn: project.tasks.processResources,
+                dependsOn: project.tasks.processResources
         )
         project.tasks.assemble.dependsOn(compressLibsTask)
     }
-}
-
-class ClientLibrariesExtension
-{
-    // the directory into which the catenated, compressed js and css files will be created; also (confusingly) the directory in which
-    // the .lib.xml file will have been copied before conversion.  This copying happens before this task in the processResources task.
-    File workingDir
 }
 
