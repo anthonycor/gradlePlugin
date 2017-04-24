@@ -3,6 +3,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.labkey.gradle.plugin.extension.NpmRunExtension
 import org.labkey.gradle.util.GroupNames
 
 /**
@@ -110,10 +111,3 @@ class NpmRun implements Plugin<Project>
     }
 }
 
-class NpmRunExtension
-{
-    String clean = "clean"
-    String setup = "setup"
-    String buildProd = "build-prod"
-    String buildDev = "build"
-}

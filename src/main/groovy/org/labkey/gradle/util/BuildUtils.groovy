@@ -3,6 +3,7 @@ package org.labkey.gradle.util
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.labkey.gradle.plugin.*
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 
 import java.nio.file.Files
 import java.nio.file.Paths

@@ -5,7 +5,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.labkey.gradle.plugin.TeamCityExtension
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 /**
  * Created by susanh on 3/20/17.
  */

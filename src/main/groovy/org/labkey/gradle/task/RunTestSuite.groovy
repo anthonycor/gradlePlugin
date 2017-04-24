@@ -3,7 +3,7 @@ package org.labkey.gradle.task
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.file.CopySpec
 import org.labkey.gradle.plugin.TeamCity
-import org.labkey.gradle.plugin.TeamCityExtension
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 import org.labkey.gradle.util.DatabaseProperties
 /**
  * Class that sets our test/Runner.class as the junit test suite and configures a bunch of system properties for

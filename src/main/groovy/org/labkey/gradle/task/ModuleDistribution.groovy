@@ -7,8 +7,8 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
-import org.labkey.gradle.plugin.DistributionExtension
-import org.labkey.gradle.plugin.StagingExtension
+import org.labkey.gradle.plugin.extension.DistributionExtension
+import org.labkey.gradle.plugin.extension.StagingExtension
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files

@@ -3,8 +3,8 @@ package org.labkey.gradle.task
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import org.labkey.gradle.plugin.LabKeyExtension
-import org.labkey.gradle.plugin.TeamCityExtension
+import org.labkey.gradle.plugin.extension.LabKeyExtension
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 /**
  * Created by susanh on 11/15/16.
  */

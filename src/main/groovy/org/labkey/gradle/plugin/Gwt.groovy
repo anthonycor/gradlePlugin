@@ -6,6 +6,8 @@ import org.gradle.api.Task
 import org.gradle.api.file.FileTree
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.JavaExec
+import org.labkey.gradle.plugin.extension.GwtExtension
+import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.task.GzipAction
 import org.labkey.gradle.util.GroupNames
 /**
@@ -196,12 +198,3 @@ class Gwt implements Plugin<Project>
 
 }
 
-class GwtExtension
-{
-    String srcDir = Gwt.SOURCE_DIR
-    String style = "OBF"
-    String logLevel = "INFO"
-    String extrasDir = "gwtExtras"
-    Boolean draftCompile = false
-    Boolean allBrowserCompile = true
-}

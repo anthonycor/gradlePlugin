@@ -9,7 +9,7 @@ import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.labkey.gradle.plugin.LabKeyExtension
+import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.xml.sax.Attributes
 import org.xml.sax.SAXException
 import org.xml.sax.helpers.DefaultHandler

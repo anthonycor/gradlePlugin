@@ -7,6 +7,8 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.DeleteSpec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
+import org.labkey.gradle.plugin.extension.ServerDeployExtension
+import org.labkey.gradle.plugin.extension.StagingExtension
 import org.labkey.gradle.task.*
 import org.labkey.gradle.util.GroupNames
 
@@ -233,23 +235,4 @@ class ServerDeploy implements Plugin<Project>
 }
 
 
-class ServerDeployExtension
-{
-    String dir
-    String modulesDir
-    String webappDir
-    String binDir
-    String rootWebappsDir
-    String pipelineLibDir
-
-    static String getServerDeployDirectory(Project project)
-    {
-        return "${project.rootProject.buildDir}/deploy"
-    }
-
-    static String getModulesDeployDirectory(Project project)
-    {
-        return "${getServerDeployDirectory(project)}/modules"
-    }
-}
 

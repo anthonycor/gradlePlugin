@@ -2,6 +2,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.labkey.gradle.plugin.extension.XsdDocExtension
 import org.labkey.gradle.task.CreateXsdDocs
 import org.labkey.gradle.util.GroupNames
 /**
@@ -35,7 +36,3 @@ class XsdDoc implements Plugin<Project>
     }
 }
 
-class XsdDocExtension
-{
-    File[] xsdFiles = []
-}

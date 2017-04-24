@@ -5,6 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.DeleteSpec
 import org.gradle.api.tasks.Delete
+import org.labkey.gradle.plugin.extension.TomcatExtension
+import org.labkey.gradle.plugin.extension.UiTestExtension
 import org.labkey.gradle.task.StartTomcat
 import org.labkey.gradle.task.StopTomcat
 import org.labkey.gradle.util.GroupNames
@@ -71,13 +73,3 @@ class Tomcat implements Plugin<Project>
     }
 }
 
-class TomcatExtension
-{
-    String assertionFlag = "-ea" // set to -da to disable assertions and -ea to enable assertions
-    String maxMemory = "1G"
-    boolean recompileJsp = true
-    String trustStore = ""
-    String trustStorePassword = ""
-    String catalinaOpts = ""
-    String debugPort = null // this is used for TeamCity catalina options
-}

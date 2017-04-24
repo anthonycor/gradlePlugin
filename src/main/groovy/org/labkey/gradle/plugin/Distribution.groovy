@@ -9,6 +9,8 @@ import org.gradle.api.file.DeleteSpec
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Delete
+import org.labkey.gradle.plugin.extension.DistributionExtension
+import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.task.ClientApiDistribution
 import org.labkey.gradle.task.ModuleDistribution
 import org.labkey.gradle.task.PipelineConfigDistribution
@@ -179,23 +181,3 @@ class Distribution implements Plugin<Project>
 }
 
 
-class DistributionExtension
-{
-    public static final String DIST_FILE_DIR = "labkeywebapp/WEB-INF/classes"
-    public static final String DIST_FILE_NAME = "distribution"
-    public static final String VERSION_FILE_NAME = "VERSION"
-
-    String dir = "${project.rootProject.projectDir}/dist"
-    String installerSrcDir = "${project.rootProject.projectDir}/server/installer"
-    String archiveDataDir = "${installerSrcDir}/archivedata"
-    String artifactId
-    String description
-
-    private Project project
-
-    DistributionExtension(Project project)
-    {
-        this.project = project
-    }
-
-}

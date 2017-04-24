@@ -4,9 +4,9 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
-import org.labkey.gradle.plugin.LabKeyExtension
-import org.labkey.gradle.plugin.TomcatExtension
-import org.labkey.gradle.plugin.UiTestExtension
+import org.labkey.gradle.plugin.extension.LabKeyExtension
+import org.labkey.gradle.plugin.extension.TomcatExtension
+import org.labkey.gradle.plugin.extension.UiTestExtension
 /**
  * Class that sets up jvmArgs and our standard output options
  */

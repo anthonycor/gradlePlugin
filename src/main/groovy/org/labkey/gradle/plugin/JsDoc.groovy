@@ -7,6 +7,7 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
+import org.labkey.gradle.plugin.extension.JsDocExtension
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
 
@@ -82,18 +83,3 @@ class JsDoc implements Plugin<Project>
     }
 }
 
-class JsDocExtension
-{
-    String root
-    String[] paths =[ "api/webapp/clientapi",
-                          "api/webapp/clientapi/dom",
-                          "api/webapp/clientapi/core",
-                          "api/webapp/clientapi/ext3",
-                          "api/webapp/clientapi/ext4",
-                          "api/webapp/clientapi/ext4/data",
-                          "internal/webapp/labkey.js",
-                          "modules/visualization/resources/web/vis/genericChart/genericChartHelper.js",
-                          "modules/visualization/resources/web/vis/timeChart/timeChartHelper.js",
-                          "internal/webapp/vis/src"]
-    String outputDir
-}

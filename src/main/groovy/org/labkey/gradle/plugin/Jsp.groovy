@@ -7,6 +7,7 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
+import org.labkey.gradle.plugin.extension.JspCompileExtension
 import org.labkey.gradle.task.JspCompile2Java
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -175,8 +176,3 @@ class Jsp implements Plugin<Project>
     }
 }
 
-class JspCompileExtension
-{
-    String tempDir = "jspTempDir"
-    String classDir = "$tempDir/classes"
-}
