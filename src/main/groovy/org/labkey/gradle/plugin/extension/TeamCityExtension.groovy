@@ -26,7 +26,6 @@ class TeamCityExtension
         SUPPORTED_DATABASES.put("sqlserver2012", new DatabaseProperties("sqlserver2012", "mssql", "2012"))
         SUPPORTED_DATABASES.put("sqlserver2014", new DatabaseProperties("sqlserver2014", "mssql", "2014"))
         SUPPORTED_DATABASES.put("sqlserver2016", new DatabaseProperties("sqlserver2016", "mssql", "2016"))
-        SUPPORTED_DATABASES.put(CUSTOM_DB_PROPS, null)
     }
 
     TeamCityExtension(Project project)
