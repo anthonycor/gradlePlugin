@@ -13,7 +13,7 @@ class TeamCityExtension
     List<DatabaseProperties> databaseTypes = new ArrayList<>()
     List<String> validationMessages = new ArrayList<>()
     Project project
-    String CUSTOM_DB_PROPS = "custom";
+    static final String CUSTOM_DB_PROPS = "custom"
 
     private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>()
     static
