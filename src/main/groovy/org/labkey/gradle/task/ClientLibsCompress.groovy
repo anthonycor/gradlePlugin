@@ -2,12 +2,12 @@ package org.labkey.gradle.task
 
 import com.yahoo.platform.yui.compressor.CssCompressor
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor
-import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
+import org.apache.tools.ant.util.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.xml.sax.Attributes
@@ -18,24 +18,114 @@ import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
 import java.nio.charset.StandardCharsets
 
+/**
+ * Class for compressiong javascript and css files using the yuicompressor classes.
+ */
 class ClientLibsCompress extends DefaultTask
 {
     public static final String LIB_XML_EXTENSION = ".lib.xml"
 
     File workingDir = new File((String) project.labkey.explodedModuleWebDir)
 
-    // TODO get rid of this
-    @OutputFile
-    File upToDateFile = new File(workingDir, ".clientlibrary.uptodate")
+    FileTree xmlFiles
+    List<File> inputFiles = null
+    List<File> outputFiles = null
+    Map<File, XmlImporter> importerMap = null
 
-    ClientLibsCompress()
+    /**
+     * Creates a map between the individual .lib.xml files and the importers used to parse these files and
+     * extract the css and javascript files that are referenced.
+     * @return map between the file and the importer
+     */
+    Map<File, XmlImporter> getImporterMap()
     {
+        if (importerMap == null)
+        {
+            importerMap = new HashMap<>()
+            getLibXmlFiles().files.each() {
+                File file ->
+                    String absolutePath = file.getAbsolutePath();
+                    int endIndex = absolutePath.indexOf("webapp/")
+                    if (endIndex >= 0)
+                        endIndex += 6;
+                    else
+                    {
+                        endIndex = absolutePath.indexOf("web/")
+                        if (endIndex >= 0)
+                            endIndex += 3
+                    }
+                    if (endIndex < 0)
+                        throw new Exception("File ${file} not in webapp or web directory.")
+                    File sourceDir = new File(absolutePath.substring(0, endIndex))
+                    importerMap.put(file, parseXmlFile(sourceDir, file))
+            }
+        }
+        return importerMap;
     }
 
+    /**
+     * Input files include:
+     * - .lib.xml files
+     * - css files referenced in the .lib.xml files
+     * - js files referenced in the .lib.xml files
+     * @return list of all the .lib.xml files and the (internal) files referenced in the .lib.xml files
+     */
     @InputFiles
+    List<File> getInputFiles()
+    {
+        if (inputFiles == null)
+        {
+            inputFiles = new ArrayList<>()
+            inputFiles.addAll(getLibXmlFiles())
+
+            getImporterMap().entrySet().each { Map.Entry<File, XmlImporter> entry ->
+                if (entry.value.getCssFiles().size() > 0)
+                {
+                    inputFiles.addAll(entry.value.getCssFiles())
+                }
+                if (entry.value.getJavaScriptFiles().size() > 0)
+                {
+                    inputFiles.addAll(entry.value.getJavaScriptFiles())
+                }
+            }
+        }
+        return inputFiles
+    }
+
+    // This returns the libXml files from the project directory (the actual input files)
     FileTree getLibXmlFiles()
     {
-        return project.fileTree(dir: workingDir, includes: ["**/*${LIB_XML_EXTENSION}"])
+        if (xmlFiles == null)
+            xmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"])
+        return xmlFiles
+    }
+
+
+    @OutputFiles
+    List<File> getOutputFiles()
+    {
+        if (outputFiles == null)
+        {
+            outputFiles = new ArrayList<>()
+
+            getImporterMap().entrySet().each { Map.Entry<File, XmlImporter> entry ->
+                // The output file will be in the working directory not in the source directory used when parsing the file.
+                String fileName = entry.key.getAbsolutePath()
+                fileName = fileName.replace(entry.value.sourceDir.getAbsolutePath(), workingDir.getAbsolutePath())
+                File workingFile = new File(fileName)
+                if (entry.value.getCssFiles().size() > 0)
+                {
+                    outputFiles.add(getOutputFile(workingFile, "min", "css"))
+                    outputFiles.add(getOutputFile(workingFile, "combined", "css"))
+                }
+                if (entry.value.getJavaScriptFiles().size() > 0)
+                {
+                    outputFiles.add(getOutputFile(workingFile, "min", "js"))
+                    outputFiles.add(getOutputFile(workingFile, "combined", "js"))
+                }
+            }
+        }
+        return outputFiles
     }
 
     @TaskAction
@@ -45,39 +135,11 @@ class ClientLibsCompress extends DefaultTask
         libXmlFiles.files.each() {
             File file -> compressSingleFile(file)
         }
-
-        // this file is used to determine if things are up to date
-        FileUtils.touch(upToDateFile)
     }
 
     void compressSingleFile(File xmlFile)
     {
-        XmlImporter importer = parseXmlFile(xmlFile)
-        compressFiles(xmlFile, importer)
-    }
-
-    private XmlImporter parseXmlFile(File xmlFile)
-    {
-        try
-        {
-            // XMLBeans would be cleaner, but I'm not sure if this
-            // step should depend on schemas.jar.  should investigate further
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setValidating(true);
-            SAXParser parser = factory.newSAXParser();
-            XmlImporter importer = new XmlImporter(xmlFile, xmlFile.getParentFile(), workingDir);
-            parser.parse(xmlFile, importer);
-            return importer;
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void compressFiles(File xmlFile, XmlImporter importer)
-    {
+        XmlImporter importer = getImporterMap().get(xmlFile)
         if (importer.doCompile)
         {
             try
@@ -98,21 +160,36 @@ class ClientLibsCompress extends DefaultTask
         }
     }
 
+    XmlImporter parseXmlFile(File sourceDir, File xmlFile)
+    {
+        try
+        {
+            SAXParserFactory factory = SAXParserFactory.newInstance()
+            factory.setNamespaceAware(true)
+            factory.setValidating(true)
+            SAXParser parser = factory.newSAXParser()
+            // we pass in the source directory here because this directory is used for constructing
+            // the destination files
+            XmlImporter importer = new XmlImporter(xmlFile, sourceDir)
+            parser.parse(xmlFile, importer)
+            return importer
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     void compileScripts(File xmlFile, Set<File> srcFiles, String extension) throws IOException, InterruptedException
     {
         File minFile = getOutputFile(xmlFile, "min", extension);
 
-        if (upToDate(xmlFile, minFile, srcFiles))
-        {
-            project.logger.info("files are up to date");
-            return;
-        }
-
-        project.logger.info("Concatenating " + extension + " files into single file: ");
+        project.logger.info("Concatenating " + extension + " files into single file");
         File concatFile = getOutputFile(xmlFile, "combined", extension);
         concatenateFiles(srcFiles, concatFile);
 
-        project.logger.info("Minifying " + extension + " files with YUICompressor: ");
+        project.logger.info("Minifying " + extension + " files with YUICompressor");
         minFile.delete();
 
         minifyFile(concatFile, minFile);
@@ -129,12 +206,12 @@ class ClientLibsCompress extends DefaultTask
         }
     }
 
-    private File getOutputFile(File xmlFile, String token, String ex)
+    static File getOutputFile(File xmlFile, String token, String ex)
     {
         return new File(xmlFile.getParentFile(), xmlFile.getName().replaceAll(LIB_XML_EXTENSION, "." + token + "." + ex));
     }
 
-    private void concatenateFiles(Set<File> files, File output)
+    private static void concatenateFiles(Set<File> files, File output)
     {
         try
         {
@@ -178,59 +255,7 @@ class ClientLibsCompress extends DefaultTask
         }
     }
 
-
-    private List<String> getCompressorErrors(Set<File> srcFiles) throws IOException
-    {
-        List<String> allErrors = new ArrayList<>();
-        for (File srcFile : srcFiles)
-        {
-            File minFile = File.createTempFile(srcFile.getName(), null);
-            minFile.deleteOnExit();
-
-            List<String> errors = minifyFile(srcFile, minFile);
-
-            if (!errors.isEmpty())
-                allErrors.addAll(errors);
-        }
-        return allErrors;
-    }
-
-    // TODO convert to Gradle check with input and output file designations
-    private boolean upToDate(File xmlFile, File destFile, Set<File> srcFiles)
-    {
-        long ts = 0;
-        long lastModified;
-
-        if (destFile.exists())
-            ts = destFile.lastModified();
-        else
-            return false;
-
-        //test the xml file itself
-        lastModified = xmlFile.lastModified();
-        project.logger.debug("${xmlFile}  is ${lastModified < ts ? "older" : "newer"}  than ${destFile.getPath()}");
-        if (lastModified > ts)
-            return false;
-
-        //then test resources
-        for (File srcFile : srcFiles)
-        {
-            if (srcFile.exists())
-            {
-                lastModified = srcFile.lastModified();
-                project.logger.debug("${srcFile.getPath()}  is ${ (lastModified < ts ? "older" : "newer") }  than ${destFile.getPath()}");
-                if (lastModified > ts)
-                    return false;
-            }
-            else
-            {
-                project.logger.error("File does not exist: " + srcFile.getPath());
-            }
-        }
-        return true;
-    }
-
-    private void minifyFile(File srcFile, File destFile) throws IOException
+    private static void minifyFile(File srcFile, File destFile) throws IOException
     {
         if (srcFile.getName().endsWith("js"))
         {
@@ -255,17 +280,17 @@ class ClientLibsCompress extends DefaultTask
 
     private class XmlImporter extends DefaultHandler
     {
-        private boolean withinScriptsTag = false;
-        private File xmlFile;
-        private File sourceDir;
+        private boolean withinScriptsTag = false
+        private File xmlFile
+        private File sourceDir
         private LinkedHashSet<File> javaScriptFiles = new LinkedHashSet<>()
         private LinkedHashSet<File> cssFiles = new LinkedHashSet<>()
         private boolean doCompile = true
 
-        XmlImporter(File xml, File outputDir, File sourceDir)
+        XmlImporter(File xml, File sourceDir)
         {
-            xmlFile = xml;
-            this.sourceDir = sourceDir;
+            xmlFile = xml
+            this.sourceDir = sourceDir
         }
 
         LinkedHashSet<File> getJavaScriptFiles()
@@ -313,7 +338,7 @@ class ClientLibsCompress extends DefaultTask
                     //linux will be case-sensitive, so we proactively throw errors on any filesystem
                     try
                     {
-                        File f = org.apache.tools.ant.util.FileUtils.getFileUtils().normalize(scriptFile.getPath());
+                        File f = FileUtils.getFileUtils().normalize(scriptFile.getPath());
                         if( !scriptFile.getCanonicalFile().getName().equals(f.getName()))
                         {
                             throw new RuntimeException("File must be a case-sensitive match. Found: " + scriptFile.getAbsolutePath() + ", expected: " + scriptFile.getCanonicalPath());
