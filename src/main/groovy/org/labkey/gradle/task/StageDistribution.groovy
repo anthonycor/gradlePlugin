@@ -112,7 +112,12 @@ class StageDistribution extends DefaultTask
                 File file ->
                     spec.include file.getName()
             }
-
+            // include these artifacts in case we are deploying from an ant-built distribution
+            spec.include 'ant.jar'
+            spec.include 'jtds.jar'
+            spec.include 'mail.jar'
+            spec.include 'mysql.jar'
+            spec.include 'postgresql.jar'
         })
     }
 }
