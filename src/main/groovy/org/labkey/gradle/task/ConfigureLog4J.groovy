@@ -2,10 +2,8 @@ package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.extension.LabKeyExtension
-
 /**
  * Used to copy over the log4j.xml template file and replace the consoleAppender value
  * as appropriate for the current deployMode.
@@ -15,10 +13,9 @@ class ConfigureLog4J extends DefaultTask
     @InputFile
     File log4jXML = new File("${project.serverDeploy.rootWebappsDir}/log4j.xml")
 
-
     File outputDir = new File("${project.staging.webappClassesDir}")
 
-    @OutputFile
+//    @OutputFile
     File outputFile = new File(outputDir, "log4j.xml")
 
     @TaskAction
