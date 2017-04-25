@@ -13,6 +13,7 @@ class TeamCityExtension
     List<DatabaseProperties> databaseTypes = new ArrayList<>()
     List<String> validationMessages = new ArrayList<>()
     Project project
+    static final String CUSTOM_DB_PROPS = "custom"
 
     private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>()
     static
@@ -87,10 +88,17 @@ class TeamCityExtension
             {
                 if (SUPPORTED_DATABASES.containsKey(type))
                 {
-                    if ((Boolean) getTeamCityProperty("database.${type}", false))
+                    if (CUSTOM_DB_PROPS.equals(type) || (Boolean) getTeamCityProperty("database.${type}", false))
                     {
                         DatabaseProperties props = SUPPORTED_DATABASES.get(type)
-                        props.setProject(project)
+                        if (props == null)
+                        {
+                            props = new DatabaseProperties(project, false);
+                        }
+                        else
+                        {
+                            props.setProject(project)
+                        }
                         props.jdbcDatabase = getDatabaseName()
                         if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
                         {
