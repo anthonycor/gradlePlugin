@@ -2,6 +2,7 @@ package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 /**
@@ -15,11 +16,11 @@ class ConfigureLog4J extends DefaultTask
 
     File outputDir = new File("${project.staging.webappClassesDir}")
 
-//    @OutputFile
+    @OutputFile
     File outputFile = new File(outputDir, "log4j.xml")
 
     @TaskAction
-    void compress()
+    void copyFile()
     {
         String consoleAppender = "" // this is the setting for production mode
         if (LabKeyExtension.isDevMode(project))
