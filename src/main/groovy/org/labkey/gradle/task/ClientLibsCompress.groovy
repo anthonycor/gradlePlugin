@@ -45,12 +45,12 @@ class ClientLibsCompress extends DefaultTask
             getLibXmlFiles().files.each() {
                 File file ->
                     String absolutePath = file.getAbsolutePath();
-                    int endIndex = absolutePath.indexOf("webapp/")
+                    int endIndex = absolutePath.indexOf("webapp${File.separator}")
                     if (endIndex >= 0)
                         endIndex += 6;
                     else
                     {
-                        endIndex = absolutePath.indexOf("web/")
+                        endIndex = absolutePath.indexOf("web${File.separator}")
                         if (endIndex >= 0)
                             endIndex += 3
                     }
