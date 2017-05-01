@@ -75,22 +75,18 @@ class DeployApp extends DefaultTask
         )
                 {
                     fileset(dir: stagingModulesDir)
-                            {
-                                include( name: "*")
-                            }
                 }
     }
 
     private void deployTomcatJars()
     {
-        project.copy( { CopySpec copy ->
-            copy.from  stagingTomcatJarDir
-            copy.into "${project.tomcatDir}/lib"
-        })
-        project.copy ( { CopySpec copy ->
-            copy.from project.project(":server:bootstrap").tasks.jar
-            copy.into "${project.tomcatDir}/lib"
-        })
+        project.ant.copy(
+                todir: "${project.tomcatDir}/lib",
+                preserveLastModified: true
+        )
+                {
+                    fileset(dir: stagingTomcatJarDir)
+                }
     }
 
     private void deployPipelineJars()
