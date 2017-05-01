@@ -156,7 +156,5 @@ class JavaModule extends FileModule
             project.tasks.module.dependsOn(project.tasks.jspJar)
 
     }
-
-
 }
 
