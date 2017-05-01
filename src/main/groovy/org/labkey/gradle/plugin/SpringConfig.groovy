@@ -2,15 +2,13 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-
 /**
  * Used for copying the Spring config files to the module's build directory.
  */
 class SpringConfig implements Plugin<Project>
 {
     private static final DIR_PREFIX = "webapp/WEB-INF"
-    Project _project;
-    String _dirName;
+    String _dirName
 
     static boolean isApplicable(Project project)
     {
@@ -20,16 +18,16 @@ class SpringConfig implements Plugin<Project>
     @Override
     void apply(Project project)
     {
-        _project = project;
-        _dirName = "${DIR_PREFIX}/${_project.name}"
+        _dirName = "${DIR_PREFIX}/${project.name}"
         project.apply plugin: 'java-base'
 
         addSourceSet(project)
+        addDependencies(project)
     }
 
     private void addSourceSet(Project project)
     {
-        _project.sourceSets
+        project.sourceSets
                 {
                     spring {
                         resources {
@@ -38,6 +36,13 @@ class SpringConfig implements Plugin<Project>
                         output.resourcesDir = project.labkey.explodedModuleConfigDir
                     }
                 }
-        _project.tasks.processResources.dependsOn('processSpringResources')
+        project.tasks.processResources.dependsOn('processSpringResources')
+    }
+
+    private static void addDependencies(Project project)
+    {
+        // Issue 30155: without this, the spring xml files will not find the classes in the api jar
+        if (System.properties.'idea.active')
+            project.dependencies.add("springImplementation", project.project(":server:api").tasks.jar.outputs.files)
     }
 }
