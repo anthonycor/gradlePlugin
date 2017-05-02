@@ -3,9 +3,9 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.CopySpec
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DeleteSpec
-import org.gradle.api.tasks.Copy
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.plugin.extension.ServerDeployExtension
 import org.labkey.gradle.plugin.extension.StagingExtension
@@ -48,54 +48,87 @@ class ServerDeploy implements Plugin<Project>
 
         StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
 
-        // FIXME staging step complicates things, but we currently depend on it for generating the
-        // apiFilesList that determines which libraries to keep and which to remove from WEB-INF/lib
-        // We also need to put libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
+        // The staging step complicates things, but it is currently needed for the following reasons:
+        // - we currently depend on it for generating the apiFilesList that determines which libraries to keep and which to remove from WEB-INF/lib
+        //   (could be accomplished with a sync task perhaps)
+        // - We need to put certain libraries in WEB-INF/lib because the RecompilingJspClassLoader uses that in its classpath
+        // - We want to make sure tomcat doesn't restart multiple times when deploying the application.
+        //   (seems like it could be avoided as the copy being done here is just as atomic as the copy from deployModules)
         Task stageModulesTask = project.task(
                 "stageModules",
                 group: GroupNames.DEPLOY,
-                type: Copy,
                 description: "Stage the modules for the application into ${staging.dir}",
-                {
-                    from project.configurations.modules
-                    into staging.modulesDir
-                }
-        )
+        ).doLast({
+            project.ant.copy(
+                    todir: staging.modulesDir,
+                    preserveLastModified: true // this is important so we don't re-explode modules that have not changed
+            )
+                    {
+                        project.configurations.modules { Configuration collection ->
+                            collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
+                        }
+                    }
+        })
+
+        stageModulesTask.dependsOn project.configurations.modules
 
         Task stageJarsTask = project.task(
                 "stageJars",
                 group: GroupNames.DEPLOY,
-                type: Copy,
-                description: "Stage select jars into ${staging.dir}",
-                {CopySpec copy ->
-                    copy.from project.configurations.jars
-                    copy.into staging.libDir
-                }
-        )
+                description: "Stage select jars into ${staging.dir}"
+        ).doLast({
+            project.ant.copy(
+                    todir: staging.libDir,
+                    preserveLastModified: true
+            )
+                    {
+                        project.configurations.jars { Configuration collection ->
+                            collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
+                        }
+                    }
+        })
+        stageJarsTask.dependsOn project.configurations.jars
+
 
         Task stageTomcatJarsTask = project.task(
                 "stageTomcatJars",
                 group: GroupNames.DEPLOY,
-                type: Copy,
-                description: "Stage files for copying into the tomcat/lib directory into ${staging.tomcatLibDir}",
-                {
-                    CopySpec copy ->
-                        copy.from project.configurations.tomcatJars
-                        copy.into staging.tomcatLibDir
-                }
-        )
+                description: "Stage files for copying into the tomcat/lib directory into ${staging.tomcatLibDir}"
+        ).doLast({
+            project.ant.copy(
+                    todir: staging.tomcatLibDir,
+                    preserveLastModified: true
+            )
+                    {
+                        project.configurations.tomcatJars { Configuration collection ->
+                            collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
+                        }
+                    }
+        })
+
+        stageTomcatJarsTask.dependsOn project.configurations.tomcatJars
+
 
         Task stageRemotePipelineJarsTask = project.task(
                 "stageRemotePipelineJars",
                 group: GroupNames.DEPLOY,
-                type: Copy,
-                description: "Copy files needed for using remote pipeline jobs into ${staging.pipelineLibDir}",
+                description: "Copy files needed for using remote pipeline jobs into ${staging.pipelineLibDir}"
+        ).doLast(
                 {
-                    CopySpec copy ->
-                        copy.from project.configurations.remotePipelineJars
-                        copy.into staging.pipelineLibDir
+                    project.ant.copy(
+                            todir: staging.pipelineLibDir,
+                            preserveLastModified: true
+                    )
+                            {
+                                project.configurations.remotePipelineJars { Configuration collection ->
+                                    collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
+
+                                }
+                            }
                 }
         )
+
+        stageRemotePipelineJarsTask.dependsOn project.configurations.remotePipelineJars
 
         project.task(
                 "stageApp",

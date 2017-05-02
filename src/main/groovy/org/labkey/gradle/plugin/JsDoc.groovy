@@ -4,15 +4,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.CopySpec
-import org.gradle.api.specs.AndSpec
 import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.plugin.extension.JsDocExtension
+import org.labkey.gradle.task.CreateJsDocs
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.util.regex.Matcher
-
 /**
  * Plugin that provides tasks for created JavaScript documentation using jsDoc tools
  */
@@ -23,7 +21,7 @@ class JsDoc implements Plugin<Project>
     {
         project.extensions.create("jsDoc", JsDocExtension)
         project.jsDoc.root = "${project.rootDir}/tools/jsdoc-toolkit/"
-        project.jsDoc.outputDir = "${project.rootProject.buildDir}/client-api/javascript/docs"
+        project.jsDoc.outputDir = new File("${project.rootProject.buildDir}/client-api/javascript/docs")
         addTasks(project)
     }
 
@@ -48,38 +46,13 @@ class JsDoc implements Plugin<Project>
                     destinationDir = new File((String) "${project.jsDoc.root}/templates/jsdoc_substituted")
                 }
         )
-        project.task(
+        Task jsDocTask = project.task(
                 "jsdoc",
                 group: GroupNames.DOCUMENTATION,
-                type: JavaExec,
-                description: 'Generating Client API docs',
-                { JavaExec java ->
-                    java.inputs.files project.jsDoc.paths
-                    java.outputs.dir project.jsDoc.outputDir
-
-                    // Workaround for incremental build (GRADLE-1483)
-                    java.outputs.upToDateSpec = new AndSpec()
-
-                    java.main = "-jar"
-                    // FIXME not sure why the project.jsDoc.paths can't be included progammatically here.
-                    java.args = ["${project.jsDoc.root}/jsrun.jar",
-                            "${project.jsDoc.root}/app/run.js",
-                            "--template=${jsdocTemplateTask.destinationDir}",
-                            "--directory=${project.jsDoc.outputDir}",
-                            "--verbose",
-                            "api/webapp/clientapi",
-                            "api/webapp/clientapi/dom",
-                            "api/webapp/clientapi/core",
-                            "api/webapp/clientapi/ext3",
-                            "api/webapp/clientapi/ext4",
-                            "api/webapp/clientapi/ext4/data",
-                            "internal/webapp/labkey.js",
-                            "modules/visualization/resources/web/vis/genericChart/genericChartHelper.js",
-                            "modules/visualization/resources/web/vis/timeChart/timeChartHelper.js",
-                            "internal/webapp/vis/src"]
-                    dependsOn(jsdocTemplateTask)
-                }
+                type: CreateJsDocs,
+                description: 'Generating Client API docs'
         )
+        jsDocTask.dependsOn(jsdocTemplateTask)
     }
 }
 
