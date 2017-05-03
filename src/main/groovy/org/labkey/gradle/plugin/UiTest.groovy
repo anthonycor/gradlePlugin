@@ -18,7 +18,7 @@ class UiTest implements Plugin<Project>
 
     static Boolean isApplicable(Project project)
     {
-        // For now we return rely on the enableUiTests property here to allow use of individual test running
+        // For now we rely on the enableUiTests property here to allow use of individual test running
         // from the command line because the server/test project references the test/src directory as well
         // and IntelliJ doesn't like it when two projects reference the same source.
 
