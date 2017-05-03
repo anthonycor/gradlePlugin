@@ -9,6 +9,7 @@ import org.gradle.process.JavaExecSpec
 import org.labkey.gradle.plugin.extension.ServerDeployExtension
 import org.labkey.gradle.plugin.extension.TeamCityExtension
 import org.labkey.gradle.task.DoThenSetup
+import org.labkey.gradle.task.PickDb
 import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.task.UndeployModules
 import org.labkey.gradle.util.DatabaseProperties
@@ -180,6 +181,16 @@ class TeamCity extends Tomcat
         List<Task> ciTests = new ArrayList<>()
         for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
+            String shortType = properties.shortType
+            Task pickDbTask = project.task("pick${shortType}",
+                    group: GroupNames.TEST_SERVER,
+                    description: "Copy properties file for running tests for ${shortType}",
+                    type: PickDb,
+                    { PickDb task ->
+                        task.dbType = "${shortType}"
+                    }
+            )
+
             String suffix = properties.dbTypeAndVersion.capitalize()
             Task setUpDbTask = project.task("setUp${suffix}",
                 group: GroupNames.TEST_SERVER,
@@ -196,7 +207,8 @@ class TeamCity extends Tomcat
                         task.doLast {
                             properties.writeJdbcUrl()
                         }
-                    }
+                    },
+                dependsOn: [pickDbTask]
             )
 
             String undeployTaskName = "undeployModulesNotFor${properties.shortType.capitalize()}"

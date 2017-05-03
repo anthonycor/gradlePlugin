@@ -13,7 +13,8 @@ class TeamCityExtension
     List<DatabaseProperties> databaseTypes = new ArrayList<>()
     List<String> validationMessages = new ArrayList<>()
     Project project
-    static final String CUSTOM_DB_PROPS = "custom"
+    static final String CUSTOM_PG_PROPS = "custom_pg"
+    static final String CUSTOM_MSSQL_PROPS = "custom_mssql"
 
     private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>()
     static
@@ -26,6 +27,8 @@ class TeamCityExtension
         SUPPORTED_DATABASES.put("sqlserver2012", new DatabaseProperties("sqlserver2012", "mssql", "2012"))
         SUPPORTED_DATABASES.put("sqlserver2014", new DatabaseProperties("sqlserver2014", "mssql", "2014"))
         SUPPORTED_DATABASES.put("sqlserver2016", new DatabaseProperties("sqlserver2016", "mssql", "2016"))
+        SUPPORTED_DATABASES.put(CUSTOM_PG_PROPS, new DatabaseProperties("postgres", "pg", ""))
+        SUPPORTED_DATABASES.put(CUSTOM_MSSQL_PROPS, new DatabaseProperties("sqlserver", "mssql", ""))
     }
 
     TeamCityExtension(Project project)
@@ -88,17 +91,10 @@ class TeamCityExtension
             {
                 if (SUPPORTED_DATABASES.containsKey(type))
                 {
-                    if (CUSTOM_DB_PROPS.equals(type) || (Boolean) getTeamCityProperty("database.${type}", false))
+                    if (CUSTOM_PG_PROPS.equals(type) || CUSTOM_MSSQL_PROPS.equals(type) || (Boolean) getTeamCityProperty("database.${type}", false))
                     {
                         DatabaseProperties props = SUPPORTED_DATABASES.get(type)
-                        if (props == null)
-                        {
-                            props = new DatabaseProperties(project, false);
-                        }
-                        else
-                        {
-                            props.setProject(project)
-                        }
+                        props.setProject(project)
                         props.jdbcDatabase = getDatabaseName()
                         if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
                         {
