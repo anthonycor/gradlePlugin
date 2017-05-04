@@ -22,6 +22,8 @@ class PropertiesUtils
     {
         if (props == null)
             project.logger.error("${project.path} Properties is null")
+        else if (prop == null)
+            project.logger.error("${project.path} Property is null; no parsing possible")
         else
         {
             Matcher valMatcher = VALUE_PATTERN.matcher(prop)
