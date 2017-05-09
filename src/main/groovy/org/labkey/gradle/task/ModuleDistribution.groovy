@@ -36,6 +36,7 @@ class ModuleDistribution extends DefaultTask
         distExtension = project.extensions.findByType(DistributionExtension.class)
 
         this.dependsOn(project.project(":server").tasks.stageTomcatJars)
+        this.dependsOn(project.project(":server").tasks.stageApp)
     }
 
     File getDistributionDir()
@@ -229,7 +230,7 @@ class ModuleDistribution extends DefaultTask
                 }
                 tarfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib") {
                     // this exclusion is necessary because for some reason when buildFromSource=false,
-                    // the tomcat bootstrap jar is included in the staged libraries and the LabKey boostrap jar is not.
+                    // the tomcat bootstrap jar is included in the staged libraries and the LabKey bootstrap jar is not.
                     // Not sure why.
                     exclude(name: "bootstrap.jar")
                 }
