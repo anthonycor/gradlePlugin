@@ -62,7 +62,7 @@ class Tomcat implements Plugin<Project>
         // Deleting a file tree will delete all the leaves of the directory structure, but none of the
         // directories.
         cleanTempTask.doLast {
-            project.ant.delete(includeEmptyDirs: true)
+            project.ant.delete(includeEmptyDirs: true, quiet: true)
                     {
                         fileset(dir: "${project.tomcatDir}/temp")
                                 {
