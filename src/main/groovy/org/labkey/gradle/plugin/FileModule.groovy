@@ -19,7 +19,6 @@ import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.util.regex.Matcher
-
 /**
  * This class is used for building a LabKey file-based module, which contains only client-side code.
  * It also serves as a base class for the Java module classes.
@@ -113,11 +112,11 @@ class FileModule implements Plugin<Project>
                 group: GroupNames.MODULE,
                 type: Copy,
                 description: "create the module.xml file using module.properties",
-                {CopySpec copy ->
+                { CopySpec copy ->
                     copy.from project.project(":server").projectDir
                     copy.include 'module.template.xml'
-                    copy.rename {"module.xml"}
-                    copy.filter( { String line ->
+                    copy.rename { "module.xml" }
+                    copy.filter({ String line ->
                         Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
                         String newLine = line
                         while (matcher.find())
@@ -146,29 +145,87 @@ class FileModule implements Plugin<Project>
                 }
         )
 
-        Task moduleFile = project.task("module",
-                group: GroupNames.MODULE,
-                type: Jar,
-                description: "create the module file for this project",
-                {
-                    from project.labkey.explodedModuleDir
-                    exclude '**/*.uptodate'
-                    exclude "META-INF/${project.name}/**"
-                    exclude 'gwt-unitCache/**'
-                    baseName project.name
-                    extension 'module'
-                    destinationDir = project.buildDir
-                }
-        )
+        if (!AntBuild.isApplicable(project))
+        {
+            Task moduleFile = project.task("module",
+                    group: GroupNames.MODULE,
+                    type: Jar,
+                    description: "create the module file for this project",
+                    {
+                        from project.labkey.explodedModuleDir
+                        exclude '**/*.uptodate'
+                        exclude "META-INF/${project.name}/**"
+                        exclude 'gwt-unitCache/**'
+                        baseName project.name
+                        extension 'module'
+                        destinationDir = project.buildDir
+                    }
+            )
 
-        if (ModuleResources.isApplicable(project))
-            moduleFile.dependsOn(project.tasks.processModuleResources)
-        moduleFile.dependsOn(moduleXmlTask)
-        setJarManifestAttributes(project, (Manifest) moduleFile.manifest)
-        if (project.getPlugins().findPlugin(ClientLibraries.class) && !LabKeyExtension.isDevMode(project))
-            moduleFile.dependsOn(project.tasks.compressClientLibs)
-        project.tasks.build.dependsOn(moduleFile)
-        project.tasks.clean.dependsOn(project.tasks.cleanModule)
+            if (ModuleResources.isApplicable(project))
+                moduleFile.dependsOn(project.tasks.processModuleResources)
+            moduleFile.dependsOn(moduleXmlTask)
+            setJarManifestAttributes(project, (Manifest) moduleFile.manifest)
+            if (project.getPlugins().findPlugin(ClientLibraries.class) != null && !LabKeyExtension.isDevMode(project))
+                moduleFile.dependsOn(project.tasks.compressClientLibs)
+            project.tasks.build.dependsOn(moduleFile)
+            project.tasks.clean.dependsOn(project.tasks.cleanModule)
+
+            project.artifacts
+                    {
+                        published moduleFile
+                    }
+
+        project.task('deployModule',
+                group: GroupNames.MODULE,
+                description: "copy a project's .module file to the local deploy directory")
+                { Task task ->
+                    task.inputs.file moduleFile
+                    task.outputs.file "${ServerDeployExtension.getModulesDeployDirectory(project)}/${moduleFile.outputs.getFiles()[0].getName()}"
+
+                    task.doLast {
+                        project.copy { CopySpec copy ->
+                            copy.from moduleFile
+                            copy.into project.staging.modulesDir
+                        }
+                        project.copy { CopySpec copy ->
+                            copy.from moduleFile
+                            copy.into ServerDeployExtension.getModulesDeployDirectory(project)
+                        }
+                        if (LabKeyExtension.isBootstrapModule(project))
+                        {
+                            project.copy
+                                    { CopySpec copy ->
+                                        copy.from project.tasks.jar
+                                        copy.into "${project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/lib"
+                                    }
+                        }
+                    }
+                }
+
+            project.task('undeployModule',
+                    group: GroupNames.MODULE,
+                    description: "remove a project's .module file and the unjarred file from the deploy directory",
+                    type: Delete,
+                    { Delete delete ->
+                        getModuleFilesAndDirectories(project).forEach({
+                            File file ->
+                                if (file.isDirectory())
+                                    delete.inputs.dir file
+                                else
+                                    delete.inputs.file file
+                        })
+                        delete.outputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
+                        delete.doFirst {
+                            undeployModule(project)
+                        }
+                    })
+
+            project.task("reallyClean",
+                    group: GroupNames.BUILD,
+                    description: "Deletes the build, staging, and deployment directories of this module",
+            ).dependsOn(project.tasks.clean, project.tasks.undeployModule)
+        }
 
         if (hasClientLibraries(project))
         {
@@ -184,65 +241,9 @@ class FileModule implements Plugin<Project>
                     }
             )
         }
-
-        project.artifacts
-                {
-                    published moduleFile
-                }
-
-        project.task('deployModule',
-                group: GroupNames.MODULE,
-                description: "copy a project's .module file to the local deploy directory")
-                {Task task ->
-                    task.inputs.file moduleFile
-                    task.outputs.file "${ServerDeployExtension.getModulesDeployDirectory(project)}/${moduleFile.outputs.getFiles()[0].getName()}"
-
-                    task.doLast {
-                        project.copy { CopySpec copy->
-                            copy.from moduleFile
-                            copy.into project.staging.modulesDir
-                        }
-                        project.copy { CopySpec copy->
-                            copy.from moduleFile
-                            copy.into ServerDeployExtension.getModulesDeployDirectory(project)
-                        }
-                        if (LabKeyExtension.isBootstrapModule(project))
-                        {
-                            project.copy
-                                    { CopySpec copy ->
-                                        copy.from project.tasks.jar
-                                        copy.into "${project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/lib"
-                                    }
-                        }
-                    }
-                }
-
-        project.task('undeployModule',
-                group: GroupNames.MODULE,
-                description: "remove a project's .module file and the unjarred file from the deploy directory",
-                type: Delete,
-                { Delete delete ->
-                    getModuleFilesAndDirectories(project).forEach({
-                        File file ->
-                            if (file.isDirectory())
-                                delete.inputs.dir file
-                            else
-                                delete.inputs.file file
-                    })
-                    delete.outputs.dir "${ServerDeployExtension.getServerDeployDirectory(project)}/modules"
-                    delete.doFirst {
-                        undeployModule(project)
-                    }
-                })
-
-        project.task("reallyClean",
-                group: GroupNames.BUILD,
-                description: "Deletes the build, staging, and deployment directories of this module",
-        ).dependsOn(project.tasks.clean, project.tasks.undeployModule)
-
     }
 
-    void setJarManifestAttributes(Project project, Manifest manifest)
+    static void setJarManifestAttributes(Project project, Manifest manifest)
     {
         manifest.attributes(
                 "Implementation-Version": project.version,
