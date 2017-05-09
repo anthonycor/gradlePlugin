@@ -73,7 +73,8 @@ class BuildUtils
             "cnprc_ehr",
             "snprc_ehr",
             "ehr",
-            "onprc_ehr"
+            "onprc_ehr",
+            "tnprc_ehr"
     ]
 
     // TODO add other convenience lists here (e.g., "core" modules)
@@ -89,6 +90,7 @@ class BuildUtils
             "externalModules/onprcEHRModules",
             "externalModules/cnprcEHRModules",
             "externalModules/snprcEHRModules",
+            "externalModules/tnprcEHRModules",
             "externalModules/DISCVR"
     ]
 
