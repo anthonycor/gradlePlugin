@@ -69,6 +69,7 @@ class Tomcat implements Plugin<Project>
                                     include(name: "**/*")
                                 }
                     }
+            new File("${project.tomcatDir}", "temp").mkdirs()
         }
     }
 }
