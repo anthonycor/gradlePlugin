@@ -146,6 +146,7 @@ class CreateModule extends DefaultTask
                 return line
             })
         })
+        //copy.rename only looks at file names, rather than files and directories.
         renameCrawler(project.file(moduleDestination), substitutions)
         File codeOnlyModule = new File("${moduleDestination}/src/org/labkey/${moduleName}/MODULE_NAMECodeOnlyModule.java")
         if (codeOnlyModule.exists()) {
