@@ -8,7 +8,8 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * Created by Joe on 5/11/2017.
+ * Creates a new module based on the contents of trunk/server/moduleTemplate. Sources properties from commandline or
+ * user input based on the prompt flag.
  */
 class CreateModule extends DefaultTask
 {
