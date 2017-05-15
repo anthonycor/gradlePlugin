@@ -1,6 +1,7 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.TaskAction
 
@@ -17,11 +18,11 @@ class CreateModule extends DefaultTask
 
     @TaskAction
     void createModule() {
-        String moduleName = null
-        String moduleDestination = null
-        boolean hasManagedSchema = true
-        boolean createTestFiles = true
-        boolean createApiFiles = true
+        String moduleName = project.hasProperty('moduleName') ? project.moduleName : null
+        String moduleDestination = project.hasProperty('moduleDestination') ? project.moduleDestination : null
+        boolean hasManagedSchema = project.hasProperty('noManagedSchema')
+        boolean createTestFiles = project.hasProperty('createTestFiles')
+        boolean createApiFiles = project.hasProperty('createApiFiles')
 
         if (prompt) {
             project.ant.input(
@@ -37,7 +38,7 @@ class CreateModule extends DefaultTask
             moduleDestination = ant.new_moduleDestination
 
             project.ant.input(
-                    message: "\nWill this module create and manage a database schema? (y/N)",
+                    message: "\nWill this module create and manage a database schema? (Y/n)",
                     addProperty: "new_hasManagedSchema"
             )
             hasManagedSchema = !(ant.new_hasManagedSchema.toLowerCase().equals("n"))
@@ -54,29 +55,12 @@ class CreateModule extends DefaultTask
             )
             createApiFiles = ant.new_createApiFiles.toLowerCase().equals("y")
         }
-        else {
-            if (project.hasProperty('moduleName')) {
-                moduleName = project.moduleName
-            }
-            if (project.hasProperty('moduleDestination')) {
-                moduleDestination = project.moduleDestination
-            }
-            if (project.hasProperty('hasManagedSchema')) {
-                hasManagedSchema = !(project.hasManagedSchema.toLowerCase().equals("n"))
-            }
-            if (project.hasProperty('createTestFiles')) {
-                createTestFiles = project.createTestFiles.toLowerCase().equals("y")
-            }
-            if (project.hasProperty('createApiFiles')) {
-                createApiFiles = project.createApiFiles.toLowerCase().equals("y")
-            }
-        }
 
-        if (moduleName == null) {
-            project.logger.error("moduleName is not specified")
+        if (moduleName == null || moduleName == "") {
+            throw new GradleException("moduleName is not specified")
         }
-        if (moduleDestination == null) {
-            project.logger.error("moduleDestination is not specified")
+        if (moduleDestination == null || moduleDestination == "") {
+            throw new GradleException("moduleDestination is not specified")
         }
 
         boolean shouldCreate = true
@@ -85,7 +69,7 @@ class CreateModule extends DefaultTask
         if (existingModuleDir.exists()) {
             ant.input(
                     message: "\nModule directory already exists (${moduleDestination}). " +
-                            "Create module anyway? (y/N)\"",
+                            "Delete directory and create module anyway? (y/N)\"",
                     addProperty: "shouldCreateNewModule"
             )
             shouldCreate = ant.shouldCreateNewModule.toLowerCase().equals("y")
@@ -110,8 +94,7 @@ class CreateModule extends DefaultTask
         }
         catch (Exception e) {
             project.logger.error("Failed to create new module directory at ${(new File(moduleDestination)).getAbsolutePath()}")
-            project.logger.error("Error generated : ${e.message}")
-            project.logger.error(e.stackTrace.toArrayString())
+            throw new GradleException(e)
         }
 
         Map<String, String> substitutions = [
@@ -147,12 +130,12 @@ class CreateModule extends DefaultTask
                 return line
             })
         })
-        //copy.rename only looks at file names, rather than files and directories.
-        renameCrawler(project.file(moduleDestination), substitutions)
         File codeOnlyModule = new File("${moduleDestination}/src/org/labkey/${moduleName}/MODULE_NAMECodeOnlyModule.java")
         if (codeOnlyModule.exists()) {
             codeOnlyModule.renameTo(new File("${moduleDestination}/src/org/labkey/${moduleName}/MODULE_NAMEModule.java"))
         }
+        //copy.rename only looks at file names, rather than files and directories.
+        renameCrawler(project.file(moduleDestination), substitutions)
 
         project.logger.info("Module created in ${moduleDestination}")
         project.logger.info("Refresh the Gradle window to add this module to your IntelliJ project to start editing the code.")
