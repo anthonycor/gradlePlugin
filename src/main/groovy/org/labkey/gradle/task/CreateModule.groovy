@@ -14,29 +14,42 @@ import java.util.regex.Pattern
  */
 class CreateModule extends DefaultTask
 {
-    boolean prompt = true
-
     @TaskAction
     void createModule() {
-        String moduleName = project.hasProperty('moduleName') ? project.moduleName : null
-        String moduleDestination = project.hasProperty('moduleDestination') ? project.moduleDestination : null
-        boolean hasManagedSchema = project.hasProperty('noManagedSchema')
-        boolean createTestFiles = project.hasProperty('createTestFiles')
-        boolean createApiFiles = project.hasProperty('createApiFiles')
+        String moduleName
+        String moduleDestination
+        boolean hasManagedSchema
+        boolean createTestFiles
+        boolean createApiFiles
 
-        if (prompt) {
+        if (project.hasProperty('moduleName')) {
+            moduleName =  project.moduleName
+        }
+        else {
             project.ant.input(
                     message: "\nEnter the name for your new module: ",
                     addProperty: "new_moduleName"
             )
             moduleName = ant.new_moduleName
+        }
 
+        if (project.hasProperty('moduleDestination')) {
+            moduleDestination =  project.moduleDestination
+        }
+        else {
             project.ant.input(
                     message: "\nEnter the full path for where to put the new module: ",
                     addProperty: "new_moduleDestination"
             )
             moduleDestination = ant.new_moduleDestination
+        }
 
+        if (project.hasProperty('createFiles')) {
+            hasManagedSchema = ((String)project.createFiles).contains('schema')
+            createTestFiles = ((String)project.createFiles).contains('test')
+            createApiFiles = ((String)project.createFiles).contains('api')
+        }
+        else {
             project.ant.input(
                     message: "\nWill this module create and manage a database schema? (Y/n)",
                     addProperty: "new_hasManagedSchema"
@@ -119,8 +132,6 @@ class CreateModule extends DefaultTask
             if (!createApiFiles) {
                 copy.exclude("api-src/**")
             }
-
-            copy.exclude("**/*.iml")
 
             copy.filter({String line ->
                 Matcher matcher = Pattern.compile("(@@([^@]+)@@)").matcher(line)
