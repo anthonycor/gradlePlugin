@@ -126,9 +126,20 @@ class DeployApp extends DefaultTask
     // Use this method to preserve file permissions, since ant.copy does not, but this does not preserve last modified times
     private void deployBinariesViaProjectCopy(String osDirectory)
     {
-        project.copy { CopySpec copy ->
-            copy.from project.fileTree("${project.labkey.externalDir}/${osDirectory}").files
-            copy.into "${project.serverDeploy.binDir}"
+        File parentDir = new File("${project.labkey.externalDir}", "${osDirectory}")
+        List<File> subDirs = parentDir.listFiles new FileFilter() {
+            @Override
+            boolean accept(File pathname)
+            {
+                return pathname.isDirectory()
+            }
+        }
+        for (File dir : subDirs)
+        {
+            project.copy { CopySpec copy ->
+                copy.from dir
+                copy.into "${project.serverDeploy.binDir}"
+            }
         }
     }
 
