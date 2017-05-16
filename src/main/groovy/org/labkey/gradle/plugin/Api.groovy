@@ -42,7 +42,7 @@ class Api implements Plugin<Project>
                 {
                     api {
                         java {
-                            srcDirs = [project.file(SOURCE_DIR).exists() ? SOURCE_DIR : ALT_SOURCE_DIR, 'intenral/gwtsrc']
+                            srcDirs = [project.file(SOURCE_DIR).exists() ? SOURCE_DIR : ALT_SOURCE_DIR, 'internal/gwtsrc']
                         }
                         output.classesDir = "${project.buildDir}/api-classes"
                     }
