@@ -13,6 +13,13 @@ import org.labkey.gradle.util.GroupNames
  */
 class JavaModule extends FileModule
 {
+    public static final DIR_NAME = "src";
+
+    static boolean isApplicable(Project project)
+    {
+        return project.file(DIR_NAME).exists()
+    }
+
     @Override
     protected void applyPlugins(Project project)
     {
