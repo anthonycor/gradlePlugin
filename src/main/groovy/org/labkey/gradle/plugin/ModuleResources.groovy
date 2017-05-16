@@ -3,6 +3,8 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.labkey.gradle.plugin.extension.LabKeyExtension
+import org.labkey.gradle.task.GzipAction
 import org.labkey.gradle.task.WriteDependenciesFile
 /**
  * TODO probably more efficient to fold this into the SimpleModule plugin
@@ -46,6 +48,8 @@ class ModuleResources implements Plugin<Project>
                         output.resourcesDir = project.labkey.explodedModuleDir
                     }
                 }
+        if (!LabKeyExtension.isDevMode(project))
+            project.tasks.processModuleResources.doLast(new GzipAction())
         project.tasks.processResources.dependsOn('processModuleResources')
     }
 }
