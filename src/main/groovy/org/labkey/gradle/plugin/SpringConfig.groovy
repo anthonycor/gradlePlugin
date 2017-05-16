@@ -36,7 +36,7 @@ class SpringConfig implements Plugin<Project>
                         output.resourcesDir = project.labkey.explodedModuleConfigDir
                     }
                 }
-        project.tasks.processResources.dependsOn('processSpringResources')
+        project.tasks.processResources.dependsOn(project.tasks.processSpringResources)
     }
 
     private static void addDependencies(Project project)

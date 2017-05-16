@@ -164,6 +164,8 @@ class FileModule implements Plugin<Project>
 
             if (ModuleResources.isApplicable(project))
                 moduleFile.dependsOn(project.tasks.processModuleResources)
+            if (SpringConfig.isApplicable(project))
+                moduleFile.dependsOn(project.tasks.processResources)
             moduleFile.dependsOn(moduleXmlTask)
             setJarManifestAttributes(project, (Manifest) moduleFile.manifest)
             if (project.getPlugins().findPlugin(ClientLibraries.class) != null && !LabKeyExtension.isDevMode(project))
