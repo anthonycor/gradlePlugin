@@ -7,8 +7,7 @@ import org.labkey.gradle.util.BuildUtils
  * This class is used for building a LabKey module (one that typically resides in a *modules
  * directory).  It defines tasks for building the jar files (<module>_api.jar, <module>_jsp.jar, <module>.jar, <module>_schemas.jar)
  * as well as tasks for copying resources to the module's build directory.  This differs from java module
- * in that it allows for a separate api jar and a schemas jar that the compileJava tasks depend on. (So "Simple"
- * means fewer dependencies.)
+ * in that it allows for a separate api jar and a schemas jar that the compileJava tasks depend on.
  */
 class Module extends JavaModule
 {
