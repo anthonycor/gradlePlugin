@@ -99,7 +99,7 @@ class Jsp implements Plugin<Project>
         // it for the command line, there will be lots of warnings about .tld files on the classpath where
         // they don't belong ("CLASSPATH element .../labkey.tld is not a JAR.").  These warnings may appear if
         // building within IntelliJ but perhaps we can live with that (for now).
-        if (System.properties.'idea.active')
+        if (BuildUtils.isIntellij())
             project.dependencies.add("compile", project.rootProject.tasks.copyTagLibsBase.inputs.files)
     }
 

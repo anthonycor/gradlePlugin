@@ -2,6 +2,8 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.labkey.gradle.util.BuildUtils
+
 /**
  * Used for copying the Spring config files to the module's build directory.
  */
@@ -42,7 +44,13 @@ class SpringConfig implements Plugin<Project>
     private static void addDependencies(Project project)
     {
         // Issue 30155: without this, the spring xml files will not find the classes in the api jar
-        if (System.properties.'idea.active')
+        if (BuildUtils.isIntellij())
+        {
             project.dependencies.add("springImplementation", project.project(":server:api").tasks.jar.outputs.files)
+            if (project.tasks.findByName("jar") != null)
+                project.dependencies.add("springImplementation", project.tasks.jar.outputs.files)
+            if (project.tasks.findByName("apiJar") != null)
+                project.dependencies.add("springImplementation", project.tasks.apiJar.outputs.files)
+        }
     }
 }

@@ -425,4 +425,9 @@ class BuildUtils
     {
         return project.hasProperty("doDistributionPublish")
     }
+
+    static Boolean isIntellij()
+    {
+        return System.properties.'idea.active'
+    }
 }
