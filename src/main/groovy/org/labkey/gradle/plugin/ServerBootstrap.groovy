@@ -90,6 +90,7 @@ class ServerBootstrap implements Plugin<Project>
                     outputs.file  "${project.staging.webInfDir}/apiFiles.list"
                 }
         )
+        createApiFilesList.mustRunAfter(project.project(":server").tasks.stageApp)
         createApiFilesList.dependsOn(project.jar)
         project.project(":server").tasks.deployApp.dependsOn(createApiFilesList)
     }
