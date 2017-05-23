@@ -17,7 +17,6 @@ import org.xml.sax.helpers.DefaultHandler
 import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
 import java.nio.charset.StandardCharsets
-
 /**
  * Class for compressiong javascript and css files using the yuicompressor classes.
  */
@@ -44,23 +43,27 @@ class ClientLibsCompress extends DefaultTask
             importerMap = new HashMap<>()
             getLibXmlFiles().files.each() {
                 File file ->
-                    String absolutePath = file.getAbsolutePath();
-                    int endIndex = absolutePath.indexOf("webapp${File.separator}")
-                    if (endIndex >= 0)
-                        endIndex += 6;
-                    else
-                    {
-                        endIndex = absolutePath.indexOf("web${File.separator}")
-                        if (endIndex >= 0)
-                            endIndex += 3
-                    }
-                    if (endIndex < 0)
-                        throw new Exception("File ${file} not in webapp or web directory.")
-                    File sourceDir = new File(absolutePath.substring(0, endIndex))
-                    importerMap.put(file, parseXmlFile(sourceDir, file))
+                    importerMap.put(file, parseXmlFile(getSourceDir(file), file))
             }
         }
         return importerMap;
+    }
+
+    static File getSourceDir(File libXmlFile)
+    {
+        String absolutePath = libXmlFile.getAbsolutePath();
+        int endIndex = absolutePath.indexOf("webapp${File.separator}")
+        if (endIndex >= 0)
+            endIndex += 6;
+        else
+        {
+            endIndex = absolutePath.indexOf("web${File.separator}")
+            if (endIndex >= 0)
+                endIndex += 3
+        }
+        if (endIndex < 0)
+            throw new Exception("File ${libXmlFile} not in webapp or web directory.")
+        return new File(absolutePath.substring(0, endIndex))
     }
 
     /**
@@ -183,10 +186,12 @@ class ClientLibsCompress extends DefaultTask
 
     void compileScripts(File xmlFile, Set<File> srcFiles, String extension) throws IOException, InterruptedException
     {
-        File minFile = getOutputFile(xmlFile, "min", extension);
+        File sourceDir = getSourceDir(xmlFile)
+        File workingFile = new File(xmlFile.getAbsolutePath().replace(sourceDir.getAbsolutePath(), workingDir.getAbsolutePath()))
+        File minFile = getOutputFile(workingFile, "min", extension);
 
         project.logger.info("Concatenating " + extension + " files into single file");
-        File concatFile = getOutputFile(xmlFile, "combined", extension);
+        File concatFile = getOutputFile(workingFile, "combined", extension);
         concatenateFiles(srcFiles, concatFile);
 
         project.logger.info("Minifying " + extension + " files with YUICompressor");
