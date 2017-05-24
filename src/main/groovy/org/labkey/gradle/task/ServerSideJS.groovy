@@ -1,6 +1,7 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -52,6 +53,10 @@ class ServerSideJS extends DefaultTask
                         footer(file: "${scriptFragmentsDir}/Ext.footer.js")
                     }
         }
+        else
+        {
+            throw new GradleException("Unable to create server-side javascript files. No such file or directory: ${ext3SrcDir}")
+        }
     }
 
     // create a combined Ext4.js usable by the core module's server-side scripts
@@ -74,6 +79,10 @@ class ServerSideJS extends DefaultTask
                         fileset(file: new File(ext4SrcDir, "misc/JSON.js"))
                         footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
                     }
+        }
+        else
+        {
+            throw new GradleException("Unable to create server-side javascript files. No such file or directory: ${ext4SrcDir}")
         }
 
     }
