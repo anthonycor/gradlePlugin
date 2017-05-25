@@ -26,7 +26,7 @@ class CoreScripts implements Plugin<Project>
                 description: "Concatenate javascript files for use on the server side",
                 type: ServerSideJS
         )
-        if (project.hasProperty("processResources"))
-            project.tasks.processResources.dependsOn(task)
+        if (project.hasProperty("processModuleResources"))
+            project.tasks.processModuleResources.dependsOn(task)
     }
 }
