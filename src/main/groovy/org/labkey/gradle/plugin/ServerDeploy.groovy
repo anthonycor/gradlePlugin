@@ -103,6 +103,13 @@ class ServerDeploy implements Plugin<Project>
                         project.configurations.tomcatJars { Configuration collection ->
                             collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
                         }
+                        // Put unversioned files into the tomcatLibDir.  These files are meant to be copied into
+                        // the tomcat/lib directory when deploying a build or a distribution.  When version numbers change,
+                        // you will end up with multiple versions of these jar files on the classpath, which will often
+                        // result in problems of compatibility.  We may employ CATALINA_BASE in order to separate our
+                        // libraries from the ones that come with the tomcat distribution. This will require updating our
+                        // instructions for installation by clients.
+                        regexpmapper(from: "^(.*?)(-\\d+(\\.\\d+)*(-\\.*)?(-SNAPSHOT)?)?\\.jar", to: "\\1.jar")
                     }
         })
 
@@ -210,9 +217,11 @@ class ServerDeploy implements Plugin<Project>
                     spec.delete serverDeploy.dir
                 }
         )
-        cleanDeploy.doLast {
-            deleteTomcatLibs(project)
-        }
+        // Taking this out for now since we are now deploying unversioned jars into the tomcat lib directory it is less
+        // likely that these jars will need to be removed (they just get overwritten all the time).
+//        cleanDeploy.doLast {
+//            deleteTomcatLibs(project)
+//        }
 
         project.task(
                 "cleanAndDeploy",
@@ -232,9 +241,11 @@ class ServerDeploy implements Plugin<Project>
                     spec.delete project.rootProject.buildDir
                 }
         )
-        cleanBuild.doLast {
-            deleteTomcatLibs(project)
-        }
+        // Taking this out for now since we are now deploying unversioned jars into the tomcat lib directory it is less
+        // likely that these jars will need to be removed (they just get overwritten all the time).
+//        cleanBuild.doLast {
+//            deleteTomcatLibs(project)
+//        }
 
     }
 
@@ -257,9 +268,9 @@ class ServerDeploy implements Plugin<Project>
         }
 
         // also get rid of (un-versioned) jars that were deployed from ant, if there are any
-        List<String> jarsFromAntDeploy = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar"]
+        List<String> unversionedJars = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar"]
 
-        jarsFromAntDeploy.each{String name ->
+        unversionedJars.each{String name ->
             File libFile = new File("${project.tomcatDir}/lib/${name}")
             if (libFile.exists())
                 project.delete libFile.getAbsolutePath()
