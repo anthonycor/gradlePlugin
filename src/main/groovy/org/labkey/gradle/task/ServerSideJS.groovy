@@ -39,61 +39,63 @@ class ServerSideJS extends DefaultTask
     {
 
         File ext3SrcDir = project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src")
-        if (ext3SrcDir.exists())
-        {
-            ant.concat(destFile: "${scriptsDir}/Ext.js", force: true)
-                    {
-                        header(file: "${scriptFragmentsDir}/Ext.header.js")
-                        fileset(file: new File(ext3SrcDir, "Ext.js"))
-                        fileset(file: "${scriptFragmentsDir}/Ext.middle.js")
-                        fileset(file: new File(ext3SrcDir, "Observable.js"))
-                        fileset(file: new File(ext3SrcDir, "JSON.js"))
-                        fileset(file: new File(ext3SrcDir, "Connection.js"))
-                        fileset(file: new File(ext3SrcDir, "Format.js"))
-                        footer(file: "${scriptFragmentsDir}/Ext.footer.js")
-                    }
-        }
-        else
-        {
-            throw new GradleException("Unable to create server-side javascript files. No such file or directory: ${ext3SrcDir}")
-        }
+        if (!ext3SrcDir.exists())
+            throw new GradleException("Unable to create server-side javascript files. Missing ext3 source directory: ${ext3SrcDir}")
+
+        println("Concatenating Ext3 JS files from directory ${ext3SrcDir} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
+        ant.concat(destFile: "${scriptsDir}/Ext.js", force: true)
+                {
+                    header(file: "${scriptFragmentsDir}/Ext.header.js")
+                    fileset(file: new File(ext3SrcDir, "Ext.js"))
+                    fileset(file: "${scriptFragmentsDir}/Ext.middle.js")
+                    fileset(file: new File(ext3SrcDir, "Observable.js"))
+                    fileset(file: new File(ext3SrcDir, "JSON.js"))
+                    fileset(file: new File(ext3SrcDir, "Connection.js"))
+                    fileset(file: new File(ext3SrcDir, "Format.js"))
+                    footer(file: "${scriptFragmentsDir}/Ext.footer.js")
+                }
+
     }
 
     // create a combined Ext4.js usable by the core module's server-side scripts
     private void concatenateExt4JsFiles()
     {
         File ext4SrcDir = project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src")
-        if (ext4SrcDir.exists())
-        {
-            ant.concat(destFile: "${scriptsDir}/Ext4.js", force: true)
-                    {
-                        header(file: "${scriptFragmentsDir}/Ext4.header.js")
-                        fileset(file: new File(ext4SrcDir, "Ext.js"))
-                        fileset(file: new File(ext4SrcDir, "lang/Array.js"))
-                        fileset(file: new File(ext4SrcDir, "lang/Date.js"))
-                        fileset(file: new File(ext4SrcDir, "lang/Number.js"))
-                        fileset(file: new File(ext4SrcDir, "lang/Object.js"))
-                        fileset(file: new File(ext4SrcDir, "lang/String.js"))
-                        fileset(file: new File(ext4SrcDir, "lang/Error.js"))
-                        fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
-                        fileset(file: new File(ext4SrcDir, "misc/JSON.js"))
-                        footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
-                    }
-        }
-        else
-        {
-            throw new GradleException("Unable to create server-side javascript files. No such file or directory: ${ext4SrcDir}")
-        }
+        if (!ext4SrcDir.exists())
+            throw new GradleException("Unable to create server-side javascript files. Missing ext4 source directory: ${ext4SrcDir}")
+
+        println("Concatenating Ext4 JS files from directory ${ext4SrcDir} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
+        ant.concat(destFile: "${scriptsDir}/Ext4.js", force: true)
+                {
+                    header(file: "${scriptFragmentsDir}/Ext4.header.js")
+                    fileset(file: new File(ext4SrcDir, "Ext.js"))
+                    fileset(file: new File(ext4SrcDir, "lang/Array.js"))
+                    fileset(file: new File(ext4SrcDir, "lang/Date.js"))
+                    fileset(file: new File(ext4SrcDir, "lang/Number.js"))
+                    fileset(file: new File(ext4SrcDir, "lang/Object.js"))
+                    fileset(file: new File(ext4SrcDir, "lang/String.js"))
+                    fileset(file: new File(ext4SrcDir, "lang/Error.js"))
+                    fileset(file: "${scriptFragmentsDir}/Ext4.middle.js")
+                    fileset(file: new File(ext4SrcDir, "misc/JSON.js"))
+                    footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
+                }
 
     }
 
     private void concatenateLabKeyJsFile(String baseName)
     {
+        File baseFile = project.project(':server:api').file("webapp/clientapi/core/${baseName}.js")
+        if (!baseFile.exists())
+            throw new GradleException("Unable to create server-side javascript files. Missing source file: ${baseFile}")
+
+        println("Concatenating LabKey JS file ${baseName} from file ${baseFile} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
+
         ant.concat(destFile: "${scriptsDir}/labkey/${baseName}.js", force: true)
                 {
                     header(file: "${scriptFragmentsDir}/labkey/${baseName}.header.js")
-                    fileset(file: project.project(':server:api').file("webapp/clientapi/core/${baseName}.js"))
+                    fileset(file: baseFile)
                     footer(file: "${scriptFragmentsDir}/labkey/${baseName}.footer.js")
                 }
+
     }
 }
