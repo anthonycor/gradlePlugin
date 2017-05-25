@@ -44,7 +44,6 @@ class ServerSideJS extends DefaultTask
         if (!scriptsDir.canWrite())
             throw new GradleException("Unable to create server-side javascript files. Output directory ${scriptsDir} not writable.")
 
-        println("Concatenating Ext3 JS files from directory ${ext3SrcDir} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
         ant.concat(destFile: "${scriptsDir}/Ext.js", force: true)
                 {
                     header(file: "${scriptFragmentsDir}/Ext.header.js")
@@ -70,7 +69,6 @@ class ServerSideJS extends DefaultTask
         if (!scriptsDir.canWrite())
             throw new GradleException("Unable to create server-side javascript files. Output directory ${scriptsDir} not writable.")
 
-        println("Concatenating Ext4 JS files from directory ${ext4SrcDir} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
         ant.concat(destFile: "${scriptsDir}/Ext4.js", force: true)
                 {
                     header(file: "${scriptFragmentsDir}/Ext4.header.js")
@@ -98,8 +96,6 @@ class ServerSideJS extends DefaultTask
             throw new GradleException("Unable to create server-side javascript files. Missing source file: ${baseFile}")
         if (!scriptsDir.canWrite())
             throw new GradleException("Unable to create server-side javascript files. Output directory ${scriptsDir} not writable.")
-
-        println("Concatenating LabKey JS file ${baseName} from file ${baseFile} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
 
         ant.concat(destFile: "${scriptsDir}/labkey/${baseName}.js", force: true)
                 {
