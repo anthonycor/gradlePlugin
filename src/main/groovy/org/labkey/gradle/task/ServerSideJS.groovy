@@ -41,6 +41,8 @@ class ServerSideJS extends DefaultTask
         File ext3SrcDir = project.project(':server:api').file("webapp/${project.labkey.ext3Dir}/src")
         if (!ext3SrcDir.exists())
             throw new GradleException("Unable to create server-side javascript files. Missing ext3 source directory: ${ext3SrcDir}")
+        if (!scriptsDir.canWrite())
+            throw new GradleException("Unable to create server-side javascript files. Output directory ${scriptsDir} not writable.")
 
         println("Concatenating Ext3 JS files from directory ${ext3SrcDir} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
         ant.concat(destFile: "${scriptsDir}/Ext.js", force: true)
@@ -54,7 +56,9 @@ class ServerSideJS extends DefaultTask
                     fileset(file: new File(ext3SrcDir, "Format.js"))
                     footer(file: "${scriptFragmentsDir}/Ext.footer.js")
                 }
-
+        File destFile = new File("${scriptsDir}/Ext.js")
+        if (!destFile.exists())
+            throw new GradleException("Output file ${destFile} not created")
     }
 
     // create a combined Ext4.js usable by the core module's server-side scripts
@@ -63,6 +67,8 @@ class ServerSideJS extends DefaultTask
         File ext4SrcDir = project.project(':server:api').file("webapp/${project.labkey.ext4Dir}/src")
         if (!ext4SrcDir.exists())
             throw new GradleException("Unable to create server-side javascript files. Missing ext4 source directory: ${ext4SrcDir}")
+        if (!scriptsDir.canWrite())
+            throw new GradleException("Unable to create server-side javascript files. Output directory ${scriptsDir} not writable.")
 
         println("Concatenating Ext4 JS files from directory ${ext4SrcDir} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
         ant.concat(destFile: "${scriptsDir}/Ext4.js", force: true)
@@ -79,6 +85,9 @@ class ServerSideJS extends DefaultTask
                     fileset(file: new File(ext4SrcDir, "misc/JSON.js"))
                     footer(file: "${scriptFragmentsDir}/Ext4.footer.js")
                 }
+        File destFile = new File("${scriptsDir}/Ext4.js")
+        if (!destFile.exists())
+            throw new GradleException("Output file ${destFile} not created")
 
     }
 
@@ -87,6 +96,8 @@ class ServerSideJS extends DefaultTask
         File baseFile = project.project(':server:api').file("webapp/clientapi/core/${baseName}.js")
         if (!baseFile.exists())
             throw new GradleException("Unable to create server-side javascript files. Missing source file: ${baseFile}")
+        if (!scriptsDir.canWrite())
+            throw new GradleException("Unable to create server-side javascript files. Output directory ${scriptsDir} not writable.")
 
         println("Concatenating LabKey JS file ${baseName} from file ${baseFile} using scriptsDir ${scriptsDir} and scriptFragmentsDir ${scriptFragmentsDir}")
 
@@ -96,6 +107,8 @@ class ServerSideJS extends DefaultTask
                     fileset(file: baseFile)
                     footer(file: "${scriptFragmentsDir}/labkey/${baseName}.footer.js")
                 }
-
+        File destFile = new File("${scriptsDir}/labkey/${baseName}.js")
+        if (!destFile.exists())
+            throw new GradleException("Output file ${destFile} not created")
     }
 }
