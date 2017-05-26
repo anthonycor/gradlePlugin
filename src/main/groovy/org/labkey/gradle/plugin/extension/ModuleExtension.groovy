@@ -104,10 +104,21 @@ class ModuleExtension
         if (LabKeyExtension.isDevMode(project))
             modProperties.setProperty("SourcePath", project.projectDir.getAbsolutePath())
         modProperties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
+        boolean isExternalModule = project.projectDir.getAbsolutePath().contains("externalModules")
         if (modProperties.getProperty("ConsolidateScripts") == null)
-            modProperties.setProperty("ConsolidateScripts", "")
+        {
+            if (isExternalModule)
+                modProperties.setProperty("ConsolidateScripts", "false")
+            else
+                modProperties.setProperty("ConsolidateScripts", "true")
+        }
         if (modProperties.getProperty("ManageVersion") == null)
-            modProperties.setProperty("ManageVersion", "")
+        {
+            if (isExternalModule)
+                modProperties.setProperty("ManageVersion", "false")
+            else
+                modProperties.setProperty("ManageVersion", "true")
+        }
     }
 
     private void setModuleInfoProperties()
