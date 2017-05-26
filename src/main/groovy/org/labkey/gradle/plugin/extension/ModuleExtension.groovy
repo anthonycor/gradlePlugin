@@ -74,6 +74,9 @@ class ModuleExtension
 
     private setEnlistmentId()
     {
+        if (!LabKeyExtension.isDevMode(project))
+            return
+
         File enlistmentFile = new File(project.getRootProject().getProjectDir(), ENLISTMENT_PROPERTIES)
         Properties enlistmentProperties = new Properties()
         if (!enlistmentFile.exists())
@@ -93,12 +96,13 @@ class ModuleExtension
     {
         modProperties.setProperty("RequiredServerVersion", "0.0")
         if (modProperties.getProperty("BuildType") == null)
-            modProperties.setProperty("BuildType", project.labkey.getDeployModeName(project))
+            modProperties.setProperty("BuildType", LabKeyExtension.getDeployModeName(project))
         modProperties.setProperty("BuildUser", System.getProperty("user.name"))
         modProperties.setProperty("BuildOS", System.getProperty("os.name"))
         modProperties.setProperty("BuildTime", SimpleDateFormat.getDateTimeInstance().format(new Date()))
         modProperties.setProperty("BuildPath", project.buildDir.getAbsolutePath())
-        modProperties.setProperty("SourcePath", project.projectDir.getAbsolutePath())
+        if (LabKeyExtension.isDevMode(project))
+            modProperties.setProperty("SourcePath", project.projectDir.getAbsolutePath())
         modProperties.setProperty("ResourcePath", "") // TODO  _project.getResources().... ???
         if (modProperties.getProperty("ConsolidateScripts") == null)
             modProperties.setProperty("ConsolidateScripts", "")
