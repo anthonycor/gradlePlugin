@@ -45,16 +45,22 @@ class StartTomcat extends DefaultTask
                 )
             }
 
-            String catalinaOpts = "${project.tomcat.assertionFlag} -Ddevmode=${LabKeyExtension.isDevMode(project)} ${project.tomcat.catalinaOpts} " +
-                        "-Xmx${TeamCityExtension.getTeamCityProperty(project, "Xmx", project.tomcat.maxMemory)} " +
-                        "${project.tomcat.recompileJsp ? "" : "-Dlabkey.disableRecompileJsp=true"} " +
-                        "${project.tomcat.trustStore} ${project.tomcat.trustStorePassword} "
+            List<String> optsList = new ArrayList<>()
+            optsList.add(project.tomcat.assertionFlag)
+            optsList.add("-Ddevmode=${LabKeyExtension.isDevMode(project)}")
+            optsList.add(project.tomcat.catalinaOpts)
+            optsList.add("-Xmx${TeamCityExtension.getTeamCityProperty(project, "Xmx", project.tomcat.maxMemory)}")
+            if (project.tomcat.recompileJsp)
+                optsList.add("-Dlabkey.disableRecompileJsp=true")
+            optsList.add(project.tomcat.trustStore)
+            optsList.add(project.tomcat.trustStorePassword)
 
             if (TeamCityExtension.isOnTeamCity(project) && SystemUtils.IS_OS_UNIX)
             {
-                catalinaOpts += "-DsequencePipelineEnabled=${TeamCityExtension.getTeamCityProperty(project, "sequencePipelineEnabled", false)}"
+                optsList.add("-DsequencePipelineEnabled=${TeamCityExtension.getTeamCityProperty(project, "sequencePipelineEnabled", false)}")
             }
 
+            String catalinaOpts = optsList.join(" ")
             project.logger.debug("setting CATALINA_OPTS to ${catalinaOpts}")
             env(
                     key: "CATALINA_OPTS",
