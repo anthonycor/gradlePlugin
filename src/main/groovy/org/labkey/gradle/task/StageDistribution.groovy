@@ -118,6 +118,7 @@ class StageDistribution extends DefaultTask
             spec.include 'mail.jar'
             spec.include 'mysql.jar'
             spec.include 'postgresql.jar'
+            spec.include 'labkeyBootstrap.jar'
         })
     }
 }
