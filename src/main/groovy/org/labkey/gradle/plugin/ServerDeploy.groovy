@@ -106,7 +106,7 @@ class ServerDeploy implements Plugin<Project>
                         // Put unversioned files into the tomcatLibDir.  These files are meant to be copied into
                         // the tomcat/lib directory when deploying a build or a distribution.  When version numbers change,
                         // you will end up with multiple versions of these jar files on the classpath, which will often
-                        // result in problems of compatibility.  Additionally, we want to maintain the (incorrect) versions
+                        // result in problems of compatibility.  Additionally, we want to maintain the (incorrect) names
                         // of the files that have been used with the Ant build process.
                         //
                         // We may employ CATALINA_BASE in order to separate our libraries from the ones that come with
@@ -230,11 +230,14 @@ class ServerDeploy implements Plugin<Project>
                     spec.delete serverDeploy.dir
                 }
         )
-        // Taking this out for now since we are now deploying unversioned jars into the tomcat lib directory it is less
-        // likely that these jars will need to be removed (they just get overwritten all the time).
-//        cleanDeploy.doLast {
-//            deleteTomcatLibs(project)
-//        }
+
+        project.task(
+                "cleanTomcatLib",
+                group: GroupNames.DEPLOY,
+                description: "Remove the jar files deployed to the tomcat/lib directory"
+        ).doLast {
+            deleteTomcatLibs(project)
+        }
 
         project.task(
                 "cleanAndDeploy",
@@ -254,11 +257,6 @@ class ServerDeploy implements Plugin<Project>
                     spec.delete project.rootProject.buildDir
                 }
         )
-        // Taking this out for now since we are now deploying unversioned jars into the tomcat lib directory it is less
-        // likely that these jars will need to be removed (they just get overwritten all the time).
-//        cleanBuild.doLast {
-//            deleteTomcatLibs(project)
-//        }
 
     }
 
