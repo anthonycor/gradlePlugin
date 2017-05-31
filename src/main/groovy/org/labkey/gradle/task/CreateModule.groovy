@@ -107,7 +107,7 @@ class CreateModule extends DefaultTask
         }
         catch (Exception e) {
             project.logger.error("Failed to create new module directory at ${(new File(moduleDestination)).getAbsolutePath()}")
-            throw new GradleException(e)
+            throw new GradleException(e.getMessage())
         }
 
         Map<String, String> substitutions = [
@@ -141,9 +141,9 @@ class CreateModule extends DefaultTask
                 return line
             })
         })
-        File codeOnlyModule = new File("${moduleDestination}/src/org/labkey/${moduleName}/MODULE_NAMECodeOnlyModule.java")
+        File codeOnlyModule = new File("${moduleDestination}/src/org/labkey/MODULE_DIR_NAME/MODULE_NAMECodeOnlyModule.java")
         if (codeOnlyModule.exists()) {
-            codeOnlyModule.renameTo(new File("${moduleDestination}/src/org/labkey/${moduleName}/MODULE_NAMEModule.java"))
+            codeOnlyModule.renameTo(new File("${moduleDestination}/src/org/labkey/MODULE_DIR_NAME/MODULE_NAMEModule.java"))
         }
         //copy.rename only looks at file names, rather than files and directories.
         renameCrawler(project.file(moduleDestination), substitutions)
