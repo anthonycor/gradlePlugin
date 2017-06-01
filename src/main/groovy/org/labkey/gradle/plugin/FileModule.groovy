@@ -108,13 +108,15 @@ class FileModule implements Plugin<Project>
 
     protected void addTasks(Project project)
     {
+        ClassLoader loader = getClass().getClassLoader()
+        File templateFile = project.file(loader.getResource("module.template.xml").getFile())
+
         Task moduleXmlTask = project.task('moduleXml',
                 group: GroupNames.MODULE,
                 type: Copy,
                 description: "create the module.xml file using module.properties",
                 { CopySpec copy ->
-                    copy.from project.project(":server").projectDir
-                    copy.include 'module.template.xml'
+                    copy.from templateFile
                     copy.rename { "module.xml" }
                     copy.filter({ String line ->
                         Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
@@ -138,7 +140,7 @@ class FileModule implements Plugin<Project>
                         else
                         {
                             if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified() ||
-                                    project.project(":server").file('module.template.xml').lastModified() > moduleXmlFile.lastModified())
+                                    templateFile.lastModified() > moduleXmlFile.lastModified())
                                 return false
                         }
                         return true
@@ -375,6 +377,7 @@ class FileModule implements Plugin<Project>
 
     private void addDependencies(Project project)
     {
-        BuildUtils.addLabKeyDependency(project: project.project(":server"), config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
+        if (project.findProject(":server") != null)
+            BuildUtils.addLabKeyDependency(project: project.project(":server"), config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
     }
 }
