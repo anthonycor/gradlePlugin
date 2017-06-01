@@ -15,9 +15,8 @@ class NpmRun implements Plugin<Project>
 {
     public static final String NPM_PROJECT_FILE = "package.json"
     public static final String TYPESCRIPT_CONFIG_FILE = "tsconfig.json"
-    public static final String TYPINGS_FILE = "typings.json"
+    public static final String NODE_MODULES_DIR = "node_modules"
     public static final String WEBPACK_DIR = "webpack"
-    public static final String TYPINGS_DIR = "typings"
 
     private static final String EXTENSION_NAME = "npmRun"
 
@@ -55,10 +54,6 @@ class NpmRun implements Plugin<Project>
                     dependsOn "npm_run_${project.npmRun.setup}"
                     mustRunAfter "npmInstall"
                 }
-        project.tasks.npmRunSetup.inputs.file(project.file(TYPINGS_FILE))
-        project.tasks.npmRunSetup.outputs.dir(project.file(TYPINGS_DIR))
-        project.tasks.getByName("npm_run_${project.npmRun.setup}").inputs.file(project.file(TYPINGS_FILE))
-        project.tasks.getByName("npm_run_${project.npmRun.setup}").outputs.dir(project.file(TYPINGS_DIR))
 
         project.task("npmRunBuildProd")
                 {
@@ -72,7 +67,6 @@ class NpmRun implements Plugin<Project>
                 }
         addTaskInputOutput(project.tasks.npmRunBuildProd)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildProd}"))
-
 
         project.task("npmRunBuild")
                 {
@@ -95,7 +89,7 @@ class NpmRun implements Plugin<Project>
         project.tasks.npmInstall {
             dependsOn "npm_prune"
             inputs.file project.file(NPM_PROJECT_FILE)
-            outputs.files project.fileTree(dir: "node_modules", include: "**")
+            outputs.dir project.file(NODE_MODULES_DIR)
         }
     }
 
@@ -104,10 +98,16 @@ class NpmRun implements Plugin<Project>
     {
         task.inputs.file task.project.file(NPM_PROJECT_FILE)
         task.inputs.file task.project.file(TYPESCRIPT_CONFIG_FILE)
-        task.inputs.file task.project.file(TYPINGS_FILE)
         task.inputs.dir task.project.file(WEBPACK_DIR)
+
+        // common input file pattern for client source
         task.inputs.files task.project.fileTree(dir: "src", includes: ["client/**/*", "theme/**/*"])
-        task.outputs.files task.project.fileTree(dir: "resources", includes: ["web/**/gen/**/*"])
+
+        // "core" theme building
+        task.inputs.files task.project.fileTree(dir: "resources", includes: ["styles/**/*", "themes/**/*"])
+
+        // common output file pattern for client artifacts
+        task.outputs.files task.project.fileTree(dir: "resources", includes: ["web/**/*"])
     }
 }
 
