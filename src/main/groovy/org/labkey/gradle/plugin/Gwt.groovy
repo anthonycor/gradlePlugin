@@ -1,5 +1,6 @@
 package org.labkey.gradle.plugin
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -125,29 +126,31 @@ class Gwt implements Plugin<Project>
 
                             java.main = 'com.google.gwt.dev.Compiler'
 
-                            // TODO remove repeated code here
-                            if (project.gwt.allBrowserCompile)
+                            /* The Ant user override property
+                                <!-- Use environment variable gwt-user.jar, if set -->
+                                <condition property="gwt-user-override" value="${env.gwt-user-override}">
+                                    <isset property="env.gwt-user-override"/>
+                                </condition>
+                                <condition property="gwt-user-override" value="${env.LABKEY_GWT_USER_OVERRIDE}">
+                                    <isset property="env.LABKEY_GWT_USER_OVERRIDE"/>
+                                </condition>
+                             */
+                            def paths = []
+                            if (!project.gwt.allBrowserCompile)
                             {
-                                java.classpath {
-                                    [
-                                            project.sourceSets.gwt.compileClasspath,       // Dep
-                                            project.sourceSets.gwt.java.srcDirs,           // Java source
-                                            project.project(":server:internal").file(project.gwt.srcDir),
-                                    ]
-                                }
+                                String gwtBrowser = System.getenv('LABKEY_GWT_USER_OVERRIDE')
+                                if (StringUtils.isEmpty(gwtBrowser))
+                                    gwtBrowser = System.getenv('gwt-user-override')
+                                if (StringUtils.isEmpty(gwtBrowser))
+                                    gwtBrowser = "gwt-user-firefox"
+                                paths += ["${project.rootProject.rootDir}/external/lib/build/${gwtBrowser}"]
                             }
-                            else
-                            {
-                                java.classpath {
-                                    [
-                                            // TODO get value from environment variable perhaps
-                                            "${project.rootProject.rootDir}/external/lib/build/gwt-user-firefox",
-                                            project.sourceSets.gwt.compileClasspath,       // Dep
-                                            project.sourceSets.gwt.java.srcDirs,           // Java source
-                                            project.project(":server:internal").file(project.gwt.srcDir),
-                                    ]
-                                }
-                            }
+                            paths += [
+                                    project.sourceSets.gwt.compileClasspath,       // Dep
+                                    project.sourceSets.gwt.java.srcDirs,           // Java source
+                                    project.project(":server:internal").file(project.gwt.srcDir),
+                            ]
+                            java.classpath paths
 
                             java.args =
                                     [
