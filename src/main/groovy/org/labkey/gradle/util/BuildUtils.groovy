@@ -430,4 +430,9 @@ class BuildUtils
     {
         return System.properties.'idea.active'
     }
+
+    static Boolean isIntellijGradleRefresh(project)
+    {
+        return project.getStartParameter().getSystemPropertiesArgs().get("idea.version") != null
+    }
 }
