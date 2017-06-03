@@ -61,11 +61,11 @@ class UiTest implements Plugin<Project>
 
     protected void addDependencies(Project project)
     {
-        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:test", depProjectConfig: "uiTestCompile")
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:test", depProjectConfig: "uiTestCompile", depVersion: project.labkeyVersion)
 
-        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":schemas")
-        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:api")
-        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":remoteapi:java")
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":schemas", depVersion: project.labkeyVersion)
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:api", depVersion: project.labkeyVersion)
+        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":remoteapi:java", depVersion: project.labkeyVersion)
     }
 
     protected void addTasks(Project project)

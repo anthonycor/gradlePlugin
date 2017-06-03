@@ -85,8 +85,8 @@ class Jsp implements Plugin<Project>
                         'org.apache.tomcat:jsp-api',
                         'org.apache.tomcat:tomcat-juli'
                     jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'])
-                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:api")
-                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:internal")
+                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:api", depVersion: project.labkeyVersion)
+                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:internal", depVersion: project.labkeyVersion)
                     jspCompile project.files(project.tasks.jar)
                     if (project.hasProperty('apiJar'))
                         jspCompile project.files(project.tasks.apiJar)
@@ -134,7 +134,8 @@ class Jsp implements Plugin<Project>
                     copy.include 'WEB-INF/*.tld'
                     copy.include 'WEB-INF/tags/**'
                 })
-        copyTags.dependsOn(project.rootProject.tasks.copyTagLibsBase)
+        if (project.findProject(":server") != null)
+            copyTags.dependsOn(project.rootProject.tasks.copyTagLibsBase)
 
         Task jspCompileTask = project.task('jsp2Java',
                 group: GroupNames.JSP,

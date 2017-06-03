@@ -77,8 +77,6 @@ class BuildUtils
             "tnprc_ehr"
     ]
 
-    // TODO add other convenience lists here (e.g., "core" modules)
-
     // a set of directory paths in which to look for module directories
     public static final List<String> SERVER_MODULE_DIRS = [SERVER_MODULES_DIR,
                                                            CUSTOM_MODULES_DIR,
@@ -280,12 +278,12 @@ class BuildUtils
                 config
             }
         distributionProject.logger.info("${distributionProject.path}: adding ${depProjectPath} as dependency for config ${config}")
-        addLabKeyDependency(project: distributionProject, config: config, depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module")
+        addLabKeyDependency(project: distributionProject, config: config, depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module", depVersion: distributionProject.labkeyVersion)
     }
 
     static void addModuleDistributionDependency(Project distributionProject, String depProjectPath)
     {
-        addLabKeyDependency(project: distributionProject, config: "distribution", depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module")
+        addLabKeyDependency(project: distributionProject, config: "distribution", depProjectPath: depProjectPath, depProjectConfig: "published", depExtension: "module", depVersion: distributionProject.labkeyVersion)
     }
 
     static void addModuleDistributionDependencies(Project distributionProject, List<String> depProjectPaths)
@@ -331,7 +329,7 @@ class BuildUtils
                                     Closure specialParams
                                     )
     {
-        Project depProject = parentProject.rootProject.project(depProjectPath)
+        Project depProject = parentProject.rootProject.findProject(depProjectPath)
         if (depProject != null && shouldBuildFromSource(depProject))
         {
             parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
