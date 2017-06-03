@@ -6,7 +6,6 @@ import org.gradle.api.Task
 import org.gradle.api.file.CopySpec
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
@@ -108,39 +107,38 @@ class FileModule implements Plugin<Project>
 
     protected void addTasks(Project project)
     {
-        ClassLoader loader = getClass().getClassLoader()
-        File templateFile = project.file(loader.getResource("module.template.xml").getFile())
+        File moduleXmlFile = new File("${project.labkey.explodedModuleConfigDir}/module.xml")
+        Task moduleXmlTask = project.task('moduleXml').doLast {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("module.template.xml")
 
-        Task moduleXmlTask = project.task('moduleXml',
-                group: GroupNames.MODULE,
-                type: Copy,
-                description: "create the module.xml file using module.properties",
-                { CopySpec copy ->
-                    copy.from templateFile
-                    copy.rename { "module.xml" }
-                    copy.filter({ String line ->
-                        Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
-                        String newLine = line
-                        while (matcher.find())
-                        {
-                            newLine = newLine.replace(matcher.group(), (String) project.lkModule.getPropertyValue(matcher.group(1), ""))
-                        }
-                        return newLine
+            project.mkdir(project.labkey.explodedModuleConfigDir)
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(moduleXmlFile))
+            if (is == null) {
+                return null
+            }
+            is.readLines().each{
+                String line ->
+                    Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
+                    String newLine = line
+                    while (matcher.find())
+                    {
+                        newLine = newLine.replace(matcher.group(), (String) project.lkModule.getPropertyValue(matcher.group(1), ""))
+                    }
+                    writer.println(newLine)
+            }
+            writer.close()
+            is.close()
 
-                    })
-                    destinationDir = new File((String) project.labkey.explodedModuleConfigDir)
-                }
-        )
+        }
+
         moduleXmlTask.outputs.upToDateWhen(
                 {
                     Task task ->
-                        File moduleXmlFile = new File((String) project.labkey.explodedModuleConfigDir, "/module.xml")
                         if (!moduleXmlFile.exists())
                             return false
                         else
                         {
-                            if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified() ||
-                                    templateFile.lastModified() > moduleXmlFile.lastModified())
+                            if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified())
                                 return false
                         }
                         return true
