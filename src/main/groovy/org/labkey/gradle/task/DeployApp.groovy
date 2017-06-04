@@ -16,9 +16,6 @@ class DeployApp extends DefaultTask
     File stagingWebappDir = new File((String) project.staging.webappDir)
 
     @InputDirectory
-    File stagingTomcatJarDir = new File((String) project.staging.tomcatLibDir)
-
-    @InputDirectory
     File stagingPipelineJarDir = new File((String) project.staging.pipelineLibDir)
 
     @OutputDirectory
@@ -36,7 +33,6 @@ class DeployApp extends DefaultTask
     {
         deployWebappDir()
         deployModules()
-        deployTomcatJars()
         deployPipelineJars()
         deployNlpEngine()
         deployPlatformBinaries()
@@ -75,17 +71,6 @@ class DeployApp extends DefaultTask
         )
                 {
                     fileset(dir: stagingModulesDir)
-                }
-    }
-
-    private void deployTomcatJars()
-    {
-        project.ant.copy(
-                todir: "${project.tomcatDir}/lib",
-                preserveLastModified: true
-        )
-                {
-                    fileset(dir: stagingTomcatJarDir)
                 }
     }
 

@@ -14,6 +14,11 @@ class DoThenSetup extends DefaultTask
         setDatabaseProperties();
     }
 
+    DoThenSetup()
+    {
+        this.dependsOn project.tasks.stageTomcatJars
+    }
+
     @TaskAction
     void setup() {
         getFn().run()
@@ -50,6 +55,15 @@ class DoThenSetup extends DefaultTask
             copy.into "${project.ext.tomcatConfDir}"
             copy.include "labkey.xml"
         })
+
+        project.ant.copy(
+                todir: "${project.tomcatDir}/lib",
+                preserveLastModified: true
+        )
+                {
+                    fileset(dir: project.staging.tomcatLibDir)
+                }
+
     }
 
     protected void setDatabaseProperties()
