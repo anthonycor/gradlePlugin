@@ -113,6 +113,12 @@ class BuildUtils
         settings.include ":sampledata:qc"
         settings.include TEST_MODULE
         includeModules(settings, rootDir, [TEST_MODULES_DIR], [])
+        // TODO get rid of this when we decide whether to move dumbster
+        File dumbsterDir = new File(rootDir, "server/modules/dumbster")
+        if (dumbsterDir.exists())
+            settings.include ":server:modules:dumbster"
+        else
+            settings.include ":server:test:modules:dumbster"
     }
 
     static void includeModules(Settings settings, List<String> modules)
