@@ -90,45 +90,6 @@ class ServerDeploy implements Plugin<Project>
         stageJarsTask.dependsOn project.configurations.jars
 
 
-        Task stageTomcatJarsTask = project.task(
-                "stageTomcatJars",
-                group: GroupNames.DEPLOY,
-                description: "Stage files for copying into the tomcat/lib directory into ${staging.tomcatLibDir}"
-        ).doLast({
-            project.ant.copy(
-                    todir: staging.tomcatLibDir,
-                    preserveLastModified: true
-            )
-                    {
-                        project.configurations.tomcatJars { Configuration collection ->
-                            collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
-                        }
-                        // Put unversioned files into the tomcatLibDir.  These files are meant to be copied into
-                        // the tomcat/lib directory when deploying a build or a distribution.  When version numbers change,
-                        // you will end up with multiple versions of these jar files on the classpath, which will often
-                        // result in problems of compatibility.  Additionally, we want to maintain the (incorrect) names
-                        // of the files that have been used with the Ant build process.
-                        //
-                        // We may employ CATALINA_BASE in order to separate our libraries from the ones that come with
-                        // the tomcat distribution. This will require updating our instructions for installation by clients
-                        // but would allow us to use artifacts with more self-documenting names.
-                        chainedmapper()
-                                {
-                                    flattenmapper()
-                                    // get rid of the version numbers on the jar files
-                                    regexpmapper(from: "^(.*?)(-\\d+(\\.\\d+)*(-\\.*)?(-SNAPSHOT)?)?\\.jar", to: "\\1.jar")
-                                    filtermapper()
-                                            {
-                                                replacestring(from: "mysql-connector-java", to: "mysql") // the Ant build used mysql.jar
-                                                replacestring(from: "javax.mail", to: "mail") // the Ant build used mail.jar
-                                            }
-                                }
-                    }
-        })
-
-        stageTomcatJarsTask.dependsOn project.configurations.tomcatJars
-
-
         Task stageRemotePipelineJarsTask = project.task(
                 "stageRemotePipelineJars",
                 group: GroupNames.DEPLOY,
@@ -157,7 +118,6 @@ class ServerDeploy implements Plugin<Project>
                 { Task task ->
                     task.dependsOn stageModulesTask
                     task.dependsOn stageJarsTask
-                    task.dependsOn stageTomcatJarsTask
                     task.dependsOn stageRemotePipelineJarsTask
                 }
         )

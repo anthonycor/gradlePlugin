@@ -35,7 +35,7 @@ class ModuleDistribution extends DefaultTask
         description = "Make a LabKey modules distribution"
         distExtension = project.extensions.findByType(DistributionExtension.class)
 
-        this.dependsOn(project.project(":server").tasks.stageTomcatJars)
+        this.dependsOn(project.project(":server").tasks.setup)
         this.dependsOn(project.project(":server").tasks.stageApp)
     }
 
