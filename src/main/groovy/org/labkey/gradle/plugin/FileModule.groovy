@@ -1,5 +1,6 @@
 package org.labkey.gradle.plugin
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -110,12 +111,14 @@ class FileModule implements Plugin<Project>
         File moduleXmlFile = new File("${project.labkey.explodedModuleConfigDir}/module.xml")
         Task moduleXmlTask = project.task('moduleXml').doLast {
             InputStream is = getClass().getClassLoader().getResourceAsStream("module.template.xml")
+            if (is == null)
+            {
+                throw new GradleException("Could not find 'module.template.xml' as resource file")
+            }
 
             project.mkdir(project.labkey.explodedModuleConfigDir)
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(moduleXmlFile))
-            if (is == null) {
-                return null
-            }
+
             is.readLines().each{
                 String line ->
                     Matcher matcher = PropertiesUtils.PROPERTY_PATTERN.matcher(line)
@@ -128,7 +131,6 @@ class FileModule implements Plugin<Project>
             }
             writer.close()
             is.close()
-
         }
 
         moduleXmlTask.outputs.upToDateWhen(
