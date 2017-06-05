@@ -139,9 +139,7 @@ class ServerDeploy implements Plugin<Project>
                 type: ConfigureLog4J,
                 description: "Edit and copy log4j.xml file",
         )
-        deployAppTask.dependsOn(log4jTask)
-        // stage the application first to try to avoid multiple Tomcat restarts
-        log4jTask.mustRunAfter(project.tasks.stageApp)
+        project.tasks.stageApp.dependsOn(log4jTask)
 
         project.task(
                 "stageDistribution",
