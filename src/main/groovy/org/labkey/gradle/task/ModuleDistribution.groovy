@@ -285,6 +285,8 @@ class ModuleDistribution extends DefaultTask
         String archivePrefix = this.getArchivePrefix()
         if (makeDistribution)
         {
+            StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
+
             ant.zip(destfile: getZipArchivePath()) {
                 zipfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
                         prefix: "${archivePrefix}/labkeywebapp") {
@@ -294,11 +296,8 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
-                project.project(":server").configurations.tomcatJars.getFiles().collect({
-                    tomcatJar ->
-                        zipfileset(file: tomcatJar.path,
-                                prefix: "${archivePrefix}/tomcat-lib")
-                })
+                zipfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib")
+
                 zipfileset(dir: "${project.rootProject.buildDir}/staging/pipelineLib",
                         prefix: "${archivePrefix}/pipeline-lib")
                 zipfileset(dir: "${project.rootProject.projectDir}/external/windows/core",
