@@ -14,7 +14,7 @@ class DoThenSetup extends DefaultTask
     protected DatabaseProperties databaseProperties
 
     Closure<Void> fn = {
-        setDatabaseProperties();
+        setDatabaseProperties()
     }
 
     DoThenSetup()
