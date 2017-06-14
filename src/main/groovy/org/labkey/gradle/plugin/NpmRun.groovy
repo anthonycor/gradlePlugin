@@ -81,10 +81,11 @@ class NpmRun implements Plugin<Project>
         addTaskInputOutput(project.tasks.npmRunBuild)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
 
-        if (project.hasProperty('npmDevMode'))
-            project.tasks.module.dependsOn("npmRunBuild")
-        else
-            project.tasks.module.dependsOn("npmRunBuildProd")
+        String runCommand = project.hasProperty('npmDevMode') ? "npmRunBuild" : "npmRunBuildProd"
+        if (project.tasks.findByName("module") != null)
+            project.tasks.module.dependsOn(runCommand)
+        if (project.tasks.findByName("processModuleResources") != null)
+            project.tasks.processModuleResources.dependsOn(runCommand)
 
         project.tasks.npmInstall {
             dependsOn "npm_prune"
