@@ -3,6 +3,8 @@ package org.labkey.gradle.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.plugin.ServerBootstrap
+
 /**
  * This task creates a pom file in a location that artifactory expects it when publishing.  It is meant to
  * replace the task created by the (incubating) maven-publish plugin since for whatever reason that task does
@@ -35,9 +37,13 @@ class PomFile extends DefaultTask
                             if (it.get("groupId").first().value().first().equals("org.apache.tomcat") &&
                                     it.get("version").isEmpty())
                                 toRemove.add(it)
-                            if (it.get('groupId').first().value().first().equals("org.labkey") && it.get('artifactId').first().value().first().equals("java"))
+                            if (it.get('groupId').first().value().first().equals("org.labkey"))
                             {
-                                it.get('artifactId').first().setValue(['labkey-client-api'])
+                                String artifactId = it.get('artifactId').first().value().first();
+                                if (artifactId.equals("java"))
+                                    it.get('artifactId').first().setValue(['labkey-client-api'])
+                                else if (artifactId.equals("bootstrap"))
+                                    it.get('artifactId').first().setValue(ServerBootstrap.JAR_BASE_NAME)
                             }
                         }
                         toRemove.each {
