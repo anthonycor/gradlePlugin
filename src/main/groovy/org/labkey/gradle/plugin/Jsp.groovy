@@ -117,7 +117,9 @@ class Jsp implements Plugin<Project>
                     copy.from 'src'
                     copy.into "${project.buildDir}/${project.jspCompile.tempDir}/webapp"
                     copy.include '**/*.jsp'
-                })
+                }).doFirst {
+            project.delete "${project.buildDir}/${project.jspCompile.tempDir}/webapp/org"
+        }
 
         Task copyResourceJsps = project.task('copyResourceJsp', group: GroupNames.JSP, type: Copy, description: "Copy resource jsp files to jsp compile directory",
                 { CopySpec copy ->
@@ -148,6 +150,9 @@ class Jsp implements Plugin<Project>
                     outputs.dir "${project.buildDir}/${project.jspCompile.classDir}"
                 }
         )
+                .doFirst {
+            project.delete "${project.buildDir}/${project.jspCompile.classDir}"
+        }
         if (project.hasProperty('apiJar'))
             jspCompileTask.dependsOn('apiJar')
         jspCompileTask.dependsOn('jar')
