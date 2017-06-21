@@ -176,7 +176,8 @@ class BuildUtils
     static List<String> whyNotBuildFromSource(Project project, String property)
     {
         List<String> reasons = []
-        String value = TeamCityExtension.getTeamCityProperty(project, property, project.property(property))
+        String propValue = project.hasProperty(property) ? project.property(property) : null
+        String value = TeamCityExtension.getTeamCityProperty(project, property, propValue)
         if (value == null)
         {
             reasons.add("Project does not have ${property} property")
