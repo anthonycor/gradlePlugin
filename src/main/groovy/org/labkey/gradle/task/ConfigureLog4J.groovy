@@ -12,9 +12,9 @@ import org.labkey.gradle.plugin.extension.LabKeyExtension
 class ConfigureLog4J extends DefaultTask
 {
     @InputFile
-    File log4jXML = new File("${project.serverDeploy.rootWebappsDir}/log4j.xml")
+    File log4jXML = new File((String) project.serverDeploy.rootWebappsDir, "log4j.xml")
 
-    File outputDir = new File("${project.staging.webappClassesDir}")
+    File outputDir = new File((String) project.staging.webappClassesDir)
 
     @OutputFile
     File outputFile = new File(outputDir, "log4j.xml")
