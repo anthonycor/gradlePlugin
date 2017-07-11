@@ -103,7 +103,6 @@ class BuildUtils
             "externalModules/onprcEHRModules",
             "externalModules/cnprcEHRModules",
             "externalModules/snprcEHRModules",
-            "externalModules/tnprcEHRModules",
             "externalModules/DISCVR"
     ]
 
