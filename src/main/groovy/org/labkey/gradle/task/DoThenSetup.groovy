@@ -108,7 +108,8 @@ class DoThenSetup extends DefaultTask
                         {
                             flattenmapper()
                             // get rid of the version numbers on the jar files
-                            regexpmapper(from: "^(.*?)(-\\d+(\\.\\d+)*(-\\.*)?(-SNAPSHOT)?)?\\.jar", to: "\\1.jar")
+                            // matches on: name-X.Y.Z-SNAPSHOT.jar, name-X.Y.Z_branch-SNAPSHOT.jar, name-X.Y.Z.jar
+                            regexpmapper(from: "^(.*?)(-\\d+(\\.\\d+)*(_.+)?(-SNAPSHOT)?)?\\.jar", to: "\\1.jar")
                             filtermapper()
                                     {
                                         replacestring(from: "mysql-connector-java", to: "mysql") // the Ant build used mysql.jar
