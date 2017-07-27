@@ -51,7 +51,7 @@ class Antlr implements Plugin<Project>
 
     void addTasks(Project project)
     {
-        FileTree antlrInput = project.fileTree(dir: project.projectDir, includes: ["**/*${EXTENSION}"])
+        FileTree antlrInput = project.fileTree(dir: project.projectDir, includes: ["**/*${EXTENSION}"], excludes: ["out/**/*${EXTENSION}"])
 
         if (!antlrInput.isEmpty())
         {
