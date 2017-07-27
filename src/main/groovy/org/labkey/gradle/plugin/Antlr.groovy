@@ -56,7 +56,7 @@ class Antlr implements Plugin<Project>
         if (!antlrInput.isEmpty())
         {
             File outputDir = new File("${project.labkey.srcGenDir}/antlr/org/labkey/query/sql/antlr")
-            List<Task> antlrTasks = new ArrayList<>();
+            List<Task> antlrTasks = new ArrayList<>()
             antlrInput.files.each() {
                 File file ->
                      Task antlrTask = project.task("antlr" + file.getName().substring(0, file.getName().indexOf(EXTENSION)),
@@ -81,7 +81,7 @@ class Antlr implements Plugin<Project>
                                     ]
                             }
                     )
-                    antlrTasks.add(antlrTask);
+                    antlrTasks.add(antlrTask)
             }
             Task antlrTask = project.task("antlr",
                     group: GroupNames.CODE_GENERATION,
