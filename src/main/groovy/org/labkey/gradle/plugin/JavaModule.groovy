@@ -17,6 +17,7 @@ package org.labkey.gradle.plugin
 
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.Copy
 import org.labkey.gradle.plugin.extension.ModuleExtension
 import org.labkey.gradle.util.GroupNames
@@ -162,12 +163,10 @@ class JavaModule extends FileModule
                 group: GroupNames.MODULE,
                 type: Copy,
                 description: "copy the dependencies declared in the 'external' configuration into the lib directory of the built module",
-                {
-                    from project.configurations.external
-                    into "${project.labkey.explodedModuleDir}/lib"
-                    include "*.jar"
-                    exclude "*-sources.jar"
-                    exclude "*-javadoc.jar"
+                { CopySpec copy ->
+                    copy.from project.configurations.external
+                    copy.into "${project.labkey.explodedModuleDir}/lib"
+                    copy.include "*.jar"
                 }
         )
         if (project.tasks.findByName("module") != null)
