@@ -140,6 +140,7 @@ class CreateModule extends DefaultTask
             else {
                 copy.exclude("**/MODULE_NAMESchema.java")
                 copy.exclude("**/MODULE_NAMEModule.java")
+                copy.exclude("resources/schemas/**")
             }
             if (!createTestFiles) {
                 copy.exclude("test/**")
