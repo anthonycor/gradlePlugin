@@ -21,6 +21,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.util.BuildUtils
 
 class ClientApiDistribution extends DefaultTask
 {
@@ -107,7 +108,7 @@ class ClientApiDistribution extends DefaultTask
 
     private String getJavascriptDocsPrefix()
     {
-        return "LabKey${project.rootProject.installerVersion}-${CLIENT_API_JSDOC}"
+        return "LabKey${BuildUtils.getDistributionVersion(project)}-${CLIENT_API_JSDOC}"
     }
 
     private void createClientApiDocs()
@@ -139,7 +140,7 @@ class ClientApiDistribution extends DefaultTask
 
     private String getXsdDocsPrefix()
     {
-        return "LabKey${project.rootProject.installerVersion}-${XML_SCHEMA_DOC}"
+        return "LabKey${BuildUtils.getDistributionVersion(project)}-${XML_SCHEMA_DOC}"
     }
 
 

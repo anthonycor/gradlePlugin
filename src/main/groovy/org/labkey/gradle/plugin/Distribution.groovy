@@ -26,6 +26,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.plugin.extension.DistributionExtension
 import org.labkey.gradle.plugin.extension.LabKeyExtension
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 import org.labkey.gradle.task.ClientApiDistribution
 import org.labkey.gradle.task.ModuleDistribution
 import org.labkey.gradle.task.PipelineConfigDistribution
@@ -42,6 +43,11 @@ class Distribution implements Plugin<Project>
     {
         project.group = DISTRIBUTION_GROUP
         project.extensions.create("dist", DistributionExtension, project)
+        // We add the TeamCity extension here if it doesn't exist because we will use the build
+        // number property from TeamCity in the distribution artifact names, if present.
+        TeamCityExtension teamCityExt  = project.getExtensions().findByType(TeamCityExtension.class)
+        if (teamCityExt == null)
+            project.extensions.create("teamCity", TeamCityExtension, project)
 
         addConfigurations(project)
         addTasks(project)
