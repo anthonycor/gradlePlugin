@@ -73,6 +73,10 @@ class ServerDeploy implements Plugin<Project>
                 "stageModules",
                 group: GroupNames.DEPLOY,
                 description: "Stage the modules for the application into ${staging.dir}",
+        ).doFirst (
+                {
+                    project.delete staging.modulesDir
+                }
         ).doLast({
             project.ant.copy(
                     todir: staging.modulesDir,
@@ -84,7 +88,6 @@ class ServerDeploy implements Plugin<Project>
                         }
                     }
         })
-
         stageModulesTask.dependsOn project.configurations.modules
 
         Task stageJarsTask = project.task(
@@ -198,7 +201,7 @@ class ServerDeploy implements Plugin<Project>
                 group: GroupNames.DEPLOY,
                 type: Delete,
                 description: "Removes the deploy directory ${serverDeploy.dir}",
-                dependsOn: project.tasks.stopTomcat,
+                dependsOn: [project.tasks.stopTomcat, project.tasks.cleanStaging],
                 { DeleteSpec spec ->
                     spec.delete serverDeploy.dir
                 }
