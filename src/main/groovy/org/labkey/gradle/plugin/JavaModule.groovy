@@ -172,7 +172,8 @@ class JavaModule extends FileModule
         if (project.tasks.findByName("module") != null)
         {
             project.tasks.module.dependsOn(copyExternalDependencies)
-            project.tasks.module.dependsOn(project.tasks.jar)
+            if (project.file("src").exists())
+                project.tasks.module.dependsOn(project.tasks.jar)
             if (project.hasProperty('apiJar'))
                 project.tasks.module.dependsOn(project.tasks.apiJar)
             if (project.hasProperty('jspJar'))
