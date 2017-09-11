@@ -287,18 +287,21 @@ class FileModule implements Plugin<Project>
 
     static undeployJspJar(Project project)
     {
-        List<File> files = new ArrayList<>()
         File jspDir = new File("${project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/jsp")
-        files.addAll(jspDir.listFiles(new FileFilter() {
-            @Override
-            boolean accept(final File file)
-            {
-                return file.isFile() && file.getName().startsWith("${project.tasks.module.baseName}_jsp");
+        if (jspDir.isDirectory())
+        {
+            List<File> files = new ArrayList<>()
+            files.addAll(jspDir.listFiles(new FileFilter() {
+                @Override
+                boolean accept(final File file)
+                {
+                    return file.isFile() && file.getName().startsWith("${project.tasks.module.baseName}_jsp");
+                }
+            })
+            )
+            files.each {
+                File file -> project.delete file
             }
-        })
-        )
-        files.each{
-            File file -> project.delete file
         }
     }
 
