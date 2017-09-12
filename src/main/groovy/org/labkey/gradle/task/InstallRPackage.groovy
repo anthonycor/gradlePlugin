@@ -36,6 +36,10 @@ class InstallRPackage extends DefaultTask
     {
         rPath = getRPath()
         rLibsUserDir = getInstallDir()
+        if (rPath == null)
+            logger.error("Unable to locate R executable. Make sure R_HOME is defined and points at your R install directory")
+        if (rLibsUserDir == null)
+            logger.error("Unable to install R dependencies. Make sure R_LIBS_USER is defined and points at sampledata/rlabkey")
         onlyIf {
             if (rPath == null)
                 return false
@@ -81,7 +85,7 @@ class InstallRPackage extends DefaultTask
 
     static String getRTermPath()
     {
-        String rHome = System.getenv("R_HOME")
+        String rHome = getRHome()
         if (SystemUtils.IS_OS_WINDOWS)
         {
             File file = new File(rHome, "bin/Rterm.exe")
@@ -100,7 +104,7 @@ class InstallRPackage extends DefaultTask
 
     static String getRPath()
     {
-        String rHome = System.getenv("R_HOME")
+        String rHome = getRHome()
         if (SystemUtils.IS_OS_WINDOWS)
         {
             File file = new File(rHome, "bin/R.exe")
@@ -120,6 +124,12 @@ class InstallRPackage extends DefaultTask
                 return file.getAbsolutePath()
         }
         return null
+    }
+
+    private static String getRHome()
+    {
+        String rHome = System.getenv("R_HOME")
+        return rHome != null ? rHome : ""
     }
 
     static String getRLibsUserPath(Project project)
