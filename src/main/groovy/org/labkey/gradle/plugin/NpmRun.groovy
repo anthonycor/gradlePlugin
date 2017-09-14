@@ -103,7 +103,6 @@ class NpmRun implements Plugin<Project>
             project.tasks.processModuleResources.dependsOn(runCommand)
 
         project.tasks.npmInstall {
-            dependsOn "npm_prune"
             inputs.file project.file(NPM_PROJECT_FILE)
             outputs.dir project.file(NODE_MODULES_DIR)
         }
