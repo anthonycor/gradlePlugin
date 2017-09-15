@@ -45,7 +45,9 @@ class ClientApiDistribution extends DefaultTask
 
         apiDocsBuildDir = project.project(":server").tasks.jsdoc.outputs.getFiles().asPath
         xsdDocsBuildDir = project.project(":server").tasks.xsddoc.outputs.getFiles().asPath
-
+        project.tasks.clean.doLast({
+            project.delete project.fileTree(project.dist.dir) { include '**/TeamCity*.zip' }
+        })
     }
 
     @TaskAction
@@ -81,8 +83,7 @@ class ClientApiDistribution extends DefaultTask
         })
         project.project(":remoteapi:java").configurations.compile.addToAntBuilder(ant, "zipfileset", FileCollection.AntType.FileSet)
         ant.zip(destfile: getJavaClientApiFile()) {
-            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir,
-                    prefix: "doc")
+            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir, prefix: "doc")
             zipfileset(file:"${project.project(":remoteapi:java").projectDir}/README.html")
             zipfileset(file:"${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}")
         }
@@ -93,7 +94,7 @@ class ClientApiDistribution extends DefaultTask
     }
 
     @OutputFiles
-   List<File> getJavascriptDocsFiles()
+    List<File> getJavascriptDocsFiles()
     {
         List<File> docsOutput = new ArrayList<>()
         docsOutput.add(getJavascriptDocsFile("zip"))

@@ -64,7 +64,7 @@ class Distribution implements Plugin<Project>
                 }
     }
 
-    private void addTasks(Project project)
+    private static void addTasks(Project project)
     {
         project.task(
                 'cleanDist',
@@ -79,15 +79,16 @@ class Distribution implements Plugin<Project>
                 'clean',
                 group: GroupNames.BUILD,
                 type: Delete,
-                description: "Removes the distribution build directory ${project.buildDir}",
+                description: "Removes the distribution build directory ${project.buildDir} and distribution directory ${project.dist.dir}/${project.name}",
                 {
                     DeleteSpec spec ->
                         spec.delete project.buildDir
+                        spec.delete "${project.dist.dir}/${project.name}"
                 }
         )
     }
 
-    private void addTaskDependencies(Project project)
+    private static void addTaskDependencies(Project project)
     {
         // This block sets up the task dependencies for each configuration dependency.
         project.afterEvaluate {
@@ -187,7 +188,7 @@ class Distribution implements Plugin<Project>
         }
     }
 
-    private String getArtifactId(Project project)
+    private static String getArtifactId(Project project)
     {
         if (project.dist.artifactId != null)
             return project.dist.artifactId
