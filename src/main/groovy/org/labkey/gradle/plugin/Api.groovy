@@ -103,6 +103,9 @@ class Api implements Plugin<Project>
                     copy.include "${project.name}_api*.jar"
                 }
             }
+            project.tasks.clean.doLast {
+                project.delete project.fileTree("${project.rootProject.buildDir}/${MODULES_API_DIR}") {include "**/${project.name}_api*.jar"}
+            }
         }
     }
 
