@@ -161,7 +161,18 @@ class FileModule implements Plugin<Project>
                         return true
                 }
         )
-
+        // This is added because Intellij started creating this "out" directory when you build through IntelliJ.
+        // It copies files there that are actually input files to the build, which causes some problems when later
+        // builds attempt to find their input files.
+        project.task("cleanOut",
+            group: GroupNames.BUILD,
+            type: Delete,
+            description: "removes the ${project.file('out')} directory created by Intellij builds",
+                { Delete delete ->
+                        if (project.file("out").isDirectory())
+                            project.delete project.file("out")
+                }
+        )
         if (!AntBuild.isApplicable(project))
         {
             Task moduleFile = project.task("module",

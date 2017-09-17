@@ -27,6 +27,7 @@ import org.labkey.gradle.util.PropertiesUtils
 class DoThenSetup extends DefaultTask
 {
     protected DatabaseProperties databaseProperties
+    boolean dbPropertiesChanged = false
 
     Closure<Void> fn = {
         setDatabaseProperties()
@@ -90,6 +91,9 @@ class DoThenSetup extends DefaultTask
     // and it has the current appDocBase
     private boolean labkeyXmlUpToDate(String appDocBase)
     {
+        if (dbPropertiesChanged)
+            return false;
+
         File dbPropFile = DatabaseProperties.getConfigFile(project)
         File tomcatLabkeyXml = new File("${project.ext.tomcatConfDir}", "labkey.xml")
         if (!dbPropFile.exists() || !tomcatLabkeyXml.exists())
