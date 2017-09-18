@@ -214,6 +214,7 @@ class TeamCity extends Tomcat
                 type: DoThenSetup,
                     {DoThenSetup task ->
                         task.setDatabaseProperties(properties)
+                        task.dbPropertiesChanged = true
                         task.fn = {
                             properties.mergePropertiesFromFile(false)
                             if (extension.dropDatabase)
