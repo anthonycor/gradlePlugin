@@ -197,14 +197,21 @@ class TeamCity extends Tomcat
         for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
             String shortType = properties.shortType
-            Task pickDbTask = project.task("pick${shortType.capitalize()}",
-                    group: GroupNames.TEST_SERVER,
-                    description: "Copy properties file for running tests for ${shortType}",
-                    type: PickDb,
-                    { PickDb task ->
-                        task.dbType = "${shortType}"
-                    }
-            )
+            if (shortType == null || shortType.isEmpty())
+                continue;
+            String pickDbTaskName = "pick${shortType.capitalize()}"
+            Task pickDbTask = project.tasks.findByName(pickDbTaskName)
+            if (pickDbTask == null)
+            {
+                pickDbTask = project.task(pickDbTaskName,
+                        group: GroupNames.TEST_SERVER,
+                        description: "Copy properties file for running tests for ${shortType}",
+                        type: PickDb,
+                        { PickDb task ->
+                            task.dbType = "${shortType}"
+                        }
+                )
+            }
 
             String suffix = properties.dbTypeAndVersion.capitalize()
             Task setUpDbTask = project.task("setUp${suffix}",

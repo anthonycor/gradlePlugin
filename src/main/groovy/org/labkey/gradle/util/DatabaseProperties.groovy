@@ -28,6 +28,8 @@ class DatabaseProperties
     private static final String JDBC_DATABASE_PROP = "jdbcDatabase"
     private static final String JDBC_HOST_PROP = "jdbcHost"
     private static final String JDBC_URL_PARAMS_PROP = "jdbcURLParameters"
+    private static final String JDBC_USER_PROP = "jdbcUser"
+    private static final String JDBC_PASSWORD_PROP = "jdbcPassword"
     private static final String BOOTSTRAP_DB_PROP = "databaseBootstrap"
     private static final String DEFAULT_DB_PROP = "databaseDefault"
     private static final String DEFAULT_HOST_PROP = "databaseDefaultHost"
@@ -91,7 +93,6 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_DATABASE_PROP)
     }
 
-
     void setJdbcPort(String port)
     {
         this.configProperties.setProperty(JDBC_PORT_PROP, port)
@@ -102,19 +103,49 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_PORT_PROP)
     }
 
+    void setJdbcHost(String host)
+    {
+        this.configProperties.setProperty(JDBC_HOST_PROP, host)
+    }
+
+    String getJdbcHost()
+    {
+        return this.configProperties.get(JDBC_HOST_PROP)
+    }
+
+    void setJdbcUser(String user)
+    {
+        this.configProperties.setProperty(JDBC_USER_PROP, user)
+    }
+
+    String getJdbcUser()
+    {
+        return this.configProperties.get(JDBC_USER_PROP)
+    }
+
+    void setJdbcPassword(String password)
+    {
+        this.configProperties.setProperty(JDBC_PASSWORD_PROP, password)
+    }
+
+    String getJdbcPassword()
+    {
+        return this.configProperties.get(JDBC_PASSWORD_PROP)
+    }
+
     void setDefaultJdbcProperties(Boolean bootstrap, Boolean doInterpolation = true)
     {
-        if (this.configProperties.getProperty(JDBC_DATABASE_PROP) == null)
+        if (getJdbcDatabase() == null)
         {
             if (bootstrap)
-                this.configProperties.setProperty(JDBC_DATABASE_PROP, getConfigProperty(BOOTSTRAP_DB_PROP))
+                setJdbcDatabase(getConfigProperty(BOOTSTRAP_DB_PROP))
             else
-                this.configProperties.setProperty(JDBC_DATABASE_PROP, getConfigProperty(DEFAULT_DB_PROP))
+                setJdbcDatabase(getConfigProperty(DEFAULT_DB_PROP))
         }
-        if (this.configProperties.getProperty(JDBC_HOST_PROP) == null)
-            this.configProperties.setProperty(JDBC_HOST_PROP, getConfigProperty(DEFAULT_HOST_PROP))
-        if (this.configProperties.getProperty(JDBC_PORT_PROP) == null)
-            this.configProperties.setProperty(JDBC_PORT_PROP, getConfigProperty(DEFAULT_PORT_PROP))
+        if (getJdbcHost() == null)
+            setJdbcHost(getConfigProperty(DEFAULT_HOST_PROP))
+        if (getJdbcPort() == null)
+            setJdbcPort(getConfigProperty(DEFAULT_PORT_PROP))
         if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
             this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
         if (doInterpolation)
