@@ -21,6 +21,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.labkey.gradle.plugin.extension.TeamCityExtension
+
 /**
  * Created by susanh on 3/20/17.
  */
@@ -60,6 +61,7 @@ class InstallRPackage extends DefaultTask
     @TaskAction
     void doInstall()
     {
+        project.mkdir("${getRLibsUserPath(project)}/logs")
         installRPackage(installScript)
     }
 
@@ -134,10 +136,12 @@ class InstallRPackage extends DefaultTask
                 dir: project.projectDir,
                 failifexecutionfails: false,
                 searchpath: true,
-                input: "${project.projectDir}/${scriptName}"
+                input: "${project.projectDir}/${scriptName}",
+                output: "${getRLibsUserPath(project)}/logs/${scriptName}.log",
+                logError: true
         )
                 {
-                    arg(line: "--vanilla --quiet")
+                    arg(line: "--vanilla")
                     env(key: "R_LIBS_USER", value: getRLibsUserPath(project)) // TODO is this actually necessary?
                 }
     }
