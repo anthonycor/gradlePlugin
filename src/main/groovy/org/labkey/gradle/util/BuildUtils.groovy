@@ -281,7 +281,7 @@ class BuildUtils
             TeamCityExtension extension  = project.getExtensions().findByType(TeamCityExtension.class)
             if (extension != null)
             {
-                String buildNumber = extension.getTeamCityProperty("buildNumber")
+                String buildNumber = extension.getTeamCityProperty("build.number")
                 if (!StringUtils.isEmpty(buildNumber))
                     version += ".${buildNumber}"
             }
