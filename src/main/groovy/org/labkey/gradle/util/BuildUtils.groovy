@@ -283,7 +283,13 @@ class BuildUtils
             {
                 String buildNumber = extension.getTeamCityProperty("build.number")
                 if (!StringUtils.isEmpty(buildNumber))
-                    version += ".${buildNumber}"
+                {
+                    // Sometimes (probably when the root VCS is SVN), the build.number has the
+                    // format <vcs revision>.<build counter> and sometimes (probably when the
+                    // VCS is git) it's just <build counter>.  Preparing for the future.
+                    String[] numberParts = buildNumber.split("\\.")
+                    version += ".${numberParts[numberParts.length-1]}"
+                }
             }
         }
         return version
