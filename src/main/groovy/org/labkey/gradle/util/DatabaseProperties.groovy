@@ -21,7 +21,7 @@ import org.gradle.api.Project
  */
 class DatabaseProperties
 {
-    private static final String DATABASE_CONFIG_FILE = "config.properties"
+    private static final String PICKED_DATABASE_CONFIG_FILE = "config.properties"
 
     private static final String JDBC_URL_PROP = "jdbcURL"
     private static final String JDBC_PORT_PROP = "jdbcPort"
@@ -45,7 +45,7 @@ class DatabaseProperties
         this.dbTypeAndVersion = dbTypeAndVersion
         this.shortType = shortType
         this.version = version
-        this.configProperties = new Properties()
+        this.configProperties = _readDatabaseProperties(project, "configs/${shortType}.properties")
     }
 
     DatabaseProperties(Project project, Boolean useBootstrap)
@@ -56,14 +56,14 @@ class DatabaseProperties
             setDefaultJdbcProperties(useBootstrap, true)
     }
 
-    static File getConfigFile(Project project)
+    static File getPickedConfigFile(Project project)
     {
-        return project.project(":server").file(DATABASE_CONFIG_FILE)
+        return _getConfigFile(project, PICKED_DATABASE_CONFIG_FILE)
     }
 
-    static Boolean hasConfigFile(Project project)
+    private static File _getConfigFile(Project project, String dbConfigFile)
     {
-        return getConfigFile(project).exists()
+        return project.project(":server").file(dbConfigFile)
     }
 
     void setProject(Project project)
@@ -158,14 +158,19 @@ class DatabaseProperties
 
     static Properties readDatabaseProperties(Project project)
     {
-        if (hasConfigFile(project))
+        return _readDatabaseProperties(project, PICKED_DATABASE_CONFIG_FILE)
+    }
+
+    private static Properties _readDatabaseProperties(Project project, String configFile)
+    {
+        if (_getConfigFile(project, configFile).exists())
         {
-            Properties props = PropertiesUtils.readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE)
+            Properties props = PropertiesUtils.readFileProperties(project.project(":server"), configFile)
             return props
         }
         else
         {
-            project.logger.warn("No file ${DATABASE_CONFIG_FILE} found.  Returning empty properties.")
+            project.logger.warn("No file ${configFile} found.  Returning empty properties.")
             return new Properties()
         }
     }
@@ -173,7 +178,7 @@ class DatabaseProperties
     private void writeDatabaseProperty(Project project, String name, String value)
     {
         project.ant.propertyfile(
-                file: getConfigFile(project)
+                file: getPickedConfigFile(project)
         )
                 {
                     entry( key: name, value: value)
