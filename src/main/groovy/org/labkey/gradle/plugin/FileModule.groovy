@@ -249,6 +249,7 @@ class FileModule implements Plugin<Project>
                         delete.doFirst {
                             undeployModule(project)
                             undeployJspJar(project)
+                            Api.deleteModulesApiJar(project)
                         }
                     })
 
