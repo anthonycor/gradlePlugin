@@ -47,7 +47,7 @@ class DatabaseProperties
         this.dbTypeAndVersion = dbTypeAndVersion
         this.shortType = shortType
         this.version = version
-        this.configProperties = _readDatabaseProperties(project, "configs/${shortType}.properties")
+        this.configProperties = new Properties()
     }
 
     DatabaseProperties(Project project, Boolean useBootstrap)
