@@ -94,7 +94,7 @@ class DoThenSetup extends DefaultTask
         if (dbPropertiesChanged)
             return false;
 
-        File dbPropFile = DatabaseProperties.getConfigFile(project)
+        File dbPropFile = DatabaseProperties.getPickedConfigFile(project)
         File tomcatLabkeyXml = new File("${project.ext.tomcatConfDir}", "labkey.xml")
         if (!dbPropFile.exists() || !tomcatLabkeyXml.exists())
             return false
