@@ -209,6 +209,7 @@ class TeamCity extends Tomcat
                         type: PickDb,
                         { PickDb task ->
                             task.dbType = "${shortType}"
+                            task.dbPropertiesChanged = true
                         }
                 )
             }
