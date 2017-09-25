@@ -64,7 +64,7 @@ class DatabaseProperties
     DatabaseProperties(Project project, DatabaseProperties copyProperties)
     {
         this.project = project
-        this.configProperties = copyProperties.configProperties
+        this.configProperties = (Properties) copyProperties.configProperties.clone()
         this.dbTypeAndVersion = copyProperties.dbTypeAndVersion
         this.shortType = copyProperties.shortType
         this.version = copyProperties.version
