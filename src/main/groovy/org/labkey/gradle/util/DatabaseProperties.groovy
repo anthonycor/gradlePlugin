@@ -55,7 +55,19 @@ class DatabaseProperties
         this.project = project
         this.configProperties = readDatabaseProperties(project)
         if (!this.configProperties.isEmpty())
-            setDefaultJdbcProperties(useBootstrap, true)
+        {
+            setDefaultJdbcProperties(useBootstrap)
+            interpolateCompositeProperties()
+        }
+    }
+
+    DatabaseProperties(Project project, DatabaseProperties copyProperties)
+    {
+        this.project = project
+        this.configProperties = copyProperties.configProperties
+        this.dbTypeAndVersion = copyProperties.dbTypeAndVersion
+        this.shortType = copyProperties.shortType
+        this.version = copyProperties.version
     }
 
     static File getPickedConfigFile(Project project)
@@ -133,7 +145,17 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_PASSWORD_PROP)
     }
 
-    void setDefaultJdbcProperties(Boolean bootstrap, Boolean doInterpolation = true)
+    void setJdbcUrlParams(String urlParams)
+    {
+        this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, urlParams)
+    }
+
+    String getJdbcUrlParams()
+    {
+        return this.configProperties.get(JDBC_URL_PARAMS_PROP)
+    }
+
+    void setDefaultJdbcProperties(Boolean bootstrap)
     {
         if (getJdbcDatabase() == null)
         {
@@ -146,10 +168,8 @@ class DatabaseProperties
             setJdbcHost(getConfigProperty(DEFAULT_HOST_PROP))
         if (getJdbcPort() == null)
             setJdbcPort(getConfigProperty(DEFAULT_PORT_PROP))
-        if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
-            this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
-        if (doInterpolation)
-            setJdbcUrl()
+        if (getJdbcUrlParams() == null)
+            setJdbcUrlParams("")
     }
 
     private String getConfigProperty(String property, defaultValue="")
@@ -163,12 +183,12 @@ class DatabaseProperties
         }
     }
 
-    void setJdbcUrl()
+    void interpolateCompositeProperties()
     {
         this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
     }
 
-    void mergePropertiesFromFile(boolean doInterpolation)
+    void mergePropertiesFromFile()
     {
         Properties fileProperties = readDatabaseProperties(project)
         for (String name : fileProperties.propertyNames())
@@ -178,14 +198,15 @@ class DatabaseProperties
                 this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
         }
-        setDefaultJdbcProperties(false, doInterpolation)
+        setDefaultJdbcProperties(false)
     }
 
-    void writeJdbcUrl()
+    void writeDbProps()
     {
         writeDatabaseProperty(project, JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        writeDatabaseProperty(project, JDBC_USER_PROP, getJdbcUser())
+        writeDatabaseProperty(project, JDBC_PASSWORD_PROP, getJdbcPassword())
     }
-
 
     static Properties readDatabaseProperties(Project project)
     {

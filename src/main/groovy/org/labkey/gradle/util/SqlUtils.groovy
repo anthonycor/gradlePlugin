@@ -26,18 +26,13 @@ class SqlUtils
 {
     //in ant no tasks ever depend on this, so it makes sense to be a method.
     //additionally, it is always called with inheritAll=false, so we should explicitly pass in parameters.
-    static void execSql(Project project, Properties params, String sql)
+    static void execSql(Project project, DatabaseProperties params, String sql)
     {
-        // read in a clean (unsubstituted) set of properties from the file
-        Properties configProperties = DatabaseProperties.readDatabaseProperties(project)
-        project.logger.info("configProperties read from file are ${configProperties}")
-        configProperties.putAll(params) //overrides configProperties in case of duplicates
-        project.logger.info("after adding params, configProperties are ${configProperties}")
-
-        String url = PropertiesUtils.parseCompositeProp(project, configProperties, configProperties.getProperty("jdbcURL"))
-        String user = configProperties.getProperty("jdbcUser")
-        String password = configProperties.getProperty("jdbcPassword")
-        String driverClassName = configProperties.getProperty("jdbcDriverClassName")
+        params.interpolateCompositeProperties()
+        String url = params.getJdbcURL()
+        String user = params.getJdbcUser()
+        String password = params.getJdbcPassword()
+        String driverClassName = params.getConfigProperties().getProperty("jdbcDriverClassName")
         project.logger.info("in execSql: url ${url} user ${user} password ${password} driverClassName ${driverClassName}")
 
         //see http://gradle.1045684.n5.nabble.com/using-jdbc-driver-in-a-task-fails-td1435189.html
@@ -67,28 +62,26 @@ class SqlUtils
             if (db != null)
                 db.close()
         }
-
     }
 
-    static void dropDatabase(Project project, Properties properties)
+    static void dropDatabase(Project project, DatabaseProperties dbProperties)
     {
+        Properties properties = dbProperties.getConfigProperties()
         project.logger.info("in dropDatabase for ${project.path}, properties are ${properties}")
-        if (!properties.containsKey("jdbcDatabase") || properties.get("jdbcDatabase").equals("labkey"))
+        String toDrop = dbProperties.getJdbcDatabase()
+        if (toDrop == null || toDrop.equals("labkey"))
         {
             throw new GradleException("Must specify a database that is not 'labkey'")
         }
         else
         {
-            Properties params = new Properties()
+            DatabaseProperties dropProps = new DatabaseProperties(project, dbProperties)
             // need to connect to the master database in order to drop the database
-            params.setProperty("jdbcDatabase", (String) properties.get('databaseMaster'))
-            params.setProperty("jdbcURLParameters", "")
-            params.setProperty("jdbcHost", (String) properties.get('jdbcHost'))
-            params.setProperty("jdbcPort", (String) properties.get("jdbcPort"))
+            dropProps.setJdbcDatabase((String) properties.get('databaseMaster'))
+            dropProps.setJdbcUrlParams("")
 
-            project.logger.info("Attempting to drop database. params are ${params}")
-            project.logger.info("Attempting to drop database ${properties.get("jdbcDatabase")}")
-            execSql(project, params, "DROP DATABASE \"${properties.get('jdbcDatabase')}\";")
+            project.logger.info("Attempting to drop database ${toDrop}")
+            execSql(project, dropProps, "DROP DATABASE \"${toDrop}\";")
         }
     }
 }

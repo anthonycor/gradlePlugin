@@ -198,7 +198,7 @@ class TeamCity extends Tomcat
         {
             String shortType = properties.shortType
             if (shortType == null || shortType.isEmpty())
-                continue;
+                continue
             String pickDbTaskName = "pick${shortType.capitalize()}"
             Task pickDbTask = project.tasks.findByName(pickDbTaskName)
             if (pickDbTask == null)
@@ -223,13 +223,13 @@ class TeamCity extends Tomcat
                         task.setDatabaseProperties(properties)
                         task.dbPropertiesChanged = true
                         task.fn = {
-                            properties.mergePropertiesFromFile(false)
+                            properties.mergePropertiesFromFile()
                             if (extension.dropDatabase)
-                                SqlUtils.dropDatabase(project, properties.getConfigProperties())
-                            properties.setJdbcUrl()
+                                SqlUtils.dropDatabase(project, properties)
+                            properties.interpolateCompositeProperties()
                         }
                         task.doLast {
-                            properties.writeJdbcUrl()
+                            properties.writeDbProps()
                         }
                     },
                 dependsOn: [pickDbTask]
