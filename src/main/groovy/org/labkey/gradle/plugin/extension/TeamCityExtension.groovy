@@ -18,9 +18,6 @@ package org.labkey.gradle.plugin.extension
 import org.gradle.api.Project
 import org.labkey.gradle.util.DatabaseProperties
 
-/**
- * Created by susanh on 4/23/17.
- */
 class TeamCityExtension
 {
     String databaseName
@@ -47,11 +44,6 @@ class TeamCityExtension
         this.project = project
         setDatabaseProperties()
         setValidationMessages()
-    }
-
-    static Boolean isDatabaseSupported(String database)
-    {
-        return SUPPORTED_DATABASES.containsKey(database)
     }
 
     Boolean isValidForTestRun()
@@ -98,22 +90,17 @@ class TeamCityExtension
         if (SUPPORTED_DATABASES.containsKey(type))
         {
             props = SUPPORTED_DATABASES.get(type)
-            props.setProject(project)
         }
         else
         {
-            props = new DatabaseProperties(project, false)
             String typeName = getTeamCityProperty("database.${type}.type")
             if (typeName.isEmpty())
             {
                 validationMessages.add("database.${type}.type not specified. Needed to customize database props")
             }
-            else
-            {
-                props.setShortType(typeName)
-                props.setDbTypeAndVersion(typeName)
-            }
+            props = new DatabaseProperties(typeName, typeName, null)
         }
+        props.setProject(project)
         props.jdbcDatabase = getDatabaseName()
         if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
         {
@@ -123,6 +110,7 @@ class TeamCityExtension
         }
         else if (getTeamCityProperty("database.${type}.port").isEmpty())
             validationMessages.add("database.${type}.jdbcURL and database.${type}.port not specified. Connection not possible.")
+
         if (!getTeamCityProperty("database.${type}.port").isEmpty())
             props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
         if (!getTeamCityProperty("database.${type}.host").isEmpty())
