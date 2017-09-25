@@ -105,9 +105,14 @@ class TeamCityExtension
             props = new DatabaseProperties(project, false)
             String typeName = getTeamCityProperty("database.${type}.type")
             if (typeName.isEmpty())
+            {
                 validationMessages.add("database.${type}.type not specified. Needed to customize database props")
+            }
             else
+            {
                 props.setShortType(typeName)
+                props.setDbTypeAndVersion(typeName)
+            }
         }
         props.jdbcDatabase = getDatabaseName()
         if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
