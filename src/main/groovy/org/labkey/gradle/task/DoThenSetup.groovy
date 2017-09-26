@@ -42,6 +42,8 @@ class DoThenSetup extends DefaultTask
     @TaskAction
     void setup() {
         getFn().run()
+        project.println("DTS.setup: ${databaseProperties.configProperties}")
+
 
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}")
 

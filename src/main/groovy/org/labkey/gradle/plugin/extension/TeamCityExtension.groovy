@@ -113,12 +113,16 @@ class TeamCityExtension
 
         if (!getTeamCityProperty("database.${type}.port").isEmpty())
             props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
+
         if (!getTeamCityProperty("database.${type}.host").isEmpty())
             props.setJdbcHost(getTeamCityProperty("database.${type}.host"))
+
         if (!getTeamCityProperty("database.${type}.user").isEmpty())
             props.setJdbcUser(getTeamCityProperty("database.${type}.user"))
+
         if (!getTeamCityProperty("database.${type}.password").isEmpty())
             props.setJdbcPassword(getTeamCityProperty("database.${type}.password"))
+
         this.databaseTypes.add(props)
     }
 

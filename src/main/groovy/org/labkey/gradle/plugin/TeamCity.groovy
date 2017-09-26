@@ -222,9 +222,13 @@ class TeamCity extends Tomcat
                 description: "Get database properties set up for running tests for ${suffix}",
                 type: DoThenSetup,
                     {DoThenSetup task ->
+                        project.println("setUpX.init: ${properties.configProperties}")
+
                         task.setDatabaseProperties(properties)
                         task.dbPropertiesChanged = true
                         task.fn = {
+                            project.println("setUpX.fn: ${properties.configProperties}")
+
                             properties.mergePropertiesFromFile()
                             if (extension.dropDatabase)
                                 SqlUtils.dropDatabase(project, properties)
