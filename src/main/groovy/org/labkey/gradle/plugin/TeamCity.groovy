@@ -196,6 +196,8 @@ class TeamCity extends Tomcat
         List<Task> ciTests = new ArrayList<>()
         for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
+            project.println("${properties.configProperties}")
+
             String shortType = properties.shortType
             if (shortType == null || shortType.isEmpty())
                 continue
