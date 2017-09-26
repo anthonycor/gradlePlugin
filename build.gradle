@@ -27,7 +27,7 @@ buildscript {
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.artifactory'
 
-project.version = "1.2-DB_Props-SNAPSHOT"
+project.version = "1.2-SNAPSHOT"
 
 publishing {
     publications {
