@@ -4,14 +4,14 @@ The gradlePlugin jar is a jar file containing plugins, tasks, extensions and uti
 Server application and its modules.
 
 If building your own LabKey module, you may choose to use these plugins or not.  They bring in a lot of functionality 
-but also make certain assumptions that you may not want to impose on yoru module.  See the 
+but also make certain assumptions that you may not want to impose on your module.  See the 
 [LabKey documentation](https://www.labkey.org/Documentation/wiki-page.view?name=gradleModules) for more information.
 
 ## Release Notes
 
 ### version 1.0.1
 
-Released: July 2, 2017
+*Released*: July 2, 2017
 (Earliest compatible LabKey version: 17.2)
 
 The first official release of the plugin to support Labkey 17.2 release.  
@@ -31,7 +31,6 @@ jar files due to including branch names in version numbers
 *Released*: Sept ???, 2017
 (Earliest compatible LabKey version: 17.2)
 
-#### Change Log
 * [Issue 31186](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31186) - createModule task
 should not copy scripts and schema.xml when hasManagedSchema == false
 * [Issue 31390](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31390) - add `external/<os>` as 
@@ -52,3 +51,4 @@ directory when doing clean task for module
 * remove npm_prune as a dependency on npmInstall
 * add `cleanOut` task to remove the `out` directory created by IntelliJ builds
 * collect R install logs into file
+* enable passing database properties through TeamCity configuration
