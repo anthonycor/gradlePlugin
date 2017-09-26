@@ -193,7 +193,7 @@ class DatabaseProperties
         Properties fileProperties = readDatabaseProperties(project)
         for (String name : fileProperties.propertyNames())
         {
-            if (!this.configProperties.hasProperty(name))
+            if (this.configProperties.getProperty(name) == null)
             {
                 this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
