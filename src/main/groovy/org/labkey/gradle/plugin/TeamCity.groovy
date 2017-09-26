@@ -196,8 +196,6 @@ class TeamCity extends Tomcat
         List<Task> ciTests = new ArrayList<>()
         for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
-            project.println("${properties.configProperties}")
-
             String shortType = properties.shortType
             if (shortType == null || shortType.isEmpty())
                 continue
@@ -222,14 +220,13 @@ class TeamCity extends Tomcat
                 description: "Get database properties set up for running tests for ${suffix}",
                 type: DoThenSetup,
                     {DoThenSetup task ->
-                        project.println("setUpX.init: ${properties.configProperties}")
 
                         task.setDatabaseProperties(properties)
                         task.dbPropertiesChanged = true
                         task.fn = {
-                            project.println("setUpX.fn: ${properties.configProperties}")
-
+                            project.println("setUpX.fn pre-merge: ${properties.configProperties}")
                             properties.mergePropertiesFromFile()
+                            project.println("setUpX.fn post-merge: ${properties.configProperties}")
                             if (extension.dropDatabase)
                                 SqlUtils.dropDatabase(project, properties)
                             properties.interpolateCompositeProperties()
