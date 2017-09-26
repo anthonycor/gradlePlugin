@@ -41,7 +41,7 @@ class DoThenSetup extends DefaultTask
 
     @TaskAction
     void setup() {
-        project.println("DTS.setup pre-fn: ${databaseProperties.configProperties}")
+        project.println("DTS.setup pre-fn: ${databaseProperties==null ? 'null' : databaseProperties.configProperties}")
         getFn().run()
         project.println("DTS.setup post-fn: ${databaseProperties.configProperties}")
 
