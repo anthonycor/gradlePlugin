@@ -224,9 +224,7 @@ class TeamCity extends Tomcat
                         task.setDatabaseProperties(properties)
                         task.dbPropertiesChanged = true
                         task.fn = {
-                            project.println("setUpX.fn pre-merge: ${properties.configProperties}")
                             properties.mergePropertiesFromFile()
-                            project.println("setUpX.fn post-merge: ${properties.configProperties}")
                             if (extension.dropDatabase)
                                 SqlUtils.dropDatabase(project, properties)
                             properties.interpolateCompositeProperties()
