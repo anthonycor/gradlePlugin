@@ -26,6 +26,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Delete
 import org.labkey.gradle.plugin.extension.DistributionExtension
 import org.labkey.gradle.plugin.extension.LabKeyExtension
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 import org.labkey.gradle.task.ClientApiDistribution
 import org.labkey.gradle.task.ModuleDistribution
 import org.labkey.gradle.task.PipelineConfigDistribution
@@ -42,6 +43,11 @@ class Distribution implements Plugin<Project>
     {
         project.group = DISTRIBUTION_GROUP
         project.extensions.create("dist", DistributionExtension, project)
+        // We add the TeamCity extension here if it doesn't exist because we will use the build
+        // number property from TeamCity in the distribution artifact names, if present.
+        TeamCityExtension teamCityExt  = project.getExtensions().findByType(TeamCityExtension.class)
+        if (teamCityExt == null)
+            project.extensions.create("teamCity", TeamCityExtension, project)
 
         addConfigurations(project)
         addTasks(project)
@@ -58,7 +64,7 @@ class Distribution implements Plugin<Project>
                 }
     }
 
-    private void addTasks(Project project)
+    private static void addTasks(Project project)
     {
         project.task(
                 'cleanDist',
@@ -73,15 +79,16 @@ class Distribution implements Plugin<Project>
                 'clean',
                 group: GroupNames.BUILD,
                 type: Delete,
-                description: "Removes the distribution build directory ${project.buildDir}",
+                description: "Removes the distribution build directory ${project.buildDir} and distribution directory ${project.dist.dir}/${project.name}",
                 {
                     DeleteSpec spec ->
                         spec.delete project.buildDir
+                        spec.delete "${project.dist.dir}/${project.name}"
                 }
         )
     }
 
-    private void addTaskDependencies(Project project)
+    private static void addTaskDependencies(Project project)
     {
         // This block sets up the task dependencies for each configuration dependency.
         project.afterEvaluate {
@@ -181,7 +188,7 @@ class Distribution implements Plugin<Project>
         }
     }
 
-    private String getArtifactId(Project project)
+    private static String getArtifactId(Project project)
     {
         if (project.dist.artifactId != null)
             return project.dist.artifactId

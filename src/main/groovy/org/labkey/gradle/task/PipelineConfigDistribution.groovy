@@ -18,6 +18,7 @@ package org.labkey.gradle.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.util.BuildUtils
 
 class PipelineConfigDistribution extends DefaultTask
 {
@@ -34,7 +35,7 @@ class PipelineConfigDistribution extends DefaultTask
 
     private File getConfigFile(String extension)
     {
-        return new File("${project.dist.dir}/LabKey${project.rootProject.installerVersion}-${CLASSIFIER}.${extension}")
+        return new File("${project.dist.dir}/LabKey${BuildUtils.getDistributionVersion(project)}-${CLASSIFIER}.${extension}")
     }
 
     @TaskAction

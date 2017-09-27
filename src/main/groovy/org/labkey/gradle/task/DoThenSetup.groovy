@@ -27,6 +27,7 @@ import org.labkey.gradle.util.PropertiesUtils
 class DoThenSetup extends DefaultTask
 {
     protected DatabaseProperties databaseProperties
+    boolean dbPropertiesChanged = false
 
     Closure<Void> fn = {
         setDatabaseProperties()
@@ -42,43 +43,71 @@ class DoThenSetup extends DefaultTask
     void setup() {
         getFn().run()
 
-        //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
-        Properties configProperties = databaseProperties.getConfigProperties()
         String appDocBase = project.serverDeploy.webappDir.toString().split("[/\\\\]").join("${File.separator}")
-        configProperties.setProperty("appDocBase", appDocBase);
-        boolean isNextLineComment = false;
-        project.copy({ CopySpec copy ->
-            copy.from "${project.rootProject.projectDir}/webapps"
-            copy.into "${project.rootProject.buildDir}"
-            copy.include "labkey.xml"
-            copy.filter ({ String line ->
-                String newLine = line;
 
-                if (project.ext.has('enableJms') && project.ext.enableJms)
-                {
-                    newLine = newLine.replace("<!--@@jmsConfig@@", "");
-                    newLine = newLine.replace("@@jmsConfig@@-->", "");
-                    return newLine;
-                }
-                if (isNextLineComment || newLine.contains("<!--"))
-                {
-                    isNextLineComment = !newLine.contains("-->");
-                    return newLine;
-                }
-                return PropertiesUtils.replaceProps(line, configProperties, true);
+        if (!labkeyXmlUpToDate(appDocBase))
+        {
+            //ant setup copy portions. Setting jdbc props is now handled by pick_db and bootstrap.
+            Properties configProperties = databaseProperties.getConfigProperties()
+            configProperties.setProperty("appDocBase", appDocBase)
+            boolean isNextLineComment = false
+
+            project.copy({ CopySpec copy ->
+                copy.from "${project.rootProject.projectDir}/webapps"
+                copy.into "${project.rootProject.buildDir}"
+                copy.include "labkey.xml"
+                copy.filter({ String line ->
+                    String newLine = line;
+
+                    if (project.ext.has('enableJms') && project.ext.enableJms)
+                    {
+                        newLine = newLine.replace("<!--@@jmsConfig@@", "");
+                        newLine = newLine.replace("@@jmsConfig@@-->", "");
+                        return newLine;
+                    }
+                    if (isNextLineComment || newLine.contains("<!--"))
+                    {
+                        isNextLineComment = !newLine.contains("-->");
+                        return newLine;
+                    }
+                    return PropertiesUtils.replaceProps(line, configProperties, true);
+                })
             })
-        })
 
-        project.copy({ CopySpec copy ->
-            copy.from "${project.rootProject.buildDir}"
-            copy.into "${project.ext.tomcatConfDir}"
-            copy.include "labkey.xml"
-        })
+            project.copy({ CopySpec copy ->
+                copy.from "${project.rootProject.buildDir}"
+                copy.into "${project.ext.tomcatConfDir}"
+                copy.include "labkey.xml"
+            })
+        }
 
         if (project.findProject(":server") != null)
             copyTomcatJars()
 
 
+    }
+
+    // labkeyXml is up to date if it was created after the current config file was created
+    // and it has the current appDocBase
+    private boolean labkeyXmlUpToDate(String appDocBase)
+    {
+        if (dbPropertiesChanged)
+            return false;
+
+        File dbPropFile = DatabaseProperties.getPickedConfigFile(project)
+        File tomcatLabkeyXml = new File("${project.ext.tomcatConfDir}", "labkey.xml")
+        if (!dbPropFile.exists() || !tomcatLabkeyXml.exists())
+            return false
+        if (dbPropFile.lastModified() < tomcatLabkeyXml.lastModified())
+        {
+            // make sure we haven't switch contexts
+            for (String line: tomcatLabkeyXml.readLines())
+            {
+                if (line.contains("docBase=\"" + appDocBase + "\""))
+                    return true
+            }
+        }
+        return false
     }
 
     private void copyTomcatJars()

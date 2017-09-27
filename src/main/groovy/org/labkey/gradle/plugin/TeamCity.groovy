@@ -197,14 +197,22 @@ class TeamCity extends Tomcat
         for (DatabaseProperties properties : project.teamCity.databaseTypes)
         {
             String shortType = properties.shortType
-            Task pickDbTask = project.task("pick${shortType.capitalize()}",
-                    group: GroupNames.TEST_SERVER,
-                    description: "Copy properties file for running tests for ${shortType}",
-                    type: PickDb,
-                    { PickDb task ->
-                        task.dbType = "${shortType}"
-                    }
-            )
+            if (shortType == null || shortType.isEmpty())
+                continue
+            String pickDbTaskName = "pick${shortType.capitalize()}"
+            Task pickDbTask = project.tasks.findByName(pickDbTaskName)
+            if (pickDbTask == null)
+            {
+                pickDbTask = project.task(pickDbTaskName,
+                        group: GroupNames.TEST_SERVER,
+                        description: "Copy properties file for running tests for ${shortType}",
+                        type: PickDb,
+                        { PickDb task ->
+                            task.dbType = "${shortType}"
+                            task.dbPropertiesChanged = true
+                        }
+                )
+            }
 
             String suffix = properties.dbTypeAndVersion.capitalize()
             Task setUpDbTask = project.task("setUp${suffix}",
@@ -212,15 +220,17 @@ class TeamCity extends Tomcat
                 description: "Get database properties set up for running tests for ${suffix}",
                 type: DoThenSetup,
                     {DoThenSetup task ->
+
                         task.setDatabaseProperties(properties)
+                        task.dbPropertiesChanged = true
                         task.fn = {
-                            properties.mergePropertiesFromFile(false)
+                            properties.mergePropertiesFromFile()
                             if (extension.dropDatabase)
-                                SqlUtils.dropDatabase(project, properties.getConfigProperties())
-                            properties.setJdbcUrl()
+                                SqlUtils.dropDatabase(project, properties)
+                            properties.interpolateCompositeProperties()
                         }
                         task.doLast {
-                            properties.writeJdbcUrl()
+                            properties.writeDbProps()
                         }
                     },
                 dependsOn: [pickDbTask]

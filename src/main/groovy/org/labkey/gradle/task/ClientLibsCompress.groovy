@@ -33,7 +33,7 @@ import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
 import java.nio.charset.StandardCharsets
 /**
- * Class for compressiong javascript and css files using the yuicompressor classes.
+ * Class for compressing javascript and css files using the yuicompressor classes.
  */
 class ClientLibsCompress extends DefaultTask
 {
@@ -114,7 +114,8 @@ class ClientLibsCompress extends DefaultTask
     FileTree getLibXmlFiles()
     {
         if (xmlFiles == null)
-            xmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"])
+            // Issue 31367: exclude files that end up in the "out" directory created by IntelliJ
+            xmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"], excludes: ["**/out/*"])
         return xmlFiles
     }
 

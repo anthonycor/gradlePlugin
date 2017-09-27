@@ -21,13 +21,15 @@ import org.gradle.api.Project
  */
 class DatabaseProperties
 {
-    private static final String DATABASE_CONFIG_FILE = "config.properties"
+    private static final String PICKED_DATABASE_CONFIG_FILE = "config.properties"
 
     private static final String JDBC_URL_PROP = "jdbcURL"
     private static final String JDBC_PORT_PROP = "jdbcPort"
     private static final String JDBC_DATABASE_PROP = "jdbcDatabase"
     private static final String JDBC_HOST_PROP = "jdbcHost"
     private static final String JDBC_URL_PARAMS_PROP = "jdbcURLParameters"
+    private static final String JDBC_USER_PROP = "jdbcUser"
+    private static final String JDBC_PASSWORD_PROP = "jdbcPassword"
     private static final String BOOTSTRAP_DB_PROP = "databaseBootstrap"
     private static final String DEFAULT_DB_PROP = "databaseDefault"
     private static final String DEFAULT_HOST_PROP = "databaseDefaultHost"
@@ -53,17 +55,29 @@ class DatabaseProperties
         this.project = project
         this.configProperties = readDatabaseProperties(project)
         if (!this.configProperties.isEmpty())
-            setDefaultJdbcProperties(useBootstrap, true)
+        {
+            setDefaultJdbcProperties(useBootstrap)
+            interpolateCompositeProperties()
+        }
     }
 
-    static File getConfigFile(Project project)
+    DatabaseProperties(Project project, DatabaseProperties copyProperties)
     {
-        return project.project(":server").file(DATABASE_CONFIG_FILE)
+        this.project = project
+        this.configProperties = (Properties) copyProperties.configProperties.clone()
+        this.dbTypeAndVersion = copyProperties.dbTypeAndVersion
+        this.shortType = copyProperties.shortType
+        this.version = copyProperties.version
     }
 
-    static Boolean hasConfigFile(Project project)
+    static File getPickedConfigFile(Project project)
     {
-        return getConfigFile(project).exists()
+        return _getConfigFile(project, PICKED_DATABASE_CONFIG_FILE)
+    }
+
+    private static File _getConfigFile(Project project, String dbConfigFile)
+    {
+        return project.project(":server").file(dbConfigFile)
     }
 
     void setProject(Project project)
@@ -91,7 +105,6 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_DATABASE_PROP)
     }
 
-
     void setJdbcPort(String port)
     {
         this.configProperties.setProperty(JDBC_PORT_PROP, port)
@@ -102,23 +115,61 @@ class DatabaseProperties
         return this.configProperties.get(JDBC_PORT_PROP)
     }
 
-    void setDefaultJdbcProperties(Boolean bootstrap, Boolean doInterpolation = true)
+    void setJdbcHost(String host)
     {
-        if (this.configProperties.getProperty(JDBC_DATABASE_PROP) == null)
+        this.configProperties.setProperty(JDBC_HOST_PROP, host)
+    }
+
+    String getJdbcHost()
+    {
+        return this.configProperties.get(JDBC_HOST_PROP)
+    }
+
+    void setJdbcUser(String user)
+    {
+        this.configProperties.setProperty(JDBC_USER_PROP, user)
+    }
+
+    String getJdbcUser()
+    {
+        return this.configProperties.get(JDBC_USER_PROP)
+    }
+
+    void setJdbcPassword(String password)
+    {
+        this.configProperties.setProperty(JDBC_PASSWORD_PROP, password)
+    }
+
+    String getJdbcPassword()
+    {
+        return this.configProperties.get(JDBC_PASSWORD_PROP)
+    }
+
+    void setJdbcUrlParams(String urlParams)
+    {
+        this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, urlParams)
+    }
+
+    String getJdbcUrlParams()
+    {
+        return this.configProperties.get(JDBC_URL_PARAMS_PROP)
+    }
+
+    void setDefaultJdbcProperties(Boolean bootstrap)
+    {
+        if (getJdbcDatabase() == null)
         {
             if (bootstrap)
-                this.configProperties.setProperty(JDBC_DATABASE_PROP, getConfigProperty(BOOTSTRAP_DB_PROP))
+                setJdbcDatabase(getConfigProperty(BOOTSTRAP_DB_PROP))
             else
-                this.configProperties.setProperty(JDBC_DATABASE_PROP, getConfigProperty(DEFAULT_DB_PROP))
+                setJdbcDatabase(getConfigProperty(DEFAULT_DB_PROP))
         }
-        if (this.configProperties.getProperty(JDBC_HOST_PROP) == null)
-            this.configProperties.setProperty(JDBC_HOST_PROP, getConfigProperty(DEFAULT_HOST_PROP))
-        if (this.configProperties.getProperty(JDBC_PORT_PROP) == null)
-            this.configProperties.setProperty(JDBC_PORT_PROP, getConfigProperty(DEFAULT_PORT_PROP))
-        if (this.configProperties.getProperty(JDBC_URL_PARAMS_PROP) == null)
-            this.configProperties.setProperty(JDBC_URL_PARAMS_PROP, "")
-        if (doInterpolation)
-            setJdbcUrl()
+        if (getJdbcHost() == null)
+            setJdbcHost(getConfigProperty(DEFAULT_HOST_PROP))
+        if (getJdbcPort() == null)
+            setJdbcPort(getConfigProperty(DEFAULT_PORT_PROP))
+        if (getJdbcUrlParams() == null)
+            setJdbcUrlParams("")
     }
 
     private String getConfigProperty(String property, defaultValue="")
@@ -132,40 +183,46 @@ class DatabaseProperties
         }
     }
 
-    void setJdbcUrl()
+    void interpolateCompositeProperties()
     {
         this.configProperties.setProperty(JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
     }
 
-    void mergePropertiesFromFile(boolean doInterpolation)
+    void mergePropertiesFromFile()
     {
         Properties fileProperties = readDatabaseProperties(project)
         for (String name : fileProperties.propertyNames())
         {
-            if (!this.configProperties.hasProperty(name))
+            if (this.configProperties.getProperty(name) == null)
             {
                 this.configProperties.setProperty(name, fileProperties.getProperty(name))
             }
         }
-        setDefaultJdbcProperties(false, doInterpolation)
+        setDefaultJdbcProperties(false)
     }
 
-    void writeJdbcUrl()
+    void writeDbProps()
     {
         writeDatabaseProperty(project, JDBC_URL_PROP, PropertiesUtils.parseCompositeProp(project, this.configProperties, this.configProperties.getProperty(JDBC_URL_PROP)))
+        writeDatabaseProperty(project, JDBC_USER_PROP, getJdbcUser())
+        writeDatabaseProperty(project, JDBC_PASSWORD_PROP, getJdbcPassword())
     }
-
 
     static Properties readDatabaseProperties(Project project)
     {
-        if (hasConfigFile(project))
+        return _readDatabaseProperties(project, PICKED_DATABASE_CONFIG_FILE)
+    }
+
+    private static Properties _readDatabaseProperties(Project project, String configFile)
+    {
+        if (_getConfigFile(project, configFile).exists())
         {
-            Properties props = PropertiesUtils.readFileProperties(project.project(":server"), DATABASE_CONFIG_FILE)
+            Properties props = PropertiesUtils.readFileProperties(project.project(":server"), configFile)
             return props
         }
         else
         {
-            project.logger.warn("No file ${DATABASE_CONFIG_FILE} found.  Returning empty properties.")
+            project.logger.warn("No file ${configFile} found.  Returning empty properties.")
             return new Properties()
         }
     }
@@ -173,7 +230,7 @@ class DatabaseProperties
     private void writeDatabaseProperty(Project project, String name, String value)
     {
         project.ant.propertyfile(
-                file: getConfigFile(project)
+                file: getPickedConfigFile(project)
         )
                 {
                     entry( key: name, value: value)

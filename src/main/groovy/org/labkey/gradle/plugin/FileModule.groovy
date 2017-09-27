@@ -161,7 +161,18 @@ class FileModule implements Plugin<Project>
                         return true
                 }
         )
-
+        // This is added because Intellij started creating this "out" directory when you build through IntelliJ.
+        // It copies files there that are actually input files to the build, which causes some problems when later
+        // builds attempt to find their input files.
+        project.task("cleanOut",
+            group: GroupNames.BUILD,
+            type: Delete,
+            description: "removes the ${project.file('out')} directory created by Intellij builds",
+                { Delete delete ->
+                        if (project.file("out").isDirectory())
+                            project.delete project.file("out")
+                }
+        )
         if (!AntBuild.isApplicable(project))
         {
             Task moduleFile = project.task("module",
@@ -238,6 +249,7 @@ class FileModule implements Plugin<Project>
                         delete.doFirst {
                             undeployModule(project)
                             undeployJspJar(project)
+                            Api.deleteModulesApiJar(project)
                         }
                     })
 
@@ -287,18 +299,21 @@ class FileModule implements Plugin<Project>
 
     static undeployJspJar(Project project)
     {
-        List<File> files = new ArrayList<>()
         File jspDir = new File("${project.rootProject.buildDir}/deploy/labkeyWebapp/WEB-INF/jsp")
-        files.addAll(jspDir.listFiles(new FileFilter() {
-            @Override
-            boolean accept(final File file)
-            {
-                return file.isFile() && file.getName().startsWith("${project.tasks.module.baseName}_jsp");
+        if (jspDir.isDirectory())
+        {
+            List<File> files = new ArrayList<>()
+            files.addAll(jspDir.listFiles(new FileFilter() {
+                @Override
+                boolean accept(final File file)
+                {
+                    return file.isFile() && file.getName().startsWith("${project.tasks.module.baseName}_jsp");
+                }
+            })
+            )
+            files.each {
+                File file -> project.delete file
             }
-        })
-        )
-        files.each{
-            File file -> project.delete file
         }
     }
 

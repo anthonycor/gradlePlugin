@@ -19,11 +19,13 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.labkey.gradle.plugin.extension.DistributionExtension
 import org.labkey.gradle.plugin.extension.StagingExtension
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.PropertiesUtils
 
 import java.nio.file.Files
@@ -54,6 +56,7 @@ class ModuleDistribution extends DefaultTask
         this.dependsOn(project.project(":server").tasks.stageApp)
     }
 
+    @OutputDirectory
     File getDistributionDir()
     {
         if (distributionDir == null && subDirName != null)
@@ -93,7 +96,7 @@ class ModuleDistribution extends DefaultTask
     private String getVersionPrefix()
     {
         if (versionPrefix == null)
-            versionPrefix = "Labkey${project.rootProject.installerVersion}${extraFileIdentifier}"
+            versionPrefix = "LabKey${BuildUtils.getDistributionVersion(project)}${extraFileIdentifier}"
         return versionPrefix
     }
 

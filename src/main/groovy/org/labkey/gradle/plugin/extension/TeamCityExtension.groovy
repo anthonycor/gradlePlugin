@@ -18,9 +18,6 @@ package org.labkey.gradle.plugin.extension
 import org.gradle.api.Project
 import org.labkey.gradle.util.DatabaseProperties
 
-/**
- * Created by susanh on 4/23/17.
- */
 class TeamCityExtension
 {
     String databaseName
@@ -28,8 +25,6 @@ class TeamCityExtension
     List<DatabaseProperties> databaseTypes = new ArrayList<>()
     List<String> validationMessages = new ArrayList<>()
     Project project
-    static final String CUSTOM_PG_PROPS = "custom_pg"
-    static final String CUSTOM_MSSQL_PROPS = "custom_mssql"
 
     private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>()
     static
@@ -42,8 +37,6 @@ class TeamCityExtension
         SUPPORTED_DATABASES.put("sqlserver2012", new DatabaseProperties("sqlserver2012", "mssql", "2012"))
         SUPPORTED_DATABASES.put("sqlserver2014", new DatabaseProperties("sqlserver2014", "mssql", "2014"))
         SUPPORTED_DATABASES.put("sqlserver2016", new DatabaseProperties("sqlserver2016", "mssql", "2016"))
-        SUPPORTED_DATABASES.put(CUSTOM_PG_PROPS, new DatabaseProperties("postgres", "pg", ""))
-        SUPPORTED_DATABASES.put(CUSTOM_MSSQL_PROPS, new DatabaseProperties("sqlserver", "mssql", ""))
     }
 
     TeamCityExtension(Project project)
@@ -51,11 +44,6 @@ class TeamCityExtension
         this.project = project
         setDatabaseProperties()
         setValidationMessages()
-    }
-
-    static Boolean isDatabaseSupported(String database)
-    {
-        return SUPPORTED_DATABASES.containsKey(database)
     }
 
     Boolean isValidForTestRun()
@@ -67,13 +55,12 @@ class TeamCityExtension
     {
         if (getTeamCityProperty("suite").isEmpty())
             validationMessages.add("'suite' property not specified")
-
         if (getTeamCityProperty("tomcat.home").isEmpty())
             validationMessages.add("'tomcat.home' property not specified")
         if (getTeamCityProperty("tomcat.port").isEmpty())
             validationMessages.add("'tomcat.port' property not specified")
         if (this.databaseTypes.isEmpty())
-            validationMessages.add("'database.types' property not specified or does not specify a supported database.  Must be one of: ${SUPPORTED_DATABASES.keySet().join(", ")}.")
+            validationMessages.add("'database.types' property not specified or does not specify a supported database.")
         if (getTeamCityProperty('agent.name').isEmpty())
             validationMessages.add("'agent.name' property not specified")
         if (getTeamCityProperty('teamcity.projectName').isEmpty())
@@ -95,42 +82,48 @@ class TeamCityExtension
             if (!(Boolean) getTeamCityProperty("teamcity.build.branch.is_default", true))
                 name = "${getTeamCityProperty('teamcity.build.branch')}_${name}"
             this.databaseName = name.replaceAll("[/\\.\\s-]", "_")
-            String dbProperty = getTeamCityProperty('drop.database')
-            this.dropDatabase = dbProperty.equals("1") || dbProperty.equalsIgnoreCase("true")
+            String dropProperty = getTeamCityProperty('drop.database')
+            this.dropDatabase = dropProperty.equals("1") || dropProperty.equalsIgnoreCase("true")
         }
-        String databaseTypesProp = getTeamCityProperty("database.types")
-        Boolean databaseAvailable = false
-        if (!databaseTypesProp.isEmpty())
+        String type = getTeamCityProperty("database.types")
+        DatabaseProperties props
+        if (SUPPORTED_DATABASES.containsKey(type))
         {
-            for (String type : databaseTypesProp.split(","))
-            {
-                if (SUPPORTED_DATABASES.containsKey(type))
-                {
-                    if (CUSTOM_PG_PROPS.equals(type) || CUSTOM_MSSQL_PROPS.equals(type) || (Boolean) getTeamCityProperty("database.${type}", false))
-                    {
-                        DatabaseProperties props = SUPPORTED_DATABASES.get(type)
-                        props.setProject(project)
-                        props.jdbcDatabase = getDatabaseName()
-                        if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
-                        {
-                            props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
-                            if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
-                                validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
-                        }
-                        else if (getTeamCityProperty("database.${type}.port").isEmpty())
-                            validationMessages.add("database.${type}.jdbcURL and database.${type}.port not specified. Connection not possible.")
-                        if (!getTeamCityProperty("database.${type}.port").isEmpty())
-                            props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
-                        this.databaseTypes.add(props)
-                        databaseAvailable = true
-                    }
-                }
-            }
-            if (!databaseAvailable)
-            {
-                validationMessages.add("None of the selected databases (${databaseTypesProp}) is supported on this server.")
-            }
+            props = SUPPORTED_DATABASES.get(type)
         }
+        else
+        {
+            String typeName = getTeamCityProperty("database.${type}.type")
+            if (typeName.isEmpty())
+            {
+                validationMessages.add("database.${type}.type not specified. Needed to customize database props")
+            }
+            props = new DatabaseProperties(typeName, typeName, null)
+        }
+        props.setProject(project)
+        props.jdbcDatabase = getDatabaseName()
+        if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
+        {
+            props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
+            if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
+                validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
+        }
+        else if (getTeamCityProperty("database.${type}.port").isEmpty())
+            validationMessages.add("database.${type}.jdbcURL and database.${type}.port not specified. Connection not possible.")
+
+        if (!getTeamCityProperty("database.${type}.port").isEmpty())
+            props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
+
+        if (!getTeamCityProperty("database.${type}.host").isEmpty())
+            props.setJdbcHost(getTeamCityProperty("database.${type}.host"))
+
+        if (!getTeamCityProperty("database.${type}.user").isEmpty())
+            props.setJdbcUser(getTeamCityProperty("database.${type}.user"))
+
+        if (!getTeamCityProperty("database.${type}.password").isEmpty())
+            props.setJdbcPassword(getTeamCityProperty("database.${type}.password"))
+
+        this.databaseTypes.add(props)
     }
 
     static boolean isOnTeamCity(Project project)

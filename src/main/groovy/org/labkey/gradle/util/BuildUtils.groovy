@@ -15,6 +15,7 @@
  */
 package org.labkey.gradle.util
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.labkey.gradle.plugin.Api
@@ -233,6 +234,65 @@ class BuildUtils
             }
         }
         return project.labkeyVersion
+    }
+
+    /**
+     * Gets the versioning string to be inserted into distribution artifacts.  This string has a slightly different
+     * format depending on the branch in which the distributions are created:
+     *     Trunk - 17.3-SNAPSHOT (Current LabKey version)
+     *     Sprint - 17.3Sprint3-46992.4 (<labkey release version>Sprint<sprint number>-<VCSRevision>.<BuildNumber>)
+     *     Beta - 17.3Beta-47540.6 (<labkey release version>Beta-<VCSRevision>.<BuildNumber>)
+     *     (Beta means we are in a release branch, but have not yet released and updated from the snapshot version)
+     *     Release - 17.3-47926.26 (<labkey release version>-<VCSRevision>.<BuildNumber>)
+     * See Issue 31165.
+     * @param project the distribution project
+     * @return the version string for this distribution project
+     */
+    static String getDistributionVersion(Project project)
+    {
+        String version = project.labkeyVersion
+        if (project.hasProperty("versioning"))
+        {
+            String branch = project.versioning.info.branchId
+            if (!["trunk", "master", "develop", "none"].contains(branch))
+            {
+                if (branch.toLowerCase().startsWith("sprint"))
+                {
+                    version = version.replace("-SNAPSHOT", "")
+                    version += "Sprint"
+                    String[] nameParts = branch.split("_")
+                    if (nameParts.length != 3)
+                        project.logger.error("Branch name '${branch}' not as expected.  Distribution name may not be as expected.");
+                    else
+                        version += nameParts[2]
+
+                }
+                else if (branch.toLowerCase().startsWith("release") &&
+                        project.labkeyVersion.contains("-SNAPSHOT"))
+                {
+                    version = version.replace("-SNAPSHOT", "Beta");
+                }
+                else
+                {
+                    version = version.replace("-SNAPSHOT", "_${branch}-SNAPSHOT")
+                }
+            }
+            version += "-" + project.rootProject.vcsRevision
+            TeamCityExtension extension  = project.getExtensions().findByType(TeamCityExtension.class)
+            if (extension != null)
+            {
+                String buildNumber = extension.getTeamCityProperty("build.number")
+                if (!StringUtils.isEmpty(buildNumber))
+                {
+                    // Sometimes (probably when the root VCS is SVN), the build.number has the
+                    // format <vcs revision>.<build counter> and sometimes (probably when the
+                    // VCS is git) it's just <build counter>.  Preparing for the future.
+                    String[] numberParts = buildNumber.split("\\.")
+                    version += ".${numberParts[numberParts.length-1]}"
+                }
+            }
+        }
+        return version
     }
 
     static String getLabKeyModuleVersion(Project project)

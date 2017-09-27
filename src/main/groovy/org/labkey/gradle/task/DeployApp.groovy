@@ -31,6 +31,9 @@ class DeployApp extends DefaultTask
     File stagingWebappDir = new File((String) project.staging.webappDir)
 
     @InputDirectory
+    File externalDir = new File((String) project.labkey.externalDir)
+
+    @InputDirectory
     File stagingPipelineJarDir = new File((String) project.staging.pipelineLibDir)
 
     @OutputDirectory
@@ -41,6 +44,9 @@ class DeployApp extends DefaultTask
 
     @OutputDirectory
     File deployPipelineLibDir = new File((String) project.serverDeploy.pipelineLibDir)
+
+    @OutputDirectory
+    File deployBinDir = new File((String) project.serverDeploy.binDir)
 
 
     @TaskAction
@@ -99,7 +105,6 @@ class DeployApp extends DefaultTask
 
     private void deployPlatformBinaries()
     {
-        File deployBinDir = new File((String) project.serverDeploy.binDir)
         deployBinDir.mkdirs()
 
         ant.copy(
@@ -110,7 +115,7 @@ class DeployApp extends DefaultTask
                     // Use cutdirsmapper to strip off the parent directory name to merge each subdirectory into a single parent
                     ant.cutdirsmapper(dirs: 1)
                     // first grab all the JAR files, which are the same for all platforms
-                    fileset(dir: "${project.labkey.externalDir}/windows")
+                    fileset(dir: "${externalDir}/windows")
                             {
                                 include ( name: "**/*.jar")
                             }
@@ -126,7 +131,7 @@ class DeployApp extends DefaultTask
     // Use this method to preserve file permissions, since ant.copy does not, but this does not preserve last modified times
     private void deployBinariesViaProjectCopy(String osDirectory)
     {
-        File parentDir = new File("${project.labkey.externalDir}", "${osDirectory}")
+        File parentDir = new File(externalDir, "${osDirectory}")
         List<File> subDirs = parentDir.listFiles new FileFilter() {
             @Override
             boolean accept(File pathname)
@@ -151,7 +156,7 @@ class DeployApp extends DefaultTask
         )
                 {
                     ant.cutdirsmapper(dirs: 1)
-                    fileset(dir: "${project.labkey.externalDir}/${osDirectory}")
+                    fileset(dir: "${externalDir}/${osDirectory}")
                             {
                                 exclude(name: "**.*")
                             }
@@ -162,10 +167,10 @@ class DeployApp extends DefaultTask
     private void deployNlpEngine()
     {
 
-        File nlpSource = new File((String) project.labkey.externalDir, "nlp")
+        File nlpSource = new File(externalDir, "nlp")
         if (nlpSource.exists())
         {
-            File nlpDir = new File((String) project.serverDeploy.binDir, "nlp")
+            File nlpDir = new File(deployBinDir, "nlp")
             nlpDir.mkdirs();
             ant.copy(
                     toDir: nlpDir,

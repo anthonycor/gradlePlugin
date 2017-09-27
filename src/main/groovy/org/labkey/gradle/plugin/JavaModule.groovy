@@ -18,8 +18,10 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Copy
 import org.labkey.gradle.plugin.extension.ModuleExtension
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 /**
  * This class is used for building a LabKey Java module (one that typically resides in a *modules
@@ -164,7 +166,7 @@ class JavaModule extends FileModule
                 type: Copy,
                 description: "copy the dependencies declared in the 'external' configuration into the lib directory of the built module",
                 { CopySpec copy ->
-                    copy.from project.configurations.external
+                    copy.from getTrimmedExternalFiles(project)
                     copy.into "${project.labkey.explodedModuleDir}/lib"
                     copy.include "*.jar"
                 }
@@ -172,12 +174,48 @@ class JavaModule extends FileModule
         if (project.tasks.findByName("module") != null)
         {
             project.tasks.module.dependsOn(copyExternalDependencies)
-            project.tasks.module.dependsOn(project.tasks.jar)
+            if (project.file("src").exists())
+                project.tasks.module.dependsOn(project.tasks.jar)
             if (project.hasProperty('apiJar'))
                 project.tasks.module.dependsOn(project.tasks.apiJar)
             if (project.hasProperty('jspJar'))
                 project.tasks.module.dependsOn(project.tasks.jspJar)
         }
+    }
+
+    /**
+     * Returns the set of files included in the external configuration for a project
+     * with the jar files already included in the base modules removed.  If the project
+     * is a base module, only the jars included in the api module are removed.  If the
+     * project is the api module, all jars in its external configuration are included.
+     * @param project the project whose external dependencies are to be removed
+     * @return the collection of files that contain the dependencies
+     */
+    static FileCollection getTrimmedExternalFiles(Project project)
+    {
+        FileCollection config = project.configurations.external
+        if (config == null)
+            return config
+        // trim nothing from api
+        if (project.path.equals(":server:api"))
+            return config
+        // base modules should remove everything included by api
+        else if (BuildUtils.BASE_MODULES.contains(project.path))
+        {
+            return config - project.project(":server:api").configurations.external
+        }
+        else // all other modules should remove everything in the base modules
+        {
+            for (String path : BuildUtils.BASE_MODULES)
+            {
+                FileCollection otherExternal = project.project(path).configurations.external
+                if (otherExternal != null)
+                {
+                    config = config - otherExternal
+                }
+            }
+        }
+        return config
     }
 }
 

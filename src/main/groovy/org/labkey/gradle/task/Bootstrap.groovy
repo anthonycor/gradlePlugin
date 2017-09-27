@@ -20,10 +20,11 @@ import org.labkey.gradle.util.SqlUtils
 
 class Bootstrap extends DoThenSetup
 {
+    boolean dbPropertiesChanged = true
     Closure<Void> fn = {
         setDatabaseProperties()
 
-        SqlUtils.dropDatabase(this.project, databaseProperties.getConfigProperties());
+        SqlUtils.dropDatabase(this.project, databaseProperties);
     }
 
     @Override
