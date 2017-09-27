@@ -29,7 +29,9 @@ class PropertiesUtils
     static Properties readFileProperties(Project project, String fileName)
     {
         Properties props = new Properties()
-        props.load(new FileInputStream(project.file(fileName)))
+        File propFile = project.file(fileName)
+        if (propFile.exists())
+            props.load(new FileInputStream(propFile))
         return props
     }
 
