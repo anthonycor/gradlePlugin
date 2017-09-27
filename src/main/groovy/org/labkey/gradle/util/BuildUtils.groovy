@@ -270,7 +270,7 @@ class BuildUtils
                 else if (branch.toLowerCase().startsWith("release") &&
                         project.labkeyVersion.contains("-SNAPSHOT"))
                 {
-                    version += "Beta";
+                    version = version.replace("-SNAPSHOT", "Beta");
                 }
                 else
                 {
