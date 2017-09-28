@@ -28,7 +28,7 @@ The first official release of the plugin to support Labkey 17.2 release.
 jar files due to including branch names in version numbers
 
 ### version 1.2
-*Released*: Sept ???, 2017
+*Released*: Sept 28, 2017
 (Earliest compatible LabKey version: 17.2)
 
 * [Issue 31186](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31186) - createModule task
@@ -43,6 +43,8 @@ files
 so jar file is included in client API Jar file
 * [Issue 31490](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31490) - remove jar file from modules-api
 directory when doing clean task for module
+* [Issue 31061](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31061) - do not include jar files
+ in module lib directories if already included in one of the base modules
 * Improve cleaning for distribution tasks
 * Make stageModules first delete the staging modules directory (to prevent picking up modules not in the current set) 
 * Make cleanDeploy also cleanStaging
@@ -52,3 +54,4 @@ directory when doing clean task for module
 * add `cleanOut` task to remove the `out` directory created by IntelliJ builds
 * collect R install logs into file
 * enable passing database properties through TeamCity configuration
+* add `showDiscrepancies` task to produce a report of all external jars that have multiple versions in the build
