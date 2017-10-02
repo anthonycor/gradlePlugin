@@ -61,24 +61,13 @@ class NpmRun implements Plugin<Project>
                     mustRunAfter "npmInstall"
                 }
 
-        project.task("npmRunSetup")
-                {
-                    group = GroupNames.NPM_RUN
-                    description = "Runs 'npm run ${project.npmRun.setup}'"
-                    dependsOn "npmInstall"
-                    dependsOn "npm_run_${project.npmRun.setup}"
-                    mustRunAfter "npmInstall"
-                }
-
         project.task("npmRunBuildProd")
                 {
                     group = GroupNames.NPM_RUN
                     description = "Runs 'npm run ${project.npmRun.buildProd}'"
-                    dependsOn "npmSetup"
-                    dependsOn "npmRunSetup"
+                    dependsOn "npmInstall"
                     dependsOn "npm_run_${project.npmRun.buildProd}"
-                    mustRunAfter "npmSetup"
-                    mustRunAfter "npmRunSetup"
+                    mustRunAfter "npmInstall"
                 }
         addTaskInputOutput(project.tasks.npmRunBuildProd)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildProd}"))
@@ -87,11 +76,9 @@ class NpmRun implements Plugin<Project>
                 {
                     group = GroupNames.NPM_RUN
                     description ="Runs 'npm run ${project.npmRun.buildDev}'"
-                    dependsOn "npmSetup"
-                    dependsOn "npmRunSetup"
+                    dependsOn "npmInstall"
                     dependsOn "npm_run_${project.npmRun.buildDev}"
-                    mustRunAfter "npmSetup"
-                    mustRunAfter "npmRunSetup"
+                    mustRunAfter "npmInstall"
                 }
         addTaskInputOutput(project.tasks.npmRunBuild)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
