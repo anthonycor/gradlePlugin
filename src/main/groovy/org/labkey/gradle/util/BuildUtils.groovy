@@ -253,30 +253,31 @@ class BuildUtils
         String version = project.labkeyVersion
         if (project.hasProperty("versioning"))
         {
-            String branch = project.versioning.info.branchId
-            if (!["trunk", "master", "develop", "none"].contains(branch))
+            String rootBranch = project.rootProject.versioning.info.branchId
+
+            if (!["trunk", "master", "develop", "none"].contains(rootBranch))
             {
-                if (branch.toLowerCase().startsWith("sprint"))
+                if (rootBranch.toLowerCase().startsWith("sprint"))
                 {
                     version = version.replace("-SNAPSHOT", "")
                     version += "Sprint"
-                    String[] nameParts = branch.split("_")
+                    String[] nameParts = rootBranch.split("_")
                     if (nameParts.length != 3)
-                        project.logger.error("Branch name '${branch}' not as expected.  Distribution name may not be as expected.");
+                        project.logger.error("Root branch name '${rootBranch}' not as expected.  Distribution name may not be as expected.");
                     else
                         version += nameParts[2]
 
                 }
-                else if (branch.toLowerCase().startsWith("release") &&
+                else if (rootBranch.toLowerCase().startsWith("release") &&
                         project.labkeyVersion.contains("-SNAPSHOT"))
                 {
                     version = version.replace("-SNAPSHOT", "Beta");
                 }
-                else
-                {
-                    version = version.replace("-SNAPSHOT", "_${branch}-SNAPSHOT")
-                }
             }
+            // on trunk at the root and a feature branch in the project (rare, but possible, I guess)
+            String branch = project.versioning.info.branchId
+            if (!["trunk", "master", "develop", "none"].contains(branch))
+                version = version.replace("-SNAPSHOT", "_${branch}-SNAPSHOT")
             version += "-" + project.rootProject.vcsRevision
             TeamCityExtension extension  = project.getExtensions().findByType(TeamCityExtension.class)
             if (extension != null)
@@ -290,6 +291,22 @@ class BuildUtils
                     String[] numberParts = buildNumber.split("\\.")
                     version += ".${numberParts[numberParts.length-1]}"
                 }
+            }
+        }
+        return version
+    }
+
+    static String getModuleFileVersion(Project project)
+    {
+        String version = project.version
+        if (project.hasProperty("versioning"))
+        {
+            String branch = project.versioning.info.branchId
+            // When a git module is on the "master" branch in git, this corresponds to the sprint branch
+            // at the root and we want to use that version for consistency with the SVN modules
+            if (branch.equalsIgnoreCase("master"))
+            {
+                version = project.rootProject.version
             }
         }
         return version
