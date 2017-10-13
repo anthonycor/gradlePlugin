@@ -225,7 +225,11 @@ class BuildUtils
         if (project.hasProperty("versioning"))
         {
             String branch = project.versioning.info.branchId
-            if (["trunk", "master", "develop", "none"].contains(branch))
+            // When a git module is on the "master" branch in git, this corresponds to the sprint branch
+            // at the root and we want to use that version for consistency with the SVN modules
+            if (branch.equalsIgnoreCase("master"))
+                return project.rootProject.version
+            else if (["trunk", "develop", "none"].contains(branch))
                 return project.labkeyVersion
             else
             {
