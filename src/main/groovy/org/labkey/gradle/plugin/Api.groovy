@@ -83,7 +83,7 @@ class Api implements Plugin<Project>
                 {Jar jar ->
                     jar.classifier CLASSIFIER
                     jar.from project.sourceSets['api'].output.classesDir
-                    jar.baseName "${project.name}_api"
+                    jar.baseName = "${project.name}_api"
                     jar.destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 })
         project.tasks.processApiResources.enabled = false

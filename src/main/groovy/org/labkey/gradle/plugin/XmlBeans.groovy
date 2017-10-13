@@ -18,6 +18,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.DeleteSpec
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.plugin.extension.XmlBeansExtension
@@ -86,13 +87,12 @@ class XmlBeans implements Plugin<Project>
                 group: GroupNames.XML_SCHEMA,
                 type: Jar,
                 description: "produce schemas jar file from directory '$project.xmlBeans.classDir'",
-                {
-                    classifier CLASSIFIER
-                    from "$project.buildDir/$project.xmlBeans.classDir"
-                    exclude '**/*.java'
-                    baseName project.name.equals("schemas") ? "schemas": "${project.name}_schemas"
-                    version project.version
-                    destinationDir = project.file(project.labkey.explodedModuleLibDir)
+                {Jar jar ->
+                    jar.classifier CLASSIFIER
+                    jar.from "$project.buildDir/$project.xmlBeans.classDir"
+                    jar.exclude '**/*.java'
+                    jar.baseName = project.name.equals("schemas") ? "schemas": "${project.name}_schemas"
+                    jar.destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 }
         )
         schemasJar.dependsOn(schemasCompile)
@@ -105,8 +105,8 @@ class XmlBeans implements Plugin<Project>
                 group: GroupNames.XML_SCHEMA,
                 type: Delete,
                 description: "remove schema jar file",
-                {
-                    delete "$schemasJar.destinationDir/$schemasJar.archiveName"
+                { DeleteSpec del ->
+                    del.delete "$schemasJar.destinationDir/$schemasJar.archiveName"
                 }
         )
 
@@ -114,9 +114,9 @@ class XmlBeans implements Plugin<Project>
                 group: GroupNames.XML_SCHEMA,
                 type: Delete,
                 description: "remove source and class files generated from xsd files",
-                {
-                    delete "$project.buildDir/$project.xmlBeans.classDir",
-                    "$project.labkey.srcGenDir/$project.xmlBeans.classDir"
+                {DeleteSpec del ->
+                    del.delete "$project.buildDir/$project.xmlBeans.classDir",
+                                "$project.labkey.srcGenDir/$project.xmlBeans.classDir"
                 }
         )
     }
