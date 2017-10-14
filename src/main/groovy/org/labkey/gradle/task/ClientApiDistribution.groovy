@@ -66,13 +66,13 @@ class ClientApiDistribution extends DefaultTask
     @OutputFile
     File getJavaClientApiFile()
     {
-        return new File("${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java.zip")
+        return new File("${javaDir}/LabKey${BuildUtils.getDistributionVersion(project)}-ClientAPI-Java.zip")
     }
 
     @OutputFile
     File getJavaClientApiSrcFile()
     {
-        return new File("${javaDir}/LabKey${project.labkeyVersion}-ClientAPI-Java-src.zip")
+        return new File("${javaDir}/LabKey${BuildUtils.getDistributionVersion(project)}-ClientAPI-Java-src.zip")
     }
 
     private void createJavaDocs()
