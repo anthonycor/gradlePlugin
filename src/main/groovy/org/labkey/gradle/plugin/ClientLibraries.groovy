@@ -21,7 +21,6 @@ import org.gradle.api.Task
 import org.gradle.api.file.FileTree
 import org.labkey.gradle.task.ClientLibsCompress
 import org.labkey.gradle.util.GroupNames
-
 /**
  * Creates minified, compressed javascript files using the script declarations in a modules .lib.xml file(s).
  */
@@ -30,7 +29,8 @@ class ClientLibraries implements Plugin<Project>
     static boolean isApplicable(Project project)
     {
         FileTree libXmlFiles = project.fileTree(dir: project.projectDir,
-                includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"]
+                includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"],
+                excludes: ["node_modules"]
         )
         return !libXmlFiles.isEmpty()
     }
