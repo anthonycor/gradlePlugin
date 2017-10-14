@@ -113,9 +113,6 @@ class ClientLibsCompress extends DefaultTask
     // This returns the libXml files from the project directory (the actual input files)
     FileTree getLibXmlFiles()
     {
-        if (xmlFiles == null)
-            // Issue 31367: exclude files that end up in the "out" directory created by IntelliJ
-            xmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"], excludes: ["**/out/*"])
         return xmlFiles
     }
 

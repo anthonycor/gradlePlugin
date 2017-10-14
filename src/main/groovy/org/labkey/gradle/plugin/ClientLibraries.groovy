@@ -28,13 +28,18 @@ class ClientLibraries implements Plugin<Project>
 {
     static boolean isApplicable(Project project)
     {
-        FileTree libXmlFiles = project.fileTree(dir: project.projectDir,
-                includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"],
-                excludes: ["node_modules"]
-        )
-        return !libXmlFiles.isEmpty()
+        return !getLibXmlFiles(project).isEmpty()
     }
 
+    static FileTree getLibXmlFiles(Project project)
+    {
+        return project.fileTree(dir: project.projectDir,
+                includes: ["**/*${ClientLibsCompress.LIB_XML_EXTENSION}"],
+                // Issue 31367: exclude files that end up in the "out" directory created by IntelliJ
+                // exclude node_modules for efficiency
+                excludes: ["node_modules", "**/out/*"]
+        )
+    }
     @Override
     void apply(Project project)
     {
@@ -47,7 +52,10 @@ class ClientLibraries implements Plugin<Project>
                 group: GroupNames.CLIENT_LIBRARIES,
                 type: ClientLibsCompress,
                 description: 'create minified, compressed javascript file using .lib.xml sources',
-                dependsOn: project.tasks.processResources
+                dependsOn: project.tasks.processResources,
+                {ClientLibsCompress task ->
+                    task.xmlFiles = getLibXmlFiles(project)
+                }
         )
         project.tasks.assemble.dependsOn(compressLibsTask)
     }
