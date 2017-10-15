@@ -64,3 +64,4 @@ directory when doing clean task for module
 * [Issue 31778](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31778) - Update jar and module naming for sprint branches
 * [Issue 31165](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31165) - Update naming convention for distribution files
 * Update logic for finding source directory for compressClientLibs to use lastIndexOf "web" or "webapp" directory
+* Exclude node_modules directory when checking for .lib.xml files for minor performance improvement
