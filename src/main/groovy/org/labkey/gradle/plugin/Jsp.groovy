@@ -184,7 +184,7 @@ class Jsp implements Plugin<Project>
                     jar.classifier = CLASSIFIER
                     jar.from "${project.buildDir}/${project.jspCompile.classDir}"
                     jar.baseName = "${project.name}${BASE_NAME_EXTENSION}"
-                    destinationDir = project.file(project.labkey.explodedModuleLibDir)
+                    jar.destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 }
         )
 

@@ -55,3 +55,13 @@ directory when doing clean task for module
 * collect R install logs into file
 * enable passing database properties through TeamCity configuration
 * add `showDiscrepancies` task to produce a report of all external jars that have multiple versions in the build
+
+### version 1.2.1
+*Released*: Oct ???, 2017
+(Earliest compatible LabKey version: 17.2)
+
+* [Issue 31742](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31742) - Remove redundant npm_setup command for better performance
+* [Issue 31778](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31778) - Update jar and module naming for sprint branches
+* [Issue 31165](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31165) - Update naming convention for distribution files
+* Update logic for finding source directory for compressClientLibs to use lastIndexOf "web" or "webapp" directory
+* Exclude node_modules directory when checking for .lib.xml files for minor performance improvement

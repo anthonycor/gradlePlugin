@@ -20,6 +20,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.plugin.extension.ModuleExtension
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -110,8 +111,8 @@ class JavaModule extends FileModule
 
         addSourceSets(project)
 
-        project.jar {
-            baseName project.name
+        project.jar { Jar jar ->
+            jar.baseName = project.name
         }
     }
 

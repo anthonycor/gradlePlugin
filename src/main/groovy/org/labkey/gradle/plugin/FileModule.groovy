@@ -179,14 +179,15 @@ class FileModule implements Plugin<Project>
                     group: GroupNames.MODULE,
                     type: Jar,
                     description: "create the module file for this project",
-                    {
-                        from project.labkey.explodedModuleDir
-                        exclude '**/*.uptodate'
-                        exclude "META-INF/${project.name}/**"
-                        exclude 'gwt-unitCache/**'
-                        baseName project.name
-                        extension 'module'
-                        destinationDir = project.buildDir
+                    {Jar jar ->
+                        jar.from project.labkey.explodedModuleDir
+                        jar.exclude '**/*.uptodate'
+                        jar.exclude "META-INF/${project.name}/**"
+                        jar.exclude 'gwt-unitCache/**'
+                        jar.baseName project.name
+                        jar.version BuildUtils.getModuleFileVersion(project)
+                        jar.extension 'module'
+                        jar.destinationDir = project.buildDir
                     }
             )
 

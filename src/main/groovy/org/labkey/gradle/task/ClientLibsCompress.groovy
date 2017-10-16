@@ -67,12 +67,12 @@ class ClientLibsCompress extends DefaultTask
     static File getSourceDir(File libXmlFile)
     {
         String absolutePath = libXmlFile.getAbsolutePath();
-        int endIndex = absolutePath.indexOf("webapp${File.separator}")
+        int endIndex = absolutePath.lastIndexOf("webapp${File.separator}")
         if (endIndex >= 0)
             endIndex += 6;
         else
         {
-            endIndex = absolutePath.indexOf("web${File.separator}")
+            endIndex = absolutePath.lastIndexOf("web${File.separator}")
             if (endIndex >= 0)
                 endIndex += 3
         }
@@ -113,9 +113,6 @@ class ClientLibsCompress extends DefaultTask
     // This returns the libXml files from the project directory (the actual input files)
     FileTree getLibXmlFiles()
     {
-        if (xmlFiles == null)
-            // Issue 31367: exclude files that end up in the "out" directory created by IntelliJ
-            xmlFiles = project.fileTree(dir: project.projectDir, includes: ["**/*${LIB_XML_EXTENSION}"], excludes: ["**/out/*"])
         return xmlFiles
     }
 
