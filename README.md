@@ -57,7 +57,7 @@ directory when doing clean task for module
 * add `showDiscrepancies` task to produce a report of all external jars that have multiple versions in the build
 
 ### version 1.2.1
-*Released*: Oct ???, 2017
+*Released*: Oct 16 2017
 (Earliest compatible LabKey version: 17.2)
 
 * [Issue 31742](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31742) - Remove redundant npm_setup command for better performance
