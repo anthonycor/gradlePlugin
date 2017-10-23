@@ -18,6 +18,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.plugin.extension.NpmRunExtension
 import org.labkey.gradle.util.GroupNames
 
@@ -83,7 +84,7 @@ class NpmRun implements Plugin<Project>
         addTaskInputOutput(project.tasks.npmRunBuild)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
 
-        String runCommand = project.hasProperty('npmDevMode') ? "npmRunBuild" : "npmRunBuildProd"
+        String runCommand = LabKeyExtension.isDevMode(project) ? "npmRunBuild" : "npmRunBuildProd"
         if (project.tasks.findByName("module") != null)
             project.tasks.module.dependsOn(runCommand)
         if (project.tasks.findByName("processModuleResources") != null)
