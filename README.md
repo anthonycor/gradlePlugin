@@ -65,3 +65,10 @@ directory when doing clean task for module
 * [Issue 31165](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31165) - Update naming convention for distribution files
 * Update logic for finding source directory for compressClientLibs to use lastIndexOf "web" or "webapp" directory
 * Exclude node_modules directory when checking for .lib.xml files for minor performance improvement
+
+### version 1.2.2
+*Released*: Nov ???, 2017
+(Earliest compatible LabKey version: 17.2)
+
+* [Issue 31985](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31985) - bootstrap task not connecting to master database for dropping database
+* Update npm run tasks to use isDevMode instead of separate property to determine which build task to run
