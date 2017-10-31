@@ -54,7 +54,7 @@ class FileModule implements Plugin<Project>
         if (otherPath != null && !otherPath.equals(project.getPath()) && project.findProject(otherPath) != null)
         {
             if (_shouldDoBuild(project, false))
-                throw new IllegalStateException("Found duplicate module '${project.getName()}' in ${project.getPath()} and ${otherPath}")
+                throw new IllegalStateException("Found duplicate module '${project.getName()}' in ${project.getPath()} and ${otherPath}. Modules should have unique names; Rename one or exclude it from your build.")
         }
         else
         {
