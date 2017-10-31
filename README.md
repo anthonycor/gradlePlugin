@@ -70,5 +70,6 @@ directory when doing clean task for module
 *Released*: Nov ???, 2017
 (Earliest compatible LabKey version: 17.2)
 
+* FileModule plugin enforces unique names for LabKey modules
 * [Issue 31985](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31985) - bootstrap task not connecting to master database for dropping database
 * Update npm run tasks to use isDevMode instead of separate property to determine which build task to run
