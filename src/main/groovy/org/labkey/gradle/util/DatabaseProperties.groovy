@@ -57,7 +57,8 @@ class DatabaseProperties
         if (!this.configProperties.isEmpty())
         {
             setDefaultJdbcProperties(useBootstrap)
-            interpolateCompositeProperties()
+            if (!useBootstrap)
+                interpolateCompositeProperties()
         }
     }
 
