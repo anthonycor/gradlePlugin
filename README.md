@@ -65,3 +65,9 @@ directory when doing clean task for module
 * [Issue 31165](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31165) - Update naming convention for distribution files
 * Update logic for finding source directory for compressClientLibs to use lastIndexOf "web" or "webapp" directory
 * Exclude node_modules directory when checking for .lib.xml files for minor performance improvement
+
+### version 1.2.2
+*Released*: Nov ???, 2017
+(Earliest compatible LabKey version: 17.2)
+
+* FileModule plugin enforces unique names for LabKey modules
