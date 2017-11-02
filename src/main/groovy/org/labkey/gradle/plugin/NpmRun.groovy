@@ -91,11 +91,12 @@ class NpmRun implements Plugin<Project>
         if (project.tasks.findByName("processModuleResources") != null)
             project.tasks.processModuleResources.dependsOn(runCommand)
 
-        project.tasks.npmInstall {
-            inputs.file project.file(NPM_PROJECT_FILE)
-            inputs.file project.file(NPM_PROJECT_LOCK_FILE)
+        project.tasks.npmInstall {Task task ->
+            task.inputs.file project.file(NPM_PROJECT_FILE)
+            if (project.file(NPM_PROJECT_LOCK_FILE).exists())
+                task.inputs.file project.file(NPM_PROJECT_LOCK_FILE)
         }
-        project.tasks.npmInstall.outputs.upToDateWhen { project.file(NODE_MODULES_DIR).exists()}
+        project.tasks.npmInstall.outputs.upToDateWhen { project.file(NODE_MODULES_DIR).exists() }
     }
 
 

@@ -73,3 +73,5 @@ directory when doing clean task for module
 * FileModule plugin enforces unique names for LabKey modules
 * [Issue 31985](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31985) - bootstrap task not connecting to master database for dropping database
 * Update npm run tasks to use isDevMode instead of separate property to determine which build task to run
+* [Issue 32006](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32006) - update up-to-date check for npmInstall so it doesn't traverse
+the entire node_modules tree (and stumble on broken symlinks); add package-lock.json file as input to npmInstall if it exists
