@@ -30,6 +30,7 @@ import org.labkey.gradle.util.GroupNames
 class NpmRun implements Plugin<Project>
 {
     public static final String NPM_PROJECT_FILE = "package.json"
+    public static final String NPM_PROJECT_LOCK_FILE = "package-lock.json"
     public static final String TYPESCRIPT_CONFIG_FILE = "tsconfig.json"
     public static final String NODE_MODULES_DIR = "node_modules"
     public static final String WEBPACK_DIR = "webpack"
@@ -54,32 +55,32 @@ class NpmRun implements Plugin<Project>
     private void addTasks(Project project)
     {
         project.task("npmRunClean")
-                {
-                    group = GroupNames.NPM_RUN
-                    description = "Runs 'npm run ${project.npmRun.clean}'"
-                    dependsOn "npmInstall"
-                    dependsOn "npm_run_${project.npmRun.clean}"
-                    mustRunAfter "npmInstall"
+                {Task task ->
+                    task.group = GroupNames.NPM_RUN
+                    task.description = "Runs 'npm run ${project.npmRun.clean}'"
+                    task.dependsOn "npmInstall"
+                    task.dependsOn "npm_run_${project.npmRun.clean}"
+                    task.mustRunAfter "npmInstall"
                 }
 
         project.task("npmRunBuildProd")
-                {
-                    group = GroupNames.NPM_RUN
-                    description = "Runs 'npm run ${project.npmRun.buildProd}'"
-                    dependsOn "npmInstall"
-                    dependsOn "npm_run_${project.npmRun.buildProd}"
-                    mustRunAfter "npmInstall"
+                {Task task ->
+                    task.group = GroupNames.NPM_RUN
+                    task.description = "Runs 'npm run ${project.npmRun.buildProd}'"
+                    task.dependsOn "npmInstall"
+                    task.dependsOn "npm_run_${project.npmRun.buildProd}"
+                    task.mustRunAfter "npmInstall"
                 }
         addTaskInputOutput(project.tasks.npmRunBuildProd)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildProd}"))
 
         project.task("npmRunBuild")
-                {
-                    group = GroupNames.NPM_RUN
-                    description ="Runs 'npm run ${project.npmRun.buildDev}'"
-                    dependsOn "npmInstall"
-                    dependsOn "npm_run_${project.npmRun.buildDev}"
-                    mustRunAfter "npmInstall"
+                {Task task ->
+                    task.group = GroupNames.NPM_RUN
+                    task.description ="Runs 'npm run ${project.npmRun.buildDev}'"
+                    task.dependsOn "npmInstall"
+                    task.dependsOn "npm_run_${project.npmRun.buildDev}"
+                    task.mustRunAfter "npmInstall"
                 }
         addTaskInputOutput(project.tasks.npmRunBuild)
         addTaskInputOutput(project.tasks.getByName("npm_run_${project.npmRun.buildDev}"))
@@ -92,8 +93,9 @@ class NpmRun implements Plugin<Project>
 
         project.tasks.npmInstall {
             inputs.file project.file(NPM_PROJECT_FILE)
-            outputs.dir project.file(NODE_MODULES_DIR)
+            inputs.file project.file(NPM_PROJECT_LOCK_FILE)
         }
+        project.tasks.npmInstall.outputs.upToDateWhen { project.file(NODE_MODULES_DIR).exists()}
     }
 
 
