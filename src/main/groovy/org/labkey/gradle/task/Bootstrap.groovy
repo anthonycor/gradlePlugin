@@ -24,7 +24,8 @@ class Bootstrap extends DoThenSetup
     Closure<Void> fn = {
         setDatabaseProperties()
 
-        SqlUtils.dropDatabase(this.project, databaseProperties);
+        SqlUtils.dropDatabase(this.project, databaseProperties)
+        databaseProperties.interpolateCompositeProperties()
     }
 
     @Override
@@ -33,4 +34,9 @@ class Bootstrap extends DoThenSetup
         databaseProperties = new DatabaseProperties(project, true)
     }
 
+    @Override
+    boolean labkeyXmlUpToDate(String appDocBase)
+    {
+        return false
+    }
 }
