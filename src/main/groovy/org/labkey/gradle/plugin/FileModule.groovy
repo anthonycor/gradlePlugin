@@ -169,19 +169,9 @@ class FileModule implements Plugin<Project>
             is.close()
         }
 
-        moduleXmlTask.outputs.upToDateWhen(
-                {
-                    Task task ->
-                        if (!moduleXmlFile.exists())
-                            return false
-                        else
-                        {
-                            if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified())
-                                return false
-                        }
-                        return true
-                }
-        )
+        moduleXmlTask.inputs.file(project.file(ModuleExtension.MODULE_PROPERTIES_FILE))
+        moduleXmlTask.outputs.file(moduleXmlFile)
+
         // This is added because Intellij started creating this "out" directory when you build through IntelliJ.
         // It copies files there that are actually input files to the build, which causes some problems when later
         // builds attempt to find their input files.
