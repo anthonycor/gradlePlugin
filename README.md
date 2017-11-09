@@ -75,3 +75,5 @@ directory when doing clean task for module
 * Update npm run tasks to use isDevMode instead of separate property to determine which build task to run
 * [Issue 32006](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32006) - update up-to-date check for npmInstall so it doesn't traverse
 the entire node_modules tree (and stumble on broken symlinks); add package-lock.json file as input to npmInstall if it exists
+* Use more standard up-to-date check for moduleXml task by declaring inputs and outputs
+* Update some source set configuration to be more standard
