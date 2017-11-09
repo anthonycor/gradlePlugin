@@ -67,7 +67,6 @@ class TestRunner extends UiTest
                         }
                     }
                 }
-                output.classesDir = "${project.buildDir}/classes"
             }
         }
 

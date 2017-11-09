@@ -49,7 +49,6 @@ class ServerBootstrap implements Plugin<Project>
                 java {
                     srcDirs = ['src']
                 }
-                output.classesDir = "${project.buildDir}/classes"
             }
         }
 
