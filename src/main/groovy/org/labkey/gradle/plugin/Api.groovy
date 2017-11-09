@@ -59,7 +59,6 @@ class Api implements Plugin<Project>
                         java {
                             srcDirs = [project.file(SOURCE_DIR).exists() ? SOURCE_DIR : ALT_SOURCE_DIR, 'internal/gwtsrc']
                         }
-                        output.classesDir = "${project.buildDir}/api-classes"
                     }
                 }
     }
@@ -82,7 +81,7 @@ class Api implements Plugin<Project>
                 description: "produce jar file for api",
                 {Jar jar ->
                     jar.classifier CLASSIFIER
-                    jar.from project.sourceSets['api'].output.classesDir
+                    jar.from project.sourceSets.api.output
                     jar.baseName = "${project.name}_api"
                     jar.destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 })
