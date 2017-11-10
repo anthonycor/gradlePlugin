@@ -77,3 +77,4 @@ directory when doing clean task for module
 the entire node_modules tree (and stumble on broken symlinks); add package-lock.json file as input to npmInstall if it exists
 * Use more standard up-to-date check for moduleXml task by declaring inputs and outputs
 * Update some source set configuration to be more standard
+* Make treatment of missing deployMode property consistent (default to dev mode)
