@@ -67,7 +67,7 @@ directory when doing clean task for module
 * Exclude node_modules directory when checking for .lib.xml files for minor performance improvement
 
 ### version 1.2.2
-*Released*: Nov ???, 2017
+*Released*: Nov 13, 2017
 (Earliest compatible LabKey version: 17.2)
 
 * FileModule plugin enforces unique names for LabKey modules
