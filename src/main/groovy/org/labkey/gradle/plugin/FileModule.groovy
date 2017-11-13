@@ -44,10 +44,26 @@ class FileModule implements Plugin<Project>
     // set the skipBuild property to true in the module's build.gradle file
     //   ext.skipBuild = true
     private static final String SKIP_BUILD_FILE = "skipBuild.txt"
+    private static final Map<String, String> _foundModules = new HashMap<>();
 
     @Override
     void apply(Project project)
     {
+        def moduleKey = project.getName().toLowerCase()
+        def otherPath = _foundModules.get(moduleKey)
+        if (otherPath != null && !otherPath.equals(project.getPath()) && project.findProject(otherPath) != null)
+        {
+            if (_shouldDoBuild(project, false))
+                throw new IllegalStateException("Found duplicate module '${project.getName()}' in ${project.getPath()} and ${otherPath}. Modules should have unique names; Rename one or exclude it from your build.")
+        }
+        else
+        {
+            if (_shouldDoBuild(project, false))
+                _foundModules.put(moduleKey, project.getPath())
+            else
+                _foundModules.remove(moduleKey)
+        }
+
         project.apply plugin: 'java-base'
 
         project.build.onlyIf ({
@@ -64,6 +80,11 @@ class FileModule implements Plugin<Project>
 
     static boolean shouldDoBuild(Project project)
     {
+        return _shouldDoBuild(project, true)
+    }
+
+    private static boolean _shouldDoBuild(Project project, boolean logMessages)
+    {
         List<String> indicators = new ArrayList<>()
         if (project.file(SKIP_BUILD_FILE).exists())
             indicators.add(SKIP_BUILD_FILE + " exists")
@@ -72,7 +93,7 @@ class FileModule implements Plugin<Project>
         if (project.labkey.skipBuild)
             indicators.add("skipBuild property set for Gradle project")
 
-        if (indicators.size() > 0)
+        if (indicators.size() > 0 && logMessages)
         {
             project.logger.info("$project.name build skipped because: " + indicators.join("; "))
         }
@@ -148,19 +169,9 @@ class FileModule implements Plugin<Project>
             is.close()
         }
 
-        moduleXmlTask.outputs.upToDateWhen(
-                {
-                    Task task ->
-                        if (!moduleXmlFile.exists())
-                            return false
-                        else
-                        {
-                            if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).lastModified() > moduleXmlFile.lastModified())
-                                return false
-                        }
-                        return true
-                }
-        )
+        moduleXmlTask.inputs.file(project.file(ModuleExtension.MODULE_PROPERTIES_FILE))
+        moduleXmlTask.outputs.file(moduleXmlFile)
+
         // This is added because Intellij started creating this "out" directory when you build through IntelliJ.
         // It copies files there that are actually input files to the build, which causes some problems when later
         // builds attempt to find their input files.

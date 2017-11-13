@@ -70,15 +70,16 @@ class LabKeyExtension
 
     static String getDeployModeName(Project project)
     {
-        if (!project.hasProperty(DEPLOY_MODE_PROPERTY))
-            return LabKeyExtension.DeployMode.dev.getDisplayName()
+        if (isDevMode(project))
+            return DeployMode.dev.getDisplayName()
         else
-            return LabKeyExtension.DeployMode.valueOf(project.property(DEPLOY_MODE_PROPERTY).toString().toLowerCase()).getDisplayName()
+            return DeployMode.valueOf(project.property(DEPLOY_MODE_PROPERTY).toString().toLowerCase()).getDisplayName()
     }
 
     static boolean isDevMode(Project project)
     {
-        return project.hasProperty(DEPLOY_MODE_PROPERTY) && LabKeyExtension.DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY))
+        return !project.hasProperty(DEPLOY_MODE_PROPERTY) ||
+                (project.hasProperty(DEPLOY_MODE_PROPERTY) && DeployMode.dev.toString().equalsIgnoreCase((String) project.property(DEPLOY_MODE_PROPERTY)))
     }
 
     void setDirectories(Project project)

@@ -65,3 +65,16 @@ directory when doing clean task for module
 * [Issue 31165](https://www.labkey.org/home/Developer/issues/Secure/issues-details.view?issueId=31165) - Update naming convention for distribution files
 * Update logic for finding source directory for compressClientLibs to use lastIndexOf "web" or "webapp" directory
 * Exclude node_modules directory when checking for .lib.xml files for minor performance improvement
+
+### version 1.2.2
+*Released*: Nov ???, 2017
+(Earliest compatible LabKey version: 17.2)
+
+* FileModule plugin enforces unique names for LabKey modules
+* [Issue 31985](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31985) - bootstrap task not connecting to master database for dropping database
+* Update npm run tasks to use isDevMode instead of separate property to determine which build task to run
+* [Issue 32006](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32006) - update up-to-date check for npmInstall so it doesn't traverse
+the entire node_modules tree (and stumble on broken symlinks); add package-lock.json file as input to npmInstall if it exists
+* Use more standard up-to-date check for moduleXml task by declaring inputs and outputs
+* Update some source set configuration to be more standard
+* Make treatment of missing deployMode property consistent (default to dev mode)

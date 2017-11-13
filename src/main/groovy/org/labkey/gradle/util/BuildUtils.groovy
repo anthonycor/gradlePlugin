@@ -534,4 +534,33 @@ class BuildUtils
     {
         return project.getStartParameter().getSystemPropertiesArgs().get("idea.version") != null
     }
+
+    static int compareVersions(thisVersion, thatVersion)
+    {
+        if (thisVersion == null &&  thatVersion != null)
+            return -1
+        if (thisVersion != null && thatVersion == null)
+            return 1
+        if (thisVersion == null && thatVersion == null)
+            return 0
+
+        String[] thisVersionParts = ((String) thisVersion).split("\\.")
+        String[] thatVersionParts = ((String) thatVersion).split("\\.")
+        int i = 0;
+        while (i < thisVersionParts.length && i < thatVersionParts.length)
+        {
+            int thisPartNum = Integer.valueOf(thisVersionParts[i])
+            int thatPartNum = Integer.valueOf(thatVersionParts[i])
+            if (thisPartNum > thatPartNum)
+                return 1
+            if (thisPartNum < thatPartNum)
+                return -1
+            i++
+        }
+        if (i < thisVersionParts.length)
+            return 1
+        if (i < thatVersionParts.length)
+            return -1
+        return 0
+    }
 }

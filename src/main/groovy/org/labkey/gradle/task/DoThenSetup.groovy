@@ -89,9 +89,9 @@ class DoThenSetup extends DefaultTask
 
     // labkeyXml is up to date if it was created after the current config file was created
     // and it has the current appDocBase
-    private boolean labkeyXmlUpToDate(String appDocBase)
+    boolean labkeyXmlUpToDate(String appDocBase)
     {
-        if (dbPropertiesChanged)
+        if (this.dbPropertiesChanged)
             return false;
 
         File dbPropFile = DatabaseProperties.getPickedConfigFile(project)

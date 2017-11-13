@@ -22,6 +22,8 @@ import org.gradle.api.tasks.testing.Test
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.plugin.extension.TomcatExtension
 import org.labkey.gradle.plugin.extension.UiTestExtension
+import org.labkey.gradle.util.BuildUtils
+
 /**
  * Class that sets up jvmArgs and our standard output options
  */
@@ -44,7 +46,10 @@ class RunUiTest extends Test
             reports.html.setDestination(new File( "${project.buildDir}/${LOG_DIR}/reports/html"))
         }
         setClasspath (project.sourceSets.uiTest.runtimeClasspath)
-        setTestClassesDir (project.sourceSets.uiTest.output.classesDir)
+        if (BuildUtils.compareVersions(project.gradle.gradleVersion, "4") > 0)
+            setTestClassesDirs (project.sourceSets.uiTest.output)
+        else
+            setTestClassesDir (project.sourceSets.uiTest.output.classesDir)
         ignoreFailures true // Failing tests should not cause task to fail
         outputs.upToDateWhen( { return false }) // always run tests when asked to
     }

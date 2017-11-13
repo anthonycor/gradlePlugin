@@ -35,7 +35,7 @@ class JspCompile2Java extends DefaultTask
         )
         ant.jasper(
                 uriroot: "${project.buildDir}/${project.jspCompile.tempDir}/webapp",
-                outputDir: "${project.buildDir}/${project.jspCompile.tempDir}/classes",
+                outputDir: "${project.buildDir}/${project.jspCompile.classDir}",
                 package: "org.labkey.jsp.compiled",
                 compilerTargetVM: project.targetCompatibility,
                 compilerSourceVM: project.sourceCompatibility,

@@ -18,6 +18,7 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.SourceSet
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.task.GzipAction
 import org.labkey.gradle.task.WriteDependenciesFile
@@ -55,12 +56,12 @@ class ModuleResources implements Plugin<Project>
     {
         project.sourceSets
                 {
-                    module {
-                        resources {
+                    module { SourceSet set ->
+                        set.resources {
                             srcDirs = [DIR_NAME]
                             exclude "schemas/**/obsolete/**"
                         }
-                        output.resourcesDir = project.labkey.explodedModuleDir
+                        set.output.resourcesDir = project.labkey.explodedModuleDir
                     }
                 }
         if (!LabKeyExtension.isDevMode(project))

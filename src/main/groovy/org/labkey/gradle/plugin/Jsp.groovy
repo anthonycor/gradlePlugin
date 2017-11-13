@@ -71,9 +71,8 @@ class Jsp implements Plugin<Project>
                 {
                     jsp {
                         java {
-                            srcDirs = ["${project.buildDir}/${project.jspCompile.tempDir}/classes"]
+                            srcDirs = ["${project.buildDir}/${project.jspCompile.classDir}"]
                         }
-                        output.classesDir = "${project.buildDir}/${project.jspCompile.tempDir}/classes"
                     }
                 }
     }
@@ -182,7 +181,7 @@ class Jsp implements Plugin<Project>
                 description: "produce jar file of jsps",
                 { Jar jar ->
                     jar.classifier = CLASSIFIER
-                    jar.from "${project.buildDir}/${project.jspCompile.classDir}"
+                    jar.from project.sourceSets.jsp.output
                     jar.baseName = "${project.name}${BASE_NAME_EXTENSION}"
                     jar.destinationDir = project.file(project.labkey.explodedModuleLibDir)
                 }
