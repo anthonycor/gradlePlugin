@@ -58,10 +58,10 @@ class NpmRun implements Plugin<Project>
                 {Task task ->
                     task.group = GroupNames.NPM_RUN
                     task.description = "Runs 'npm run ${project.npmRun.clean}'"
-                    task.dependsOn "npmInstall"
                     task.dependsOn "npm_run_${project.npmRun.clean}"
-                    task.mustRunAfter "npmInstall"
                 }
+        if (project.tasks.findByName("clean") != null)
+            project.tasks.clean.dependsOn(project.tasks.npmRunClean)
 
         project.task("npmRunBuildProd")
                 {Task task ->
