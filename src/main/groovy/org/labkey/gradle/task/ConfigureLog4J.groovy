@@ -26,13 +26,19 @@ import org.labkey.gradle.plugin.extension.LabKeyExtension
  */
 class ConfigureLog4J extends DefaultTask
 {
-    @InputFile
-    File log4jXML = new File((String) project.serverDeploy.rootWebappsDir, "log4j.xml")
+    private static final String FILE_NAME = "log4j.xml";
 
-    File outputDir = new File((String) project.staging.webappClassesDir)
+    @InputFile
+    File log4jXML = new File((String) project.serverDeploy.rootWebappsDir, FILE_NAME)
+
+    File stagingDir = new File((String) project.staging.webappClassesDir)
+    File deployDir = new File("${project.serverDeploy.webappDir}/WEB-INF/classes");
 
     @OutputFile
-    File outputFile = new File(outputDir, "log4j.xml")
+    File stagingFile = new File(stagingDir, FILE_NAME)
+
+    @OutputFile
+    File deployFile = new File(deployDir, FILE_NAME)
 
     @TaskAction
     void copyFile()
@@ -43,7 +49,7 @@ class ConfigureLog4J extends DefaultTask
             consoleAppender = '<appender-ref ref="CONSOLE"/>'
         }
         ant.copy(
-                todir: outputDir,
+                todir: stagingDir,
                 overwrite: true,
                 preserveLastModified: true
         )
@@ -55,6 +61,14 @@ class ConfigureLog4J extends DefaultTask
                                 value: consoleAppender
                         )
                     }
+        }
+        ant.copy(
+                todir: deployDir,
+                overwrite: true,
+                preserveLastModified: true
+        )
+        {
+            fileset(file: stagingFile)
         }
     }
 }
