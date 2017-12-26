@@ -169,7 +169,8 @@ class FileModule implements Plugin<Project>
             is.close()
         }
 
-        moduleXmlTask.inputs.file(project.file(ModuleExtension.MODULE_PROPERTIES_FILE))
+        if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).exists())
+            moduleXmlTask.inputs.file(project.file(ModuleExtension.MODULE_PROPERTIES_FILE))
         moduleXmlTask.outputs.file(moduleXmlFile)
 
         // This is added because Intellij started creating this "out" directory when you build through IntelliJ.
