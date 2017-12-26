@@ -121,7 +121,7 @@ class Gwt implements Plugin<Project>
                             GString extrasDir = "${project.buildDir}/${project.gwt.extrasDir}"
                             String outputDir = project.labkey.explodedModuleWebDir
 
-                            java.inputs.file(project.sourceSets.gwt.java.srcDirs)
+                            java.inputs.files(project.sourceSets.gwt.java.srcDirs)
 
                             java.outputs.dir extrasDir
                             java.outputs.dir outputDir

@@ -158,9 +158,9 @@ class Jsp implements Plugin<Project>
                 type: JspCompile2Java,
                 description: "compile jsp files into Java classes",
                 {
-                    inputs.file copyJsps
-                    inputs.file copyResourceJsps
-                    inputs.file copyTags
+                    inputs.files copyJsps
+                    inputs.files copyResourceJsps
+                    inputs.files copyTags
                     outputs.dir "${project.buildDir}/${project.jspCompile.classDir}"
                 }
         )
