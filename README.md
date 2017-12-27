@@ -78,3 +78,16 @@ the entire node_modules tree (and stumble on broken symlinks); add package-lock.
 * Use more standard up-to-date check for moduleXml task by declaring inputs and outputs
 * Update some source set configuration to be more standard
 * Make treatment of missing deployMode property consistent (default to dev mode)
+
+### version 1.2.3
+*Released*: ???
+(Earliest compatible LabKey version: 17.3)
+This version introduces some changes that are compatible with Gradle 4.x, so it will not be
+compatible with older versions of LabKey.
+
+* [Issue 32420](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32420) - log4j.xml file not getting updated with developer mode settings
+* [Issue 32290](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32290) - add dependency on npmClean from module's clean task so all files built by npm
+are removed when the module is cleaned. (Note that this does **not** affect the `node_modules` directory)
+* Failure to stop tomcat should not cause failure when running tests in TeamCity
+* [Issue 32413](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32413) - get rid of some warnings about deprecated
+methods that are to be removed with Gradle 5.0.
