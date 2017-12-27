@@ -19,6 +19,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.file.CopySpec
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
@@ -138,6 +139,7 @@ class FileModule implements Plugin<Project>
     {
         project.configurations
                 {
+                    modules
                     published
                 }
     }
@@ -152,6 +154,12 @@ class FileModule implements Plugin<Project>
                 throw new GradleException("Could not find 'module.template.xml' as resource file")
             }
 
+            List<String> moduleDependencies = [];
+            project.configurations.modules.dependencies.each {
+                Dependency dep -> moduleDependencies += dep.getName()
+            }
+            if (!moduleDependencies.isEmpty())
+                project.lkModule.setPropertyValue("ModuleDependencies", moduleDependencies.join(", "))
             project.mkdir(project.labkey.explodedModuleConfigDir)
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(moduleXmlFile))
 
@@ -223,7 +231,7 @@ class FileModule implements Plugin<Project>
                 group: GroupNames.MODULE,
                 description: "copy a project's .module file to the local deploy directory")
                 { Task task ->
-                    task.inputs.file moduleFile
+                    task.inputs.files moduleFile
                     task.outputs.file "${ServerDeployExtension.getModulesDeployDirectory(project)}/${moduleFile.outputs.getFiles()[0].getName()}"
 
                     task.doLast {
