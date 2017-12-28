@@ -19,6 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.DeleteSpec
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
@@ -123,8 +124,11 @@ class Distribution implements Plugin<Project>
         project.evaluationDependsOn(inheritedProjectPath)
         project.project(inheritedProjectPath).configurations.distribution.dependencies.each {
             Dependency dep ->
-                if (dep instanceof ProjectDependency && !excludedModules.contains(dep.dependencyProject.path))
+                if (dep instanceof ModuleDependency)
                     project.dependencies.add("distribution", dep)
+                else if (dep instanceof ProjectDependency && !excludedModules.contains(dep.dependencyProject.path))
+                    project.dependencies.add("distribution", dep)
+
         }
     }
 
