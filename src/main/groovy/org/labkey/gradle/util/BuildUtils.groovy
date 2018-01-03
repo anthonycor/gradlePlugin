@@ -191,6 +191,10 @@ class BuildUtils
     static List<String> whyNotBuildFromSource(Project project, String property)
     {
         List<String> reasons = []
+        // TODO the downloadLabKeyModules might be better as some sort of parameter to the addLabKeyDependencies
+        // method, but I think this will allow testing out the feature of having module dependencies declared in build.gradle files
+        if (!project.projectDir.exists() && project.hasProperty("downloadLabKeyModules"))
+            reasons.add("Project directory ${project.projectDir} does not exist.")
         String propValue = project.hasProperty(property) ? project.property(property) : null
         String value = TeamCityExtension.getTeamCityProperty(project, property, propValue)
         if (value == null)
