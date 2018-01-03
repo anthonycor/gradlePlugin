@@ -450,21 +450,24 @@ class FileModule implements Plugin<Project>
         if (serverProject != null)
         {
             BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
-            if (project.configurations.findByName("modules") != null)
-                project.configurations.modules.dependencies.each {
-                    Dependency dep ->
-                        if (dep instanceof ProjectDependency)
-                        {
-                            if (!dep.dependencyProject.getProjectDir().exists())
-                                throw new GradleException("Cannot find project for " + dep.dependencyProject.getPath());
-                            ProjectDependency projectDep = (ProjectDependency) dep
-                            BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: projectDep.project.getPath(), depProjectConfig: 'published', depExtension: 'module')
-                        }
-                        else
-                        {
-                            serverProject.dependencies.add("modules", dep)
-                        }
-                }
+            // This is done after the project is evaluated otherwise the dependencies for the modules configuration will not have been added yet.
+            project.afterEvaluate({
+                if (project.configurations.findByName("modules") != null)
+                    project.configurations.modules.dependencies.each {
+                        Dependency dep ->
+                            if (dep instanceof ProjectDependency)
+                            {
+                                if (!dep.dependencyProject.getProjectDir().exists())
+                                    throw new GradleException("Cannot find project for " + dep.dependencyProject.getPath());
+                                ProjectDependency projectDep = (ProjectDependency) dep
+                                BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: projectDep.dependencyProject.getPath(), depProjectConfig: 'published', depExtension: 'module')
+                            }
+                            else
+                            {
+                                serverProject.dependencies.add("modules", dep)
+                            }
+                    }
+            })
         }
 
     }
