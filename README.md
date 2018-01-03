@@ -92,3 +92,5 @@ are removed when the module is cleaned. (Note that this does **not** affect the 
 * [Issue 32413](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32413) - get rid of some warnings about deprecated
 methods that are to be removed with Gradle 5.0.
 * When inheriting dependencies for a distribution, be sure to inherit even if the project is not included in the settings file
+* [Issue 31917](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31917) - (incubating feature) Allow
+module dependencies to be declared in the build.gradle file instead of module.properties
