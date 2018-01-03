@@ -20,6 +20,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.CopySpec
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
@@ -139,7 +140,6 @@ class FileModule implements Plugin<Project>
     {
         project.configurations
                 {
-                    modules
                     published
                 }
     }
@@ -446,7 +446,26 @@ class FileModule implements Plugin<Project>
 
     private void addDependencies(Project project)
     {
-        if (project.findProject(":server") != null)
-            BuildUtils.addLabKeyDependency(project: project.project(":server"), config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
+        Project serverProject = project.findProject(":server")
+        if (serverProject != null)
+        {
+            BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
+            if (project.configurations.findByName("modules") != null)
+                project.configurations.modules.dependencies.each {
+                    Dependency dep ->
+                        if (dep instanceof ProjectDependency)
+                        {
+                            if (!dep.dependencyProject.getProjectDir().exists())
+                                throw new GradleException("Cannot find project for " + dep.dependencyProject.getPath());
+                            ProjectDependency projectDep = (ProjectDependency) dep
+                            BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: projectDep.project.getPath(), depProjectConfig: 'published', depExtension: 'module')
+                        }
+                        else
+                        {
+                            serverProject.dependencies.add("modules", dep)
+                        }
+                }
+        }
+
     }
 }
