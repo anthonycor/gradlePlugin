@@ -61,7 +61,7 @@ class XmlBeans implements Plugin<Project>
         }
         project.dependencies
                 {
-                    xmlbeans "org.apache.xmlbeans:xbean:${project.xmlbeansVersion}"
+                    xmlbeans "org.apache.xmlbeans:xmlbeans:${project.xmlbeansVersion}"
                 }
     }
 
