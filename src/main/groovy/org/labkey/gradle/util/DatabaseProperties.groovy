@@ -73,10 +73,10 @@ class DatabaseProperties
 
     static File getPickedConfigFile(Project project)
     {
-        return _getConfigFile(project, PICKED_DATABASE_CONFIG_FILE)
+        return getConfigFile(project, PICKED_DATABASE_CONFIG_FILE)
     }
 
-    private static File _getConfigFile(Project project, String dbConfigFile)
+    private static File getConfigFile(Project project, String dbConfigFile)
     {
         return project.project(":server").file(dbConfigFile)
     }
@@ -216,7 +216,7 @@ class DatabaseProperties
 
     private static Properties _readDatabaseProperties(Project project, String configFile)
     {
-        if (_getConfigFile(project, configFile).exists())
+        if (getConfigFile(project, configFile).exists())
         {
             Properties props = PropertiesUtils.readFileProperties(project.project(":server"), configFile)
             return props
