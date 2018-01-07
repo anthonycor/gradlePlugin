@@ -248,6 +248,8 @@ class TeamCity extends Tomcat
                             task.dbType = properties.shortType
                         }
                 )
+                undeployTask.mustRunAfter(project.tasks.pickMSSQL)
+                undeployTask.mustRunAfter(project.tasks.pickPg)
                 project.tasks.startTomcat.mustRunAfter(undeployTask)
             }
 
