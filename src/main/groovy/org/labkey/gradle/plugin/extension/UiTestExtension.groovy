@@ -62,7 +62,7 @@ class UiTestExtension
         }
         else if (!DatabaseProperties.getPickedConfigFile(project).exists())
         {
-            throw new GradleException("No ${DatabaseProperties.getPickedConfigFile(project)} file available.  Cannot determine database type for test confgiruation.")
+            throw new GradleException("No ${DatabaseProperties.getPickedConfigFile(project)} file available.  Cannot determine database type for test confgiruation.  Run the 'pickPg' or 'pickMSSQL' task to create this file.")
         }
         else
         {
