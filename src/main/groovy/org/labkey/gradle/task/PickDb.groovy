@@ -27,7 +27,6 @@ class PickDb extends DoThenSetup
 
     Closure<Void> fn = {
 
-        //ant pick_[pg|mssql|db]
         //copies the correct config file.
         project.copy({ CopySpec copy ->
             copy.from "${dir}/configs"
