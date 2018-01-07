@@ -15,6 +15,7 @@
  */
 package org.labkey.gradle.plugin.extension
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.labkey.gradle.util.DatabaseProperties
 import org.labkey.gradle.util.PropertiesUtils
@@ -36,16 +37,45 @@ class UiTestExtension
 
     private void setConfig()
     {
-        // read database configuration, but don't include jdbcUrl and other non-"database"
-        // properties because they "cause problems" (quote from the test/build.xml file)
-        DatabaseProperties dbProperties = new DatabaseProperties(project, false)
         this.config = new Properties()
         this.config.setProperty("debugSuspendSelenium", "n")
-        for (String name : dbProperties.getConfigProperties().stringPropertyNames())
+
+        // Issue 32153: When running tests and the pickDb tasks within the same command if the config.properties file
+        // does not exist (or exists and is a different database than intended), the set of tests run will not be
+        // properly filtered.  For running on command line, the easiest solution is to simply run the pickDB task as
+        // a separate task.  This is more cumbersome on TeamCity, but we already have properties that specify the
+        // database type there, so we'll use those.
+        if (TeamCityExtension.isOnTeamCity(project) && !DatabaseProperties.getPickedConfigFile(project).exists())
         {
-            if (name.contains("database"))
-                this.config.put(name, dbProperties.getConfigProperties().getProperty(name))
+            TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
+            List<DatabaseProperties> dbProperties = tcExtension.getDatabaseTypes()
+            if (dbProperties.isEmpty())
+                throw new GradleException("TeamCity configuration problem(s): No database properties defined.")
+            else if (dbProperties.size() > 1)
+                throw new GradleException("TeamCity configuration problem(s): More than one database type defined. Cannot determine which to use for configuring tests.")
+            else
+                this.config.put("databaseType", dbProperties.get(0).getShortType());
         }
+        else if (project.hasProperty("databaseType"))
+        {
+            this.config.put("databaseType", project.property("databaseType"))
+        }
+        else if (!DatabaseProperties.getPickedConfigFile(project).exists())
+        {
+            throw new GradleException("No ${DatabaseProperties.getPickedConfigFile(project)} file available.  Cannot determine database type for test confgiruation.")
+        }
+        else
+        {
+            DatabaseProperties dbProperties = new DatabaseProperties(project, false)
+            // read database configuration, but don't include jdbcUrl and other non-"database"
+            // properties because they "cause problems" (quote from the test/build.xml file)
+            for (String name : dbProperties.getConfigProperties().stringPropertyNames())
+            {
+                if (name.contains("database"))
+                    this.config.put(name, dbProperties.getConfigProperties().getProperty(name))
+            }
+        }
+
         if (project.findProject(":server:test") != null)
         // read test.properties file
             PropertiesUtils.readProperties(project.project(":server:test").file(propertiesFile), this.config)
