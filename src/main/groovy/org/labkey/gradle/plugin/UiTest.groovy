@@ -90,6 +90,8 @@ class UiTest implements Plugin<Project>
                 description: "Run UI (Selenium) tests for this module",
                 type: RunUiTest
         )
+        project.tasks.uiTests.mustRunAfter(project.project(":server").tasks.pickPg)
+        project.tasks.uiTests.mustRunAfter(project.project(":server").tasks.pickMSSQL)
     }
 
     protected void addArtifacts(Project project)
