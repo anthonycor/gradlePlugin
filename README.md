@@ -82,7 +82,7 @@ the entire node_modules tree (and stumble on broken symlinks); add package-lock.
 ### version 1.2.3
 *Released*: ???
 (Earliest compatible LabKey version: 17.3)
-This version introduces some changes that are compatible with Gradle 4.x, so it will not be
+This version introduces some changes that are not compatible with Gradle versions before 4.x, so it will not be
 compatible with older versions of LabKey.
 
 * [Issue 32420](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32420) - log4j.xml file not getting updated with developer mode settings

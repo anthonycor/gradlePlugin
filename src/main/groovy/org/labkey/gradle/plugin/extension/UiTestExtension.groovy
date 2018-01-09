@@ -45,9 +45,9 @@ class UiTestExtension
         // properly filtered.  For running on command line, the easiest solution is to simply run the pickDB task as
         // a separate task.  This is more cumbersome on TeamCity, but we already have properties that specify the
         // database type there, so we'll use those.
-        if (TeamCityExtension.isOnTeamCity(project) && !DatabaseProperties.getPickedConfigFile(project).exists())
+        TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
+        if (tcExtension != null  && !DatabaseProperties.getPickedConfigFile(project).exists())
         {
-            TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
             List<DatabaseProperties> dbProperties = tcExtension.getDatabaseTypes()
             if (dbProperties.isEmpty())
                 throw new GradleException("TeamCity configuration problem(s): No database properties defined.")
