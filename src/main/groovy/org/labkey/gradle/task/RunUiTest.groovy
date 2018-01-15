@@ -44,7 +44,7 @@ class RunUiTest extends Test
             reports.html.setDestination(new File( "${project.buildDir}/${LOG_DIR}/reports/html"))
         }
         setClasspath (project.sourceSets.uiTest.runtimeClasspath)
-        setTestClassesDirs (project.sourceSets.uiTest.output)
+        setTestClassesDirs (project.sourceSets.uiTest.output.classesDirs)
 
         ignoreFailures true // Failing tests should not cause task to fail
         outputs.upToDateWhen( { return false }) // always run tests when asked to
