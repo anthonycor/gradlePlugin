@@ -58,10 +58,10 @@ class NpmRun implements Plugin<Project>
                 {Task task ->
                     task.group = GroupNames.NPM_RUN
                     task.description = "Runs 'npm run ${project.npmRun.clean}'"
-                    task.dependsOn "npmInstall"
                     task.dependsOn "npm_run_${project.npmRun.clean}"
-                    task.mustRunAfter "npmInstall"
                 }
+        if (project.tasks.findByName("clean") != null)
+            project.tasks.clean.dependsOn(project.tasks.npmRunClean)
 
         project.task("npmRunBuildProd")
                 {Task task ->
@@ -102,9 +102,12 @@ class NpmRun implements Plugin<Project>
 
     private void addTaskInputOutput(Task task)
     {
-        task.inputs.file task.project.file(NPM_PROJECT_FILE)
-        task.inputs.file task.project.file(TYPESCRIPT_CONFIG_FILE)
-        task.inputs.dir task.project.file(WEBPACK_DIR)
+        if (task.project.file(NPM_PROJECT_FILE).exists())
+            task.inputs.file task.project.file(NPM_PROJECT_FILE)
+        if (task.project.file(TYPESCRIPT_CONFIG_FILE).exists())
+            task.inputs.file task.project.file(TYPESCRIPT_CONFIG_FILE)
+        if (task.project.file(WEBPACK_DIR).exists())
+            task.inputs.dir task.project.file(WEBPACK_DIR)
 
         // common input file pattern for client source
         task.inputs.files task.project.fileTree(dir: "src", includes: ["client/**/*", "theme/**/*"])

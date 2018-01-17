@@ -76,7 +76,8 @@ class UiTest implements Plugin<Project>
 
     protected void addDependencies(Project project)
     {
-        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:test", depProjectConfig: "uiTestCompile", depVersion: project.labkeyVersion)
+        if (project.path != ":server:test")
+            BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:test", depVersion: project.labkeyVersion)
 
         BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":schemas", depVersion: project.labkeyVersion)
         BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:api", depVersion: project.labkeyVersion)
@@ -90,6 +91,8 @@ class UiTest implements Plugin<Project>
                 description: "Run UI (Selenium) tests for this module",
                 type: RunUiTest
         )
+        project.tasks.uiTests.mustRunAfter(project.project(":server").tasks.pickPg)
+        project.tasks.uiTests.mustRunAfter(project.project(":server").tasks.pickMSSQL)
     }
 
     protected void addArtifacts(Project project)

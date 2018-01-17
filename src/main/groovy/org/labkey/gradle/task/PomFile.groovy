@@ -29,7 +29,7 @@ import org.labkey.gradle.plugin.ServerBootstrap
 class PomFile extends DefaultTask
 {
     String artifactCategory = "libs"
-    Properties pomProperties = null
+    Properties pomProperties = new Properties()
 
     @OutputFile
     File getPomFile()

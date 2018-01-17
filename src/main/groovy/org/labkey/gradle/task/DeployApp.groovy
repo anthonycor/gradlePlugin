@@ -69,19 +69,6 @@ class DeployApp extends DefaultTask
                 {
                     fileset(dir: stagingWebappDir)
                 }
-
-        ant.copy(
-                todir: deployWebappDir,
-                preserveLastModified: true,
-                overwrite: true,
-        )
-                {
-                    fileset(dir: stagingWebappDir)
-                            {
-                                include( name: "WEB-INF/classes/log4j.xml")
-                            }
-
-                }
     }
 
     private void deployModules()

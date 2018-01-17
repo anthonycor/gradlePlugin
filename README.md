@@ -78,3 +78,21 @@ the entire node_modules tree (and stumble on broken symlinks); add package-lock.
 * Use more standard up-to-date check for moduleXml task by declaring inputs and outputs
 * Update some source set configuration to be more standard
 * Make treatment of missing deployMode property consistent (default to dev mode)
+
+### version 1.2.3
+*Released*: ???
+(Earliest compatible LabKey version: 17.3)
+This version introduces some changes that are not compatible with Gradle versions before 4.x, so it will not be
+compatible with older versions of LabKey.
+
+* [Issue 32420](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32420) - log4j.xml file not getting updated with developer mode settings
+* [Issue 32290](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32290) - add dependency on npmClean from module's clean task so all files built by npm
+are removed when the module is cleaned. (Note that this does **not** affect the `node_modules` directory)
+* Failure to stop tomcat should not cause failure when running tests in TeamCity
+* [Issue 32413](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32413) - get rid of some warnings about deprecated
+methods that are to be removed with Gradle 5.0.
+* When inheriting dependencies for a distribution, be sure to inherit even if the project is not included in the settings file
+* [Issue 31917](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31917) - (incubating feature) Allow
+module dependencies to be declared in the build.gradle file instead of module.properties
+* [Issue 32153](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32153) - look for the database type in TeamCity and project properties since the pickDb task may not have run yet
+* [Issue 32730](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32730) - make test jar an artifact of the test project to enable running uiTest task on individual modules

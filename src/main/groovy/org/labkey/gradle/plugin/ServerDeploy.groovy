@@ -241,12 +241,6 @@ class ServerDeploy implements Plugin<Project>
         Files.newDirectoryStream(Paths.get(project.tomcatDir, "lib"), "${ServerBootstrap.JAR_BASE_NAME}*.jar").each { Path path ->
             project.delete path.toString()
         }
-        // FIXME this fails when cleaning after changing version but before publishing any artifacts.
-        // We may want to do some globbing on prefix without the version number
-//        FileTree tree = project.fileTree(dir: "${project.tomcatDir}/lib",
-//                includes: ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar", "${ServerBootstrap.JAR_BASE_NAME}*.jar"]
-//        )
-//        project.delete tree
 
         project.configurations.tomcatJars.files.each {File jarFile ->
             File libFile = new File("${project.tomcatDir}/lib/${jarFile.getName()}")

@@ -248,6 +248,8 @@ class TeamCity extends Tomcat
                             task.dbType = properties.shortType
                         }
                 )
+                undeployTask.mustRunAfter(project.project(":server").tasks.pickMSSQL)
+                undeployTask.mustRunAfter(project.project(":server").tasks.pickPg)
                 project.tasks.startTomcat.mustRunAfter(undeployTask)
             }
 
@@ -337,6 +339,7 @@ class TeamCity extends Tomcat
                 spec.main = "org.labkey.test.debug.ThreadDumpAndKill"
                 spec.classpath { [project.sourceSets.debug.output.classesDir, project.configurations.debugCompile] }
                 spec.args = [debugPort]
+                spec.ignoreExitValue = true
             })
         }
     }

@@ -226,7 +226,7 @@ class TestRunner extends UiTest
 
     private void addJarTask(Project project)
     {
-        project.task("testJar",
+        Task testJar = project.task("testJar",
                 group: GroupNames.BUILD,
                 type: Jar,
                 description: "produce jar file of test classes",
@@ -236,6 +236,9 @@ class TestRunner extends UiTest
                     version project.version
                     destinationDir = new File("${project.buildDir}/libs")
                 })
+        project.artifacts {
+            compile testJar
+        }
     }
 
     private void addAspectJ(Project project)

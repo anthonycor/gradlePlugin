@@ -64,6 +64,11 @@ class ModuleExtension
         return modProperties.get(propertyName)
     }
 
+    void setPropertyValue(String propertyName, String value)
+    {
+        modProperties.setProperty(propertyName, value)
+    }
+
     void setModuleProperties(Project project)
     {
         File propertiesFile = project.file(MODULE_PROPERTIES_FILE)

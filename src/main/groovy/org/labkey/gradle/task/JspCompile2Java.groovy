@@ -39,7 +39,6 @@ class JspCompile2Java extends DefaultTask
                 package: "org.labkey.jsp.compiled",
                 compilerTargetVM: project.targetCompatibility,
                 compilerSourceVM: project.sourceCompatibility,
-                trimSpaces: false,
                 compile: false,
                 listErrors: true
         )

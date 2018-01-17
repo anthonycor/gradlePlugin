@@ -19,6 +19,8 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.CopySpec
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.publish.maven.MavenPublication
@@ -152,6 +154,12 @@ class FileModule implements Plugin<Project>
                 throw new GradleException("Could not find 'module.template.xml' as resource file")
             }
 
+            List<String> moduleDependencies = [];
+            project.configurations.modules.dependencies.each {
+                Dependency dep -> moduleDependencies += dep.getName()
+            }
+            if (!moduleDependencies.isEmpty())
+                project.lkModule.setPropertyValue("ModuleDependencies", moduleDependencies.join(", "))
             project.mkdir(project.labkey.explodedModuleConfigDir)
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(moduleXmlFile))
 
@@ -169,7 +177,8 @@ class FileModule implements Plugin<Project>
             is.close()
         }
 
-        moduleXmlTask.inputs.file(project.file(ModuleExtension.MODULE_PROPERTIES_FILE))
+        if (project.file(ModuleExtension.MODULE_PROPERTIES_FILE).exists())
+            moduleXmlTask.inputs.file(project.file(ModuleExtension.MODULE_PROPERTIES_FILE))
         moduleXmlTask.outputs.file(moduleXmlFile)
 
         // This is added because Intellij started creating this "out" directory when you build through IntelliJ.
@@ -222,7 +231,7 @@ class FileModule implements Plugin<Project>
                 group: GroupNames.MODULE,
                 description: "copy a project's .module file to the local deploy directory")
                 { Task task ->
-                    task.inputs.file moduleFile
+                    task.inputs.files moduleFile
                     task.outputs.file "${ServerDeployExtension.getModulesDeployDirectory(project)}/${moduleFile.outputs.getFiles()[0].getName()}"
 
                     task.doLast {
@@ -437,7 +446,29 @@ class FileModule implements Plugin<Project>
 
     private void addDependencies(Project project)
     {
-        if (project.findProject(":server") != null)
-            BuildUtils.addLabKeyDependency(project: project.project(":server"), config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
+        Project serverProject = project.findProject(":server")
+        if (serverProject != null)
+        {
+            BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: project.path, depProjectConfig: 'published', depExtension: 'module')
+            // This is done after the project is evaluated otherwise the dependencies for the modules configuration will not have been added yet.
+            project.afterEvaluate({
+                if (project.configurations.findByName("modules") != null)
+                    project.configurations.modules.dependencies.each {
+                        Dependency dep ->
+                            if (dep instanceof ProjectDependency)
+                            {
+                                if (!dep.dependencyProject.getProjectDir().exists())
+                                    throw new GradleException("Cannot find project for " + dep.dependencyProject.getPath());
+                                ProjectDependency projectDep = (ProjectDependency) dep
+                                BuildUtils.addLabKeyDependency(project: serverProject, config: 'modules', depProjectPath: projectDep.dependencyProject.getPath(), depProjectConfig: 'published', depExtension: 'module')
+                            }
+                            else
+                            {
+                                serverProject.dependencies.add("modules", dep)
+                            }
+                    }
+            })
+        }
+
     }
 }
