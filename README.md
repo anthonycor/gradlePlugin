@@ -11,14 +11,14 @@ but also make certain assumptions that you may not want to impose on your module
 
 ### version 1.0.1
 
-*Released*: July 2, 2017
+*Released*: 2 July 2017
 (Earliest compatible LabKey version: 17.2)
 
 The first official release of the plugin to support Labkey 17.2 release.  
 
 ### version 1.1
 
-*Released*: August 3, 2017
+*Released*: 3 August 2017
 (Earliest compatible LabKey version: 17.2)
 
 * [Issue 31046](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31046) - Remove JSP jars from WEB-INF/jsp directory with undeployModule
@@ -28,7 +28,7 @@ The first official release of the plugin to support Labkey 17.2 release.
 jar files due to including branch names in version numbers
 
 ### version 1.2
-*Released*: Sept 28, 2017
+*Released*: 28 Sept 2017
 (Earliest compatible LabKey version: 17.2)
 
 * [Issue 31186](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31186) - createModule task
@@ -57,7 +57,7 @@ directory when doing clean task for module
 * add `showDiscrepancies` task to produce a report of all external jars that have multiple versions in the build
 
 ### version 1.2.1
-*Released*: Oct 16, 2017
+*Released*: 16 Oct 2017
 (Earliest compatible LabKey version: 17.2)
 
 * [Issue 31742](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=31742) - Remove redundant npm_setup command for better performance
@@ -67,7 +67,7 @@ directory when doing clean task for module
 * Exclude node_modules directory when checking for .lib.xml files for minor performance improvement
 
 ### version 1.2.2
-*Released*: Nov 13, 2017
+*Released*: 13 Nov 2017
 (Earliest compatible LabKey version: 17.2)
 
 * FileModule plugin enforces unique names for LabKey modules
@@ -80,7 +80,7 @@ the entire node_modules tree (and stumble on broken symlinks); add package-lock.
 * Make treatment of missing deployMode property consistent (default to dev mode)
 
 ### version 1.2.3
-*Released*: ???
+*Released*: 17 Jan 2017
 (Earliest compatible LabKey version: 17.3)
 This version introduces some changes that are not compatible with Gradle versions before 4.x, so it will not be
 compatible with older versions of LabKey.
