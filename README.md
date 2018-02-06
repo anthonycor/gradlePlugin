@@ -81,7 +81,7 @@ the entire node_modules tree (and stumble on broken symlinks); add package-lock.
 
 ### version 1.2.3
 *Released*: 17 Jan 2017
-(Earliest compatible LabKey version: 17.3)
+(Earliest compatible LabKey version: 18.1)
 This version introduces some changes that are not compatible with Gradle versions before 4.x, so it will not be
 compatible with older versions of LabKey.
 
