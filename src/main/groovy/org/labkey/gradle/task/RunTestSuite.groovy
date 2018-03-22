@@ -30,6 +30,7 @@ class RunTestSuite extends RunUiTest
 
     RunTestSuite()
     {
+        project.logger.debug("RunTestSuite: constructor");
         scanForTestClasses = false
         include "org/labkey/test/Runner.class"
         if (project.findProject(":sampledata:qc") != null)
@@ -60,6 +61,7 @@ class RunTestSuite extends RunUiTest
     @Override
     protected void setSystemProperties()
     {
+        project.logger.debug("RunTestSuite: setSystemProperties");
         super.setSystemProperties()
         if (TeamCityExtension.isOnTeamCity(project))
         {

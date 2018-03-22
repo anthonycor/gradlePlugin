@@ -45,6 +45,7 @@ class UiTest implements Plugin<Project>
     @Override
     void apply(Project project)
     {
+        project.logger.debug("UiTest: apply for project ${project.path}")
         testRunnerExt = project.extensions.create("uiTest", UiTestExtension, project)
         addSourceSets(project)
         addConfigurations(project)
@@ -86,6 +87,7 @@ class UiTest implements Plugin<Project>
 
     protected void addTasks(Project project)
     {
+        project.logger.debug("UiTest: addTask for ${project.path}")
         project.task("uiTests",
                 group: GroupNames.VERIFICATION,
                 description: "Run UI (Selenium) tests for this module",

@@ -32,6 +32,7 @@ class RunUiTest extends Test
 
     RunUiTest()
     {
+        project.logger.debug("RunUiTest: constructor");
         testLogging.showStandardStreams = true
         testExt = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
         setSystemProperties()
@@ -74,6 +75,7 @@ class RunUiTest extends Test
 
     protected void setSystemProperties()
     {
+        project.logger.debug("RunUiTest: setSystemProperties");
         Properties testConfig = testExt.getConfig()
         for (String key : testConfig.keySet())
         {
