@@ -223,7 +223,7 @@ class DatabaseProperties
         }
         else
         {
-            project.logger.warn("No file ${configFile} found.  Returning empty properties.")
+            project.logger.info("No file ${configFile} found.  Returning empty properties.")
             return new Properties()
         }
     }
