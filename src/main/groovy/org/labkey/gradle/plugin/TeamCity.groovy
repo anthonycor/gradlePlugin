@@ -292,6 +292,10 @@ class TeamCity extends Tomcat
                     {
                         arg(line:"/F /IM chromedriver.exe" )
                     }
+            project.ant.exec(executable: "taskkill")
+                    {
+                        arg(line:"/F /IM chrome.exe" )
+                    }
         }
         else if (SystemUtils.IS_OS_UNIX)
         {
