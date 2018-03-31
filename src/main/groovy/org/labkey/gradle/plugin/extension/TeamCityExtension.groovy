@@ -26,20 +26,6 @@ class TeamCityExtension
     List<String> validationMessages = new ArrayList<>()
     Project project
 
-    // TODO remove this?  TeamCity seems to be happy with postgres10 and sqlserver2017 without updates here
-    private static final Map<String, DatabaseProperties> SUPPORTED_DATABASES = new HashMap<>()
-    static
-    {
-        SUPPORTED_DATABASES.put("postgres9.2", new DatabaseProperties("postgres9.2", "pg", "9.2"))
-        SUPPORTED_DATABASES.put("postgres9.3", new DatabaseProperties("postgres9.3", "pg", "9.3"))
-        SUPPORTED_DATABASES.put("postgres9.4", new DatabaseProperties("postgres9.4", "pg", "9.4"))
-        SUPPORTED_DATABASES.put("postgres9.5", new DatabaseProperties("postgres9.5", "pg", "9.5"))
-        SUPPORTED_DATABASES.put("postgres9.6", new DatabaseProperties("postgres9.6", "pg", "9.6"))
-        SUPPORTED_DATABASES.put("sqlserver2012", new DatabaseProperties("sqlserver2012", "mssql", "2012"))
-        SUPPORTED_DATABASES.put("sqlserver2014", new DatabaseProperties("sqlserver2014", "mssql", "2014"))
-        SUPPORTED_DATABASES.put("sqlserver2016", new DatabaseProperties("sqlserver2016", "mssql", "2016"))
-    }
-
     TeamCityExtension(Project project)
     {
         this.project = project
@@ -86,43 +72,36 @@ class TeamCityExtension
             String dropProperty = getTeamCityProperty('drop.database')
             this.dropDatabase = dropProperty.equals("1") || dropProperty.equalsIgnoreCase("true")
         }
-        String type = getTeamCityProperty("database.types")
-        DatabaseProperties props
-        if (SUPPORTED_DATABASES.containsKey(type))
+        String typeAndVersion = getTeamCityProperty("database.types") // despite the naming here, there is only one type specified
+        String typeName = getTeamCityProperty("database.${typeAndVersion}.type")
+        if (typeName.isEmpty())
         {
-            props = SUPPORTED_DATABASES.get(type)
+            validationMessages.add("database.${typeAndVersion}.type not specified. Needed to customize database props")
         }
-        else
-        {
-            String typeName = getTeamCityProperty("database.${type}.type")
-            if (typeName.isEmpty())
-            {
-                validationMessages.add("database.${type}.type not specified. Needed to customize database props")
-            }
-            props = new DatabaseProperties(typeName, typeName, null)
-        }
+        DatabaseProperties props = new DatabaseProperties(typeAndVersion, typeName, null)
+
         props.setProject(project)
         props.jdbcDatabase = getDatabaseName()
-        if (!getTeamCityProperty("database.${type}.jdbcURL").isEmpty())
+        if (!getTeamCityProperty("database.${typeAndVersion}.jdbcURL").isEmpty())
         {
-            props.setJdbcURL(getTeamCityProperty("database.${type}.jdbcURL"))
-            if (getTeamCityProperty("database.${type}.port").isEmpty() && this.dropDatabase)
-                validationMessages.add("'database.${type}.port' not specified. Unable to drop database.")
+            props.setJdbcURL(getTeamCityProperty("database.${typeAndVersion}.jdbcURL"))
+            if (getTeamCityProperty("database.${typeAndVersion}.port").isEmpty() && this.dropDatabase)
+                validationMessages.add("'database.${typeAndVersion}.port' not specified. Unable to drop database.")
         }
-        else if (getTeamCityProperty("database.${type}.port").isEmpty())
-            validationMessages.add("database.${type}.jdbcURL and database.${type}.port not specified. Connection not possible.")
+        else if (getTeamCityProperty("database.${typeAndVersion}.port").isEmpty())
+            validationMessages.add("database.${typeAndVersion}.jdbcURL and database.${typeAndVersion}.port not specified. Connection not possible.")
 
-        if (!getTeamCityProperty("database.${type}.port").isEmpty())
-            props.setJdbcPort(getTeamCityProperty("database.${type}.port"))
+        if (!getTeamCityProperty("database.${typeAndVersion}.port").isEmpty())
+            props.setJdbcPort(getTeamCityProperty("database.${typeAndVersion}.port"))
 
-        if (!getTeamCityProperty("database.${type}.host").isEmpty())
-            props.setJdbcHost(getTeamCityProperty("database.${type}.host"))
+        if (!getTeamCityProperty("database.${typeAndVersion}.host").isEmpty())
+            props.setJdbcHost(getTeamCityProperty("database.${typeAndVersion}.host"))
 
-        if (!getTeamCityProperty("database.${type}.user").isEmpty())
-            props.setJdbcUser(getTeamCityProperty("database.${type}.user"))
+        if (!getTeamCityProperty("database.${typeAndVersion}.user").isEmpty())
+            props.setJdbcUser(getTeamCityProperty("database.${typeAndVersion}.user"))
 
-        if (!getTeamCityProperty("database.${type}.password").isEmpty())
-            props.setJdbcPassword(getTeamCityProperty("database.${type}.password"))
+        if (!getTeamCityProperty("database.${typeAndVersion}.password").isEmpty())
+            props.setJdbcPassword(getTeamCityProperty("database.${typeAndVersion}.password"))
 
         this.databaseTypes.add(props)
     }
