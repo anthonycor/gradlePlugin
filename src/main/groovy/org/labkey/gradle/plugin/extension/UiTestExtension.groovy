@@ -46,15 +46,19 @@ class UiTestExtension
         // a separate task.  This is more cumbersome on TeamCity, but we already have properties that specify the
         // database type there, so we'll use those.
         TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
-        if (tcExtension != null  && !DatabaseProperties.getPickedConfigFile(project).exists())
+        if (tcExtension != null)
         {
+            println("Getting database properties from TC configuration")
             List<DatabaseProperties> dbProperties = tcExtension.getDatabaseTypes()
             if (dbProperties.isEmpty())
                 throw new GradleException("TeamCity configuration problem(s): No database properties defined.")
             else if (dbProperties.size() > 1)
                 throw new GradleException("TeamCity configuration problem(s): More than one database type defined. Cannot determine which to use for configuring tests.")
             else
-                this.config.put("databaseType", dbProperties.get(0).getShortType());
+            {
+                println("got databaseType ${dbProperties.get(0).getShortType()}")
+                this.config.put("databaseType", dbProperties.get(0).getShortType())
+            }
         }
         else if (project.hasProperty("databaseType"))
         {
@@ -62,6 +66,7 @@ class UiTestExtension
         }
         else
         {
+            println("Found config file ${DatabaseProperties.getPickedConfigFile(project).getAbsolutePath()} to get db properties from")
             DatabaseProperties dbProperties = new DatabaseProperties(project, false)
             // read database configuration, but don't include jdbcUrl and other non-"database"
             // properties because they "cause problems" (quote from the test/build.xml file)
@@ -70,6 +75,7 @@ class UiTestExtension
                 if (name.contains("database"))
                     this.config.put(name, dbProperties.getConfigProperties().getProperty(name))
             }
+            println("Got databaseType ${this.config.get("databaseType")} from config file.")
         }
 
         if (project.findProject(":server:test") != null)
