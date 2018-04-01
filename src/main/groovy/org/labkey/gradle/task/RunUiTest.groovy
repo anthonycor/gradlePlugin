@@ -32,9 +32,10 @@ class RunUiTest extends Test
 
     RunUiTest()
     {
-        project.logger.debug("RunUiTest: constructor");
+        project.logger.info("RunUiTest: constructor for ${project.path}");
         testLogging.showStandardStreams = true
         testExt = (UiTestExtension) project.getExtensions().getByType(UiTestExtension.class)
+        project.logger.info("RunUiTest: calling setSystemProperties for ${project.path}")
         setSystemProperties()
         setJvmArgs()
 
@@ -75,7 +76,7 @@ class RunUiTest extends Test
 
     protected void setSystemProperties()
     {
-        project.logger.debug("RunUiTest: setSystemProperties");
+        project.logger.info("RunUiTest: setSystemProperties");
         Properties testConfig = testExt.getConfig()
         for (String key : testConfig.keySet())
         {
@@ -113,6 +114,10 @@ class RunUiTest extends Test
                     systemProperty "webdriver.chrome.driver", "${testProject.projectDir}/bin/linux/i386/chromedriver"
             }
         }
+        setTeamCityProperties()
     }
 
+    protected void setTeamCityProperties() {
+        // do nothing by default
+    }
 }
