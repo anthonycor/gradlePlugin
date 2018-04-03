@@ -45,7 +45,6 @@ class UiTest implements Plugin<Project>
     @Override
     void apply(Project project)
     {
-        project.logger.info("UiTest: apply for project ${project.path}")
         testRunnerExt = project.extensions.create("uiTest", UiTestExtension, project)
         addSourceSets(project)
         addConfigurations(project)
