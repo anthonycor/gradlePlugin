@@ -22,6 +22,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.labkey.gradle.plugin.extension.ModuleExtension
+import org.labkey.gradle.task.CheckForVersionConflicts
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 /**
@@ -162,26 +163,59 @@ class JavaModule extends FileModule
 //        }
 
 
+        FileCollection externalFiles = getTrimmedExternalFiles(project)
+        FileCollection allJars = externalFiles
+
         Task copyExternalDependencies = project.task("copyExternalLibs",
                 group: GroupNames.MODULE,
                 type: Copy,
                 description: "copy the dependencies declared in the 'external' configuration into the lib directory of the built module",
                 { CopySpec copy ->
-                    copy.from getTrimmedExternalFiles(project)
+                    copy.from externalFiles
                     copy.into "${project.labkey.explodedModuleDir}/lib"
                     copy.include "*.jar"
                 }
         )
+
         if (project.tasks.findByName("module") != null)
         {
             project.tasks.module.dependsOn(copyExternalDependencies)
             if (project.file("src").exists())
+            {
                 project.tasks.module.dependsOn(project.tasks.jar)
+                allJars = allJars + project.tasks.jar.outputs.files
+            }
             if (project.hasProperty('apiJar'))
+            {
                 project.tasks.module.dependsOn(project.tasks.apiJar)
+                allJars = allJars + project.tasks.apiJar.outputs.files
+            }
             if (project.hasProperty('jspJar'))
+            {
                 project.tasks.module.dependsOn(project.tasks.jspJar)
+                allJars = allJars + project.tasks.jspJar.outputs.files
+            }
+            if (project.hasProperty('schemasJar'))
+            {
+                project.tasks.module.dependsOn(project.tasks.schemasJar)
+                allJars = allJars + project.tasks.schemasJar.outputs.files
+            }
         }
+        Task checkJarVersions = project.task(
+                "checkModuleJarVersions",
+                group: GroupNames.MODULE,
+                type: CheckForVersionConflicts,
+                description: "Check for conflicts in version numbers of jar files to be included in the module and files already in the build directory ${project.labkey.explodedModuleDir}/lib",
+                { CheckForVersionConflicts task ->
+                    task.directory = new File("${project.labkey.explodedModuleDir}/lib")
+                    task.extension = "jar"
+                    task.cleanTask = "${project.path}:clean"
+                    task.collection = allJars
+                    task.failOnConflict = true
+                }
+        )
+        if (project.hasProperty("enableVersionChecks"))
+            copyExternalDependencies.dependsOn(checkJarVersions)
     }
 
     /**

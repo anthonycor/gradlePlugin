@@ -39,6 +39,27 @@ class DoThenSetup extends DefaultTask
             this.dependsOn project.project(":server").configurations.tomcatJars
     }
 
+    // Currently this type of task will always run because there are no declared inputs and outputs
+    // The following methods are probably close to the right things, but need to be tested thoroughly
+//    @InputFiles
+//    FileCollection getInputFiles() {
+//        FileCollection files = project.project(":server").configurations.tomcatJars
+//        return files.add(project.files(new File("${project.rootProject.projectDir}/webapps/labkey.xml")))
+//    }
+//
+//    @OutputFiles
+//    List<File> getOutputFiles() {
+//        List<File> files = new ArrayList<>();
+//        for (String jar : ServerDeploy.TOMCAT_LIB_UNVERSIONED_JARS) {
+//            files.add(new File(project.staging.tomcatLibDir, jar))
+//            files.add(new File("${project.tomcatDir}/lib/${jar}"))
+//        }
+//        files.add(new File("${project.rootProject.buildDir}/labkey.xml"))
+//        files.add(new File("${project.ext.tomcatConfDir}/labkey.xml"))
+//        return files
+//    }
+
+
     @TaskAction
     void setup() {
         getFn().run()
@@ -113,6 +134,8 @@ class DoThenSetup extends DefaultTask
     private void copyTomcatJars()
     {
         Project serverProject = project.project(":server")
+        // Remove the staging tomcatLib directory before copying into it to avoid duplicates.
+        project.delete project.staging.tomcatLibDir
         // for consistency with a distribution deployment and the treatment of all other deployment artifacts,
         // first copy the tomcat jars into the staging directory
         project.ant.copy(
@@ -138,6 +161,9 @@ class DoThenSetup extends DefaultTask
                             flattenmapper()
                             // get rid of the version numbers on the jar files
                             // matches on: name-X.Y.Z-SNAPSHOT.jar, name-X.Y.Z_branch-SNAPSHOT.jar, name-X.Y.Z.jar
+                            //
+                            // N.B.  Attempts to use BuildUtils.VERSIONED_ARTIFACT_NAME_PATTERN here fail for the javax.mail-X.Y.Z.jar file.
+                            // The Ant regexpmapper chooses only javax as \\1, which is not what is wanted
                             regexpmapper(from: "^(.*?)(-\\d+(\\.\\d+)*(_.+)?(-SNAPSHOT)?)?\\.jar", to: "\\1.jar")
                             filtermapper()
                                     {
