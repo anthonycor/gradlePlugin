@@ -84,7 +84,7 @@ class CheckForVersionConflicts  extends DefaultTask
             String message  = "Artifact versioning problem(s) in directory ${directory}:\n  " + conflicts.join("\n  ")
             if (cleanTask != null)
                 message += "\nRun the ${cleanTask} task to remove existing artifacts in that directory."
-            if (failOnConflict && !project.hasProperty('checkOnly'))
+            if (failOnConflict && !project.hasProperty('onlyCheckVersions'))
                 throw new GradleException(message)
             else
                 project.logger.warn("WARNING: " + message)
