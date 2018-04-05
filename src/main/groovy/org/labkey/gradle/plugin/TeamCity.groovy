@@ -49,7 +49,9 @@ class TeamCity extends Tomcat
     @Override
     void apply(Project project)
     {
-        extension = project.extensions.create("teamCity", TeamCityExtension, project)
+        extension = project.extensions.findByType(TeamCityExtension.class)
+        if (extension == null)
+            extension = project.extensions.create("teamCity", TeamCityExtension, project)
         // we apply the parent plugin after creating the teamCity extension because we need some of the properties
         // from TeamCity's configuration when creating the UITestExtension on TeamCity
         super.apply(project)
