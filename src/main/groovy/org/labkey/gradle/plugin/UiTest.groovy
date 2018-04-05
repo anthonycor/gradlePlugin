@@ -86,6 +86,7 @@ class UiTest implements Plugin<Project>
 
     protected void addTasks(Project project)
     {
+        project.logger.info("UiTest: addTask for ${project.path}")
         project.task("uiTests",
                 group: GroupNames.VERIFICATION,
                 description: "Run UI (Selenium) tests for this module",

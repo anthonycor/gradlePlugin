@@ -111,6 +111,10 @@ class RunUiTest extends Test
                     systemProperty "webdriver.chrome.driver", "${testProject.projectDir}/bin/linux/i386/chromedriver"
             }
         }
+        setTeamCityProperties()
     }
 
+    protected void setTeamCityProperties() {
+        // do nothing by default
+    }
 }

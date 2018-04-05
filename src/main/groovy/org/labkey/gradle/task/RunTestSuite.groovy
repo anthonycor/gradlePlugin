@@ -30,6 +30,7 @@ class RunTestSuite extends RunUiTest
 
     RunTestSuite()
     {
+        project.logger.info("RunTestSuite: constructor");
         scanForTestClasses = false
         include "org/labkey/test/Runner.class"
         if (project.findProject(":sampledata:qc") != null)
@@ -57,10 +58,9 @@ class RunTestSuite extends RunUiTest
         }
     }
 
-    @Override
-    protected void setSystemProperties()
+    protected void setTeamCityProperties()
     {
-        super.setSystemProperties()
+        project.logger.info("RunTestSuite: setTeamCityProperties");
         if (TeamCityExtension.isOnTeamCity(project))
         {
             systemProperty "teamcity.tests.recentlyFailedTests.file", project.teamcity['teamcity.tests.recentlyFailedTests.file']

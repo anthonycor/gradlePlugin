@@ -29,10 +29,14 @@ class UiTestExtension
 
     private Properties config = null
     private Project project
+    private TeamCityExtension tcExtension
 
     UiTestExtension(Project project)
     {
         this.project = project
+        TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
+        if (TeamCityExtension.isOnTeamCity(project) && tcExtension == null)
+            this.tcExtension = project.extensions.create("teamCity", TeamCityExtension, project)
     }
 
     private void setConfig()
@@ -45,23 +49,27 @@ class UiTestExtension
         // properly filtered.  For running on command line, the easiest solution is to simply run the pickDB task as
         // a separate task.  This is more cumbersome on TeamCity, but we already have properties that specify the
         // database type there, so we'll use those.
-        TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
-        if (tcExtension != null  && !DatabaseProperties.getPickedConfigFile(project).exists())
+        if (this.tcExtension != null)
         {
+            project.logger.info("Getting database properties from TC configuration")
             List<DatabaseProperties> dbProperties = tcExtension.getDatabaseTypes()
             if (dbProperties.isEmpty())
                 throw new GradleException("TeamCity configuration problem(s): No database properties defined.")
             else if (dbProperties.size() > 1)
                 throw new GradleException("TeamCity configuration problem(s): More than one database type defined. Cannot determine which to use for configuring tests.")
             else
-                this.config.put("databaseType", dbProperties.get(0).getShortType());
+            {
+                project.logger.info("got databaseType ${dbProperties.get(0).getShortType()}")
+                this.config.put("databaseType", dbProperties.get(0).getShortType())
+            }
         }
         else if (project.hasProperty("databaseType"))
         {
             this.config.put("databaseType", project.property("databaseType"))
         }
-        else
+        else if (DatabaseProperties.getPickedConfigFile(project).exists())
         {
+            project.logger.info("Found config file ${DatabaseProperties.getPickedConfigFile(project).getAbsolutePath()} to get db properties from")
             DatabaseProperties dbProperties = new DatabaseProperties(project, false)
             // read database configuration, but don't include jdbcUrl and other non-"database"
             // properties because they "cause problems" (quote from the test/build.xml file)
@@ -70,6 +78,7 @@ class UiTestExtension
                 if (name.contains("database"))
                     this.config.put(name, dbProperties.getConfigProperties().getProperty(name))
             }
+            project.logger.info("Got databaseType ${this.config.get("databaseType")} from config file.")
         }
 
         if (project.findProject(":server:test") != null)

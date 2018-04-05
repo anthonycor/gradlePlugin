@@ -49,9 +49,13 @@ class TeamCity extends Tomcat
     @Override
     void apply(Project project)
     {
+        extension = project.extensions.findByType(TeamCityExtension.class)
+        if (extension == null)
+            extension = project.extensions.create("teamCity", TeamCityExtension, project)
+        // we apply the parent plugin after creating the teamCity extension because we need some of the properties
+        // from TeamCity's configuration when creating the UITestExtension on TeamCity
         super.apply(project)
         project.tomcat.assertionFlag = "-ea"
-        extension = project.extensions.create("teamCity", TeamCityExtension, project)
         if (project.file("${project.tomcatDir}/localhost.truststore").exists())
         {
             project.tomcat.trustStore = "-Djavax.net.ssl.trustStore=${project.tomcatDir}/localhost.truststore"
@@ -291,6 +295,10 @@ class TeamCity extends Tomcat
             project.ant.exec(executable: "taskkill")
                     {
                         arg(line:"/F /IM chromedriver.exe" )
+                    }
+            project.ant.exec(executable: "taskkill")
+                    {
+                        arg(line:"/F /IM chrome.exe" )
                     }
         }
         else if (SystemUtils.IS_OS_UNIX)

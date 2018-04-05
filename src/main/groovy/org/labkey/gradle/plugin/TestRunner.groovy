@@ -225,6 +225,7 @@ class TestRunner extends UiTest
 
     private void addTestSuiteTask(Project project)
     {
+        project.logger.debug("TestRunner: addTestSuiteTask for ${project.path}");
         project.task("uiTests",
                 overwrite: true, // replace the task that would run all of the tests
                 group: GroupNames.VERIFICATION,

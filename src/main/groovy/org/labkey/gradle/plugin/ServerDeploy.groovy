@@ -35,6 +35,7 @@ import java.nio.file.Paths
  */
 class ServerDeploy implements Plugin<Project>
 {
+    public static final List<String> TOMCAT_LIB_UNVERSIONED_JARS = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar"]
 
     private ServerDeployExtension serverDeploy
 
@@ -90,22 +91,57 @@ class ServerDeploy implements Plugin<Project>
         })
         stageModulesTask.dependsOn project.configurations.modules
 
+
+        Task checkModuleVersionsTask = project.task(
+                "checkModuleVersions",
+                group: GroupNames.DEPLOY,
+                description: "Check for conflicts in version numbers of module files to be deployed and files in the deploy directory",
+                type: CheckForVersionConflicts,
+                { CheckForVersionConflicts task ->
+                    task.directory = new File(serverDeploy.modulesDir)
+                    task.extension = "module"
+                    task.cleanTask = ":server:cleanDeploy"
+                    task.collection = project.configurations.modules
+                    task.failOnConflict = true
+                }
+        )
+        if (project.hasProperty('enableVersionChecks'))
+            stageModulesTask.dependsOn(checkModuleVersionsTask)
+
         Task stageJarsTask = project.task(
                 "stageJars",
                 group: GroupNames.DEPLOY,
                 description: "Stage select jars into ${staging.dir}"
-        ).doLast({
-            project.ant.copy(
-                    todir: staging.libDir,
-                    preserveLastModified: true
-            )
-                    {
-                        project.configurations.jars { Configuration collection ->
-                            collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
+        ).doFirst({
+            project.delete staging.libDir
+        }).doLast({
+                project.ant.copy(
+                        todir: staging.libDir,
+                        preserveLastModified: true
+                )
+                        {
+                            project.configurations.jars { Configuration collection ->
+                                collection.addToAntBuilder(project.ant, "fileset", FileCollection.AntType.FileSet)
+                            }
                         }
-                    }
-        })
+            })
+
         stageJarsTask.dependsOn project.configurations.jars
+        Task checkJarsTask = project.task(
+                "checkWebInfLibJarVersions",
+                group: GroupNames.DEPLOY,
+                description: "Check for conflicts in version numbers of jar files to be deployed to and files in the directory ${serverDeploy.webappDir}/WEB-INF/lib",
+                type: CheckForVersionConflicts,
+                { CheckForVersionConflicts task ->
+                    task.directory = new File("${serverDeploy.webappDir}/WEB-INF/lib")
+                    task.extension = "jar"
+                    task.cleanTask = ":server:cleanDeploy"
+                    task.collection = project.configurations.jars
+                    task.failOnConflict = true
+                }
+        )
+        if (project.hasProperty('enableVersionChecks'))
+            stageJarsTask.dependsOn(checkJarsTask)
 
 
         Task stageRemotePipelineJarsTask = project.task(
@@ -196,7 +232,7 @@ class ServerDeploy implements Plugin<Project>
                 }
         )
 
-        Task cleanDeploy = project.task(
+        project.task(
                 'cleanDeploy',
                 group: GroupNames.DEPLOY,
                 type: Delete,
@@ -223,7 +259,7 @@ class ServerDeploy implements Plugin<Project>
                 dependsOn: project.tasks.cleanDeploy
         )
 
-        Task cleanBuild = project.task(
+        project.task(
                 "cleanBuild",
                 group: GroupNames.DEPLOY,
                 type: Delete,
@@ -248,10 +284,8 @@ class ServerDeploy implements Plugin<Project>
                 project.delete libFile.getAbsolutePath()
         }
 
-        // also get rid of (un-versioned) jars that were deployed from ant, if there are any
-        List<String> unversionedJars = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar"]
-
-        unversionedJars.each{String name ->
+        // Get rid of (un-versioned) jars that were deployed
+        TOMCAT_LIB_UNVERSIONED_JARS.each{String name ->
             File libFile = new File("${project.tomcatDir}/lib/${name}")
             if (libFile.exists())
                 project.delete libFile.getAbsolutePath()

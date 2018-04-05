@@ -9,6 +9,18 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.3
+*Released*: ???
+(Earliest compatible LabKey version: 18.1)
+
+* Slight refactor of test runner classes to void stack overflow with Gradle > 4.3.1
+* Make killChrome on Windows kill chrome as well as chromedriver
+* [Issue 32153](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32153) (again) - 
+don't read db properties from existing file when configuring UITest run as it may differ from what is chosen
+by the TeamCity properties
+* [Issue 33793](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33793) - Add tasks to check for 
+conflicting version numbers of jars created by the current build and those already in place in destination directories.
+
 ### version 1.2.4
 *Released*: 8 Mar 2017
 (Earliest compatible LabKey version: 18.1)
