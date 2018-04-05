@@ -29,10 +29,14 @@ class UiTestExtension
 
     private Properties config = null
     private Project project
+    private TeamCityExtension tcExtension
 
     UiTestExtension(Project project)
     {
         this.project = project
+        TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
+        if (TeamCityExtension.isOnTeamCity(project) && tcExtension == null)
+            this.tcExtension = project.extensions.create("teamCity", TeamCityExtension, project)
     }
 
     private void setConfig()
@@ -45,8 +49,7 @@ class UiTestExtension
         // properly filtered.  For running on command line, the easiest solution is to simply run the pickDB task as
         // a separate task.  This is more cumbersome on TeamCity, but we already have properties that specify the
         // database type there, so we'll use those.
-        TeamCityExtension tcExtension = project.extensions.findByType(TeamCityExtension.class)
-        if (tcExtension != null)
+        if (this.tcExtension != null)
         {
             println("Getting database properties from TC configuration")
             List<DatabaseProperties> dbProperties = tcExtension.getDatabaseTypes()
