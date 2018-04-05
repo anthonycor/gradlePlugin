@@ -9,8 +9,8 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
-### version 1.3
-*Released*: ???
+### version 1.2.5
+*Released*: 5 April 2018
 (Earliest compatible LabKey version: 18.1)
 
 * Slight refactor of test runner classes to void stack overflow with Gradle > 4.3.1
@@ -18,11 +18,12 @@ but also make certain assumptions that you may not want to impose on your module
 * [Issue 32153](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32153) (again) - 
 don't read db properties from existing file when configuring UITest run as it may differ from what is chosen
 by the TeamCity properties
-* [Issue 33793](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33793) - Add tasks to check for 
-conflicting version numbers of jars created by the current build and those already in place in destination directories.
+* [Issue 33793](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33793) - (incubating feature)
+Add tasks to check for conflicting version numbers of jars created by the current build and those already in place in 
+destination directories.  See the issue for details on the tasks and the properties available to enable these tasks.
 
 ### version 1.2.4
-*Released*: 8 Mar 2017
+*Released*: 8 Mar 2018
 (Earliest compatible LabKey version: 18.1)
 
 * [Issue 32420](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=32420) - another attempt to fix the log4j.xml file not getting updated with developer mode settings
@@ -34,7 +35,7 @@ directory available for tests by including them in the :server:test:uiTest resou
 on api and internal for apiCompile so we respect the buildFromSource parameter
 
 ### version 1.2.3
-*Released*: 17 Jan 2017
+*Released*: 17 Jan 2018
 (Earliest compatible LabKey version: 18.1)
 This version introduces some changes that are not compatible with Gradle versions before 4.x, so it will not be
 compatible with older versions of LabKey.
