@@ -105,7 +105,7 @@ class TestRunner extends UiTest
             compile "junit:junit:${project.junitVersion}"
             compile "org.reflections:reflections:${project.reflectionsVersion}"
         }
-        BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: ":remoteapi:java", depVersion: project.labkeyVersion)
+        BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: project.gradle.remoteApiProjectPath, depVersion: project.labkeyVersion)
     }
 
 

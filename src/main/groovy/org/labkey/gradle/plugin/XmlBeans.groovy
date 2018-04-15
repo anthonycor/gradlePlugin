@@ -57,7 +57,7 @@ class XmlBeans implements Plugin<Project>
                 }
         if (!project.name.equals("schemas"))
         {
-            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: ":schemas", depProjectConfig: 'xmlSchema', depVersion: project.labkeyVersion)
+            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: project.gradle.schemasProjectPath, depProjectConfig: 'xmlSchema', depVersion: project.labkeyVersion)
         }
         project.dependencies
                 {

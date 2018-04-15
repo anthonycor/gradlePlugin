@@ -65,7 +65,7 @@ class LabKeyExtension
      */
     static Boolean isBootstrapModule(Project project)
     {
-        return [":schemas", ":remoteapi:java"].contains(project.path)
+        return [project.gradle.schemasProjectPath, project.gradle.remoteApiProjectPath].contains(project.path)
     }
 
     static String getDeployModeName(Project project)

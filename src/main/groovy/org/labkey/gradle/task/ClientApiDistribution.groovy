@@ -16,6 +16,7 @@
 package org.labkey.gradle.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.OutputFile
@@ -77,19 +78,20 @@ class ClientApiDistribution extends DefaultTask
 
     private void createJavaDocs()
     {
+        Project javaDocsProject = project.project(project.gradle.remoteApiProjectPath)
         project.copy({CopySpec copy ->
-            copy.from project.project(":remoteapi:java").tasks.fatJar
+            copy.from javaDocsProject.tasks.fatJar
             copy.into javaDir
         })
-        project.project(":remoteapi:java").configurations.compile.addToAntBuilder(ant, "zipfileset", FileCollection.AntType.FileSet)
+        javaDocsProject.configurations.compile.addToAntBuilder(ant, "zipfileset", FileCollection.AntType.FileSet)
         ant.zip(destfile: getJavaClientApiFile()) {
-            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir, prefix: "doc")
-            zipfileset(file:"${project.project(":remoteapi:java").projectDir}/README.html")
-            zipfileset(file:"${project.project(":remoteapi:java").tasks.fatJar.outputs.getFiles().asPath}")
+            zipfileset(dir: javaDocsProject.tasks.javadoc.destinationDir, prefix: "doc")
+            zipfileset(file:"${javaDocsProject.projectDir}/README.html")
+            zipfileset(file:"${javaDocsProject.tasks.fatJar.outputs.getFiles().asPath}")
         }
 
         ant.zip(destfile: getJavaClientApiSrcFile()) {
-            zipfileset(dir: "${project.project(":remoteapi:java").projectDir}/src")
+            zipfileset(dir: "${javaDocsProject.projectDir}/src")
         }
     }
 
@@ -164,7 +166,7 @@ class ClientApiDistribution extends DefaultTask
     {
         //Create a stable file names so that TeamCity can serve it up directly through its own UI
         ant.zip(destfile:"${project.dist.dir}/TeamCity-ClientAPI-Java-Docs.zip") {
-            zipfileset(dir: project.project(":remoteapi:java").tasks.javadoc.destinationDir)
+            zipfileset(dir: project.project(project.gradle.remoteApiProjectPath).tasks.javadoc.destinationDir)
         }
 
         ant.zip(destfile: "${project.dist.dir}/TeamCity-${CLIENT_API_JSDOC}.zip") {

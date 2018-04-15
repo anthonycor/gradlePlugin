@@ -162,9 +162,12 @@ class Gwt implements Plugin<Project>
                             }
                             paths += [
                                     project.sourceSets.gwt.compileClasspath,       // Dep
-                                    project.sourceSets.gwt.java.srcDirs,           // Java source
-                                    project.project(":server:internal").file(project.gwt.srcDir),
+                                    project.sourceSets.gwt.java.srcDirs           // Java source
                             ]
+                            if (project.findProject(project.gradle.internalProjectPath) != null && project.project(project.gradle.internalProjectPath).file(project.gwt.srcDir).exists())
+                                paths += [project.project(project.gradle.internalProjectPath).file(project.gwt.srcDir)]
+                            else
+                                paths += [project.project(project.gradle.apiProjectPath).file(project.gwt.srcDir)]
                             java.classpath paths
 
                             java.args =

@@ -18,6 +18,7 @@ package org.labkey.gradle.util
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
+import org.gradle.api.invocation.Gradle
 import org.labkey.gradle.plugin.Api
 import org.labkey.gradle.plugin.Jsp
 import org.labkey.gradle.plugin.ServerBootstrap
@@ -44,13 +45,10 @@ class BuildUtils
     public static final String TEST_MODULES_DIR = "server/test/modules"
 
     // the set of modules required for minimal LabKey server functionality
-    public static final List<String> BASE_MODULES =
+    // (aside from the bootstrap, api, internal, schemas and remoteapi projects
+    // whose paths are parameterized in the settings.gradle file)
+    private static final List<String> BASE_MODULES =
             [
-                    ":server:bootstrap",
-                    ":server:api",
-                    ":schemas",
-                    ":server:internal",
-                    ':remoteapi:java',
                     ":server:modules:announcements",
                     ":server:modules:audit",
                     ":server:modules:core",
@@ -59,28 +57,6 @@ class BuildUtils
                     ":server:modules:pipeline",
                     ":server:modules:query",
                     ":server:modules:wiki"
-            ]
-
-    public static final List<String> COMMUNITY_MODULES = BASE_MODULES +
-            [
-                    ':server:modules:bigiron',
-                    ':server:modules:dataintegration',
-                    ':server:modules:elisa',
-                    ':server:modules:elispotassay',
-                    ':server:customModules:fcsexpress',
-                    ':server:modules:flow',
-                    ':server:modules:issues',
-                    ':server:modules:list',
-                    ':server:modules:luminex',
-                    ':server:modules:microarray',
-                    ':server:modules:ms1',
-                    ':server:modules:ms2',
-                    ':server:modules:nab',
-                    ':server:modules:search',
-                    ':server:modules:study',
-                    ':server:modules:survey',
-                    ':server:customModules:targetedms',
-                    ':server:modules:visualization'
             ]
 
     public static final List<String> EHR_MODULE_NAMES = [
@@ -125,13 +101,36 @@ class BuildUtils
     public static final int ARTIFACT_CLASSIFIER_INDEX = 7
     public static final int ARTIFACT_EXTENSION_INDEX = 8
 
+    // the set of modules required for minimal LabKey server functionality
+    static List<String> getBaseModules(Gradle gradle)
+    {
+        return [
+                gradle.apiProjectPath,
+                gradle.bootstrapProjectPath,
+                gradle.remoteApiProjectPath,
+                gradle.schemasProjectPath,
+                gradle.internalProjectPath,
+        ] + BASE_MODULES
+    }
+
+//    static List<String> getBaseModules(Map<String, Object> properties)
+//    {
+//        return [
+//                (String) properties.get("apiProjectPath"),
+//                (String) properties.get("bootstrapProjectPath"),
+//                (String) properties.get("remoteApiProjectPath"),
+//                (String) properties.get("schemasProjectPath"),
+//                (String) properties.get("internalProjectPath"),
+//        ] + BASE_MODULES
+//    }
+
     /**
      * This includes modules that are required for any LabKey server build (e.g., bootstrap, api, internal)
      * @param settings the settings
      */
     static void includeBaseModules(Settings settings)
     {
-        includeModules(settings, BASE_MODULES)
+        includeModules(settings, getBaseModules(settings.gradle))
     }
 
     /**
@@ -477,16 +476,16 @@ class BuildUtils
             }
             if (specialParams != null)
             {
-                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion, depExtension), specialParams)
+                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(parentProject, depProjectPath, depProjectConfig, depVersion, depExtension), specialParams)
             }
             else
             {
-                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(depProjectPath, depProjectConfig, depVersion, depExtension))
+                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(parentProject, depProjectPath, depProjectConfig, depVersion, depExtension))
             }
         }
     }
 
-    static String getLabKeyArtifactName(String projectPath, String projectConfig, String version, String extension)
+    static String getLabKeyArtifactName(Project project, String projectPath, String projectConfig, String version, String extension)
     {
         String classifier = ''
         if (projectConfig != null)
@@ -502,11 +501,11 @@ class BuildUtils
         }
 
         String moduleName
-        if (projectPath.endsWith("remoteapi:java"))
+        if (projectPath.endsWith(project.gradle.remoteApiProjectPath.substring(1)))
         {
             moduleName = "labkey-client-api"
         }
-        else if (projectPath.equals(":server:bootstrap"))
+        else if (projectPath.equals(project.gradle.bootstrapProjectPath))
         {
             moduleName = ServerBootstrap.JAR_BASE_NAME
         }
