@@ -79,7 +79,8 @@ class UiTest implements Plugin<Project>
         if (project.path != ":server:test")
             BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: ":server:test", depVersion: project.labkeyVersion)
 
-        BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: project.gradle.schemasProjectPath, depVersion: project.labkeyVersion)
+        if (project.findProject(project.gradle.schemasProjectPath) != null)
+            BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: project.gradle.schemasProjectPath, depVersion: project.labkeyVersion)
         BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: project.gradle.apiProjectPath, depVersion: project.labkeyVersion)
         BuildUtils.addLabKeyDependency(project: project, config: 'uiTestCompile', depProjectPath: project.gradle.remoteApiProjectPath, depVersion: project.labkeyVersion)
     }

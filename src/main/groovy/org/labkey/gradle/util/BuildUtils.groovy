@@ -108,21 +108,10 @@ class BuildUtils
                 gradle.apiProjectPath,
                 gradle.bootstrapProjectPath,
                 gradle.remoteApiProjectPath,
-                gradle.schemasProjectPath,
+                gradle.schemasProjectPath, // does no harm if this project no longer exists
                 gradle.internalProjectPath,
         ] + BASE_MODULES
     }
-
-//    static List<String> getBaseModules(Map<String, Object> properties)
-//    {
-//        return [
-//                (String) properties.get("apiProjectPath"),
-//                (String) properties.get("bootstrapProjectPath"),
-//                (String) properties.get("remoteApiProjectPath"),
-//                (String) properties.get("schemasProjectPath"),
-//                (String) properties.get("internalProjectPath"),
-//        ] + BASE_MODULES
-//    }
 
     /**
      * This includes modules that are required for any LabKey server build (e.g., bootstrap, api, internal)
