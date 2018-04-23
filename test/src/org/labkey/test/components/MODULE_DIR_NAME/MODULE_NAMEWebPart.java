@@ -26,7 +26,8 @@ import org.openqa.selenium.WebElement;
 import static org.labkey.test.components.html.Input.Input;
 
 /**
- * Component for a hypothetical webpart containing an input and a save button
+ * TODO: Component for a hypothetical webpart containing an input and a save button
+ * Component classes should handle all timing and functionality for a component
  */
 public class @@MODULE_NAME@@WebPart extends BodyWebPart<@@MODULE_NAME@@WebPart.ElementCache>
 {
@@ -43,12 +44,14 @@ public class @@MODULE_NAME@@WebPart extends BodyWebPart<@@MODULE_NAME@@WebPart.E
     public @@MODULE_NAME@@WebPart setInput(String value)
     {
         elementCache().input.set(value);
+        // TODO: Methods that don't navigate should return this object
         return this;
     }
 
     public LabKeyPage clickSave()
     {
         getWrapper().clickAndWait(elementCache().button);
+        // TODO: Methods that navigate should return an appropriate page object
         return new LabKeyPage(getDriver());
     }
 
@@ -60,7 +63,7 @@ public class @@MODULE_NAME@@WebPart extends BodyWebPart<@@MODULE_NAME@@WebPart.E
 
     protected class ElementCache extends BodyWebPart.ElementCache
     {
-        protected WebElement button = Locator.tag("button").withText("Save").findWhenNeeded(this);
-        protected Input input = Input(Locator.tag("input"), getDriver()).findWhenNeeded(this);
+        protected final WebElement button = Locator.tag("button").withText("Save").findWhenNeeded(this);
+        protected final Input input = Input(Locator.tag("input"), getDriver()).findWhenNeeded(this);
     }
 }

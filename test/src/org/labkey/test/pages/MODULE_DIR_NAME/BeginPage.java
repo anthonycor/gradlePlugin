@@ -17,6 +17,7 @@
 package org.labkey.test.pages.@@MODULE_LOWERCASE_NAME@@;
 
 import org.labkey.test.BaseWebDriverTest;
+import org.labkey.test.WebDriverWrapper;
 import org.labkey.test.Locator;
 import org.labkey.test.WebTestHelper;
 import org.labkey.test.pages.LabKeyPage;
@@ -24,15 +25,20 @@ import org.openqa.selenium.WebElement;
 
 public class BeginPage extends LabKeyPage<BeginPage.ElementCache>
 {
-    public BeginPage(BaseWebDriverTest test)
+    public BeginPage(WebDriverWrapper driver)
     {
-        super(test);
+        super(driver);
     }
 
-    public static BeginPage beginAt(BaseWebDriverTest test, String containerPath)
+    public static BeginPage beginAt(WebDriverWrapper driver)
     {
-        test.beginAt(WebTestHelper.buildURL("@@MODULE_LOWERCASE_NAME@@", containerPath, "begin"));
-        return new BeginPage(test);
+        return beginAt(driver, driver.getCurrentContainerPath());
+    }
+
+    public static BeginPage beginAt(WebDriverWrapper driver, String containerPath)
+    {
+        driver.beginAt(WebTestHelper.buildURL("@@MODULE_LOWERCASE_NAME@@", containerPath, "begin"));
+        return new BeginPage(driver);
     }
 
     public String getHelloMessage()
@@ -48,6 +54,6 @@ public class BeginPage extends LabKeyPage<BeginPage.ElementCache>
 
     protected class ElementCache extends LabKeyPage.ElementCache
     {
-        WebElement helloMessage = Locator.tagWithName("div", "helloMessage").findWhenNeeded(this);
+        protected final WebElement helloMessage = Locator.tagWithName("div", "helloMessage").findWhenNeeded(this);
     }
 }
