@@ -9,6 +9,13 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.2.6
+*Released*: ???
+(Earliest compatible LabKey version: 18.1)
+
+* update Gwt plugin to support later versions of gxt (artifact group name changed)
+* make it possible to remove obsolete chromextensions directory
+
 ### version 1.2.5
 *Released*: 5 April 2018
 (Earliest compatible LabKey version: 18.1)
