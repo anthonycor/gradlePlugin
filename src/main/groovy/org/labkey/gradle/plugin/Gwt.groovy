@@ -25,6 +25,7 @@ import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.plugin.extension.GwtExtension
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.task.GzipAction
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 /**
  * Used to compile GWT source files into Javascript
@@ -32,12 +33,6 @@ import org.labkey.gradle.util.GroupNames
 class Gwt implements Plugin<Project>
 {
     public static final String SOURCE_DIR = "gwtsrc"
-
-    private static final String GWT_VERSION = "2.8.2"
-    private static final String GXT_VERSION = "4.0.0"
-    private static final String GWT_DND_VERSION = "3.3.4"
-
-    private static final String VALIDATION_VERSION = "1.0.0.GA"
 
     private static final String GWT_EXTENSION = ".gwt.xml"
 
@@ -76,13 +71,14 @@ class Gwt implements Plugin<Project>
 
     private void addDependencies(Project project)
     {
+        String gxtGroup = (BuildUtils.compareVersions(project.gxtVersion, "2.2.5") > 0) ? "com.sencha.gxt" : "com.extjs"
 
         project.dependencies {
-            gwtCompile "com.google.gwt:gwt-user:${GWT_VERSION}",
-                    "com.google.gwt:gwt-dev:${GWT_VERSION}",
-                    "com.sencha.gxt:gxt:${GXT_VERSION}",
-                    "com.allen-sauer.gwt.dnd:gwt-dnd:${GWT_DND_VERSION}",
-                    "javax.validation:validation-api:${VALIDATION_VERSION}"
+            gwtCompile "com.google.gwt:gwt-user:${project.gwtVersion}",
+                    "com.google.gwt:gwt-dev:${project.gwtVersion}",
+                    "${gxtGroup}:gxt:${project.gxtVersion}",
+                    "com.allen-sauer.gwt.dnd:gwt-dnd:${project.gwtDndVersion}",
+                    "javax.validation:validation-api:${project.validationApiVersion}"
         }
 
     }
