@@ -40,7 +40,7 @@ class RunTestSuite extends RunUiTest
         dependsOn(project.tasks.ensurePassword)
         if (project.findProject(":tools:Rpackages:install") != null)
             dependsOn(project.project(':tools:Rpackages:install'))
-        if (!project.getPlugins().hasPlugin(TeamCity.class) && project.tasks.findByName('packageChromeExtensions'))
+        if (!project.getPlugins().hasPlugin(TeamCity.class) && project.tasks.findByName('packageChromeExtensions') != null)
             dependsOn(project.tasks.packageChromeExtensions)
         if (project.findProject(":tools:Rpackages:install") != null)
             dependsOn(project.project(':tools:Rpackages:install'))
