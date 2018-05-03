@@ -54,10 +54,6 @@ class LabKeyExtension
     String ext3Dir = "ext-3.4.1"
     String ext4Dir = "ext-4.2.1"
 
-    String server = "http://localhost"
-    String port = "8080"
-    String contextPath = "/labkey"
-
     /**
      * @param project the project in question
      * @return true if the project given is one of the modules whose jar file needs to be in the labkeyWebapp/WEB-INF/lib directory

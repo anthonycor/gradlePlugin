@@ -22,7 +22,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.labkey.gradle.task.RunTestSuite
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.BuildUtils
-
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 /**
  * Created by susanh on 12/7/16.
  */
@@ -123,7 +123,7 @@ class TestRunner extends UiTest
                             classpath {
                                 [project.configurations.uiTestCompile, project.tasks.testJar]
                             }
-                            systemProperties["labkey.server"] = project.labkey.server
+                            systemProperties["labkey.server"] = TeamCityExtension.getLabKeyServer(project)
                             args = ["set"]
                             standardInput = System.in
                         })
@@ -144,7 +144,7 @@ class TestRunner extends UiTest
                                     classpath {
                                         [project.configurations.uiTestCompile, project.tasks.testJar]
                                     }
-                                    systemProperties["labkey.server"] = project.labkey.server
+                                    systemProperties["labkey.server"] = TeamCityExtension.getLabKeyServer(project)
                                     args = ["ensure"]
                                     standardInput = System.in
                                 })
