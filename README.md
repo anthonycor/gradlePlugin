@@ -16,6 +16,8 @@ but also make certain assumptions that you may not want to impose on your module
 * update TeamCity plugin to get labkey.server from teamcity properties if available
 * update Gwt plugin to support later versions of gxt (artifact group name changed)
 * make it possible to remove obsolete chromextensions directory
+* [Issue 34078](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34078) - update destintion
+directory for ajc compiler to reflect language-specific classes directories in Gradle 4+
 
 ### version 1.2.5
 *Released*: 5 April 2018

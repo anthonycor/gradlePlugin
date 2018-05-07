@@ -259,7 +259,7 @@ class TestRunner extends UiTest
                     classpath: project.configurations.aspectj.asPath
             )
             ant.iajc(
-                    destdir: "${project.buildDir}/classes",
+                    destdir: "${project.buildDir}/classes/java/uiTest/",
                     source: project.sourceCompatibility,
                     target: project.targetCompatibility,
                     classpath: project.configurations.uiTestCompile.asPath,
