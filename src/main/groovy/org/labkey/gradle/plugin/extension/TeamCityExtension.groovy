@@ -130,4 +130,9 @@ class TeamCityExtension
         else
             return defaultValue
     }
+
+    static String getLabKeyServer(Project project)
+    {
+        return getTeamCityProperty(project, "labkey.server", "http://localhost")
+    }
 }
