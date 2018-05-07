@@ -10,7 +10,7 @@ but also make certain assumptions that you may not want to impose on your module
 ## Release Notes
 
 ### version 1.2.6
-*Released*: ???
+*Released*: 7 May 2018
 (Earliest compatible LabKey version: 18.1)
 
 * update TeamCity plugin to get labkey.server from teamcity properties if available
