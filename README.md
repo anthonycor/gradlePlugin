@@ -11,7 +11,7 @@ but also make certain assumptions that you may not want to impose on your module
 
 ### version 1.2.6
 *Released*: 7 May 2018
-(Earliest compatible LabKey version: 18.1)
+(Earliest compatible LabKey version: 18.2)
 
 * update TeamCity plugin to get labkey.server from teamcity properties if available
 * update Gwt plugin to support later versions of gxt (artifact group name changed)
