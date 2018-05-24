@@ -9,6 +9,23 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.2.7
+*Released*: 23 May 2018
+(Earliest compatible LabKey version: 18.2)
+
+* update ClientApiDistribution to include the new jdbc jar file.
+* enable multiple worker threads for the GWT compile
+
+### version 1.2.6
+*Released*: 7 May 2018
+(Earliest compatible LabKey version: 18.2)
+
+* update TeamCity plugin to get labkey.server from teamcity properties if available
+* update Gwt plugin to support later versions of gxt (artifact group name changed)
+* make it possible to remove obsolete chromextensions directory
+* [Issue 34078](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34078) - update destintion
+directory for ajc compiler to reflect language-specific classes directories in Gradle 4+
+
 ### version 1.2.5
 *Released*: 5 April 2018
 (Earliest compatible LabKey version: 18.1)

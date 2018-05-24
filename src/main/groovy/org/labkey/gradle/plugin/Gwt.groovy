@@ -25,6 +25,7 @@ import org.gradle.api.tasks.JavaExec
 import org.labkey.gradle.plugin.extension.GwtExtension
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.task.GzipAction
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 /**
  * Used to compile GWT source files into Javascript
@@ -32,14 +33,6 @@ import org.labkey.gradle.util.GroupNames
 class Gwt implements Plugin<Project>
 {
     public static final String SOURCE_DIR = "gwtsrc"
-    // Using version 2.4.0 of gwt_user and gwt_dev compiles, but it does not heed the
-    // use of a single browser in dev mode, so we've published the versions of these
-    // jar files that were in the file system.  Unfortunately, the version for these
-    // is unknown.
-    private static final String GWT_VERSION = "unknown"
-    private static final String GXT_VERSION = "2.2.5"
-    private static final String GWT_DND_VERSION = "3.2.0"
-    private static final String VALIDATION_VERSION = "1.0.0.GA"
 
     private static final String GWT_EXTENSION = ".gwt.xml"
 
@@ -78,13 +71,14 @@ class Gwt implements Plugin<Project>
 
     private void addDependencies(Project project)
     {
+        String gxtGroup = (BuildUtils.compareVersions(project.gxtVersion, "2.2.5") > 0) ? "com.sencha.gxt" : "com.extjs"
 
         project.dependencies {
-            gwtCompile "com.google.gwt:gwt-user:${GWT_VERSION}",
-                    "com.google.gwt:gwt-dev:${GWT_VERSION}",
-                    "com.extjs:gxt:${GXT_VERSION}",
-                    "com.allen-sauer.gwt.dnd:gwt-dnd:${GWT_DND_VERSION}",
-                    "javax.validation:validation-api:${VALIDATION_VERSION}"
+            gwtCompile "com.google.gwt:gwt-user:${project.gwtVersion}",
+                    "com.google.gwt:gwt-dev:${project.gwtVersion}",
+                    "${gxtGroup}:gxt:${project.gxtVersion}",
+                    "com.allen-sauer.gwt.dnd:gwt-dnd:${project.gwtDndVersion}",
+                    "javax.validation:validation-api:${project.validationApiVersion}"
         }
 
     }
@@ -177,6 +171,7 @@ class Gwt implements Plugin<Project>
                                             '-logLevel', project.gwt.logLevel,
                                             '-extra', extrasDir,
                                             '-deploy', extrasDir,
+                                            '-localWorkers', 4,
                                             gwtModuleClass.getValue()
                                     ]
                             if (project.gwt.draftCompile)
