@@ -95,14 +95,15 @@ class ServerDeploy implements Plugin<Project>
         Task checkModuleVersionsTask = project.task(
                 "checkModuleVersions",
                 group: GroupNames.DEPLOY,
-                description: "Check for conflicts in version numbers of module files to be deployed and files in the deploy directory",
+                description: "Check for conflicts in version numbers of module files to be deployed and files in the deploy directory. " +
+                        "Default action on detecting a conflict is to log a warning.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                        "conflicting version(s) in the ${serverDeploy.modulesDir} directory to be removed.",
                 type: CheckForVersionConflicts,
                 { CheckForVersionConflicts task ->
                     task.directory = new File(serverDeploy.modulesDir)
                     task.extension = "module"
                     task.cleanTask = ":server:cleanDeploy"
                     task.collection = project.configurations.modules
-                    task.failOnConflict = true
                 }
         )
         if (project.hasProperty('enableVersionChecks'))
@@ -130,14 +131,15 @@ class ServerDeploy implements Plugin<Project>
         Task checkJarsTask = project.task(
                 "checkWebInfLibJarVersions",
                 group: GroupNames.DEPLOY,
-                description: "Check for conflicts in version numbers of jar files to be deployed to and files in the directory ${serverDeploy.webappDir}/WEB-INF/lib",
+                description: "Check for conflicts in version numbers of jar files to be deployed to and files in the directory ${serverDeploy.webappDir}/WEB-INF/lib." +
+                        "Default action on detecting a conflict is to log a warning.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                        "conflicting version(s) in the ${serverDeploy.webappDir}/WEB-INF/lib directory to be removed.",
                 type: CheckForVersionConflicts,
                 { CheckForVersionConflicts task ->
                     task.directory = new File("${serverDeploy.webappDir}/WEB-INF/lib")
                     task.extension = "jar"
                     task.cleanTask = ":server:cleanDeploy"
                     task.collection = project.configurations.jars
-                    task.failOnConflict = true
                 }
         )
         if (project.hasProperty('enableVersionChecks'))
