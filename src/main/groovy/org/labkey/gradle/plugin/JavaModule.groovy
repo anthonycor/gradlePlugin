@@ -206,7 +206,7 @@ class JavaModule extends FileModule
                 group: GroupNames.MODULE,
                 type: CheckForVersionConflicts,
                 description: "Check for conflicts in version numbers of jar files to be included in the module and files already in the build directory ${project.labkey.explodedModuleDir}/lib." +
-                        "Default action on detecting a conflict is to log a warning.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                        "Default action on detecting a conflict is to fail.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
                         "conflicting version(s) in the ${project.labkey.explodedModuleDir}/lib directory to be removed.",
                 { CheckForVersionConflicts task ->
                     task.directory = new File("${project.labkey.explodedModuleDir}/lib")
@@ -215,8 +215,9 @@ class JavaModule extends FileModule
                     task.collection = allJars
                 }
         )
-        if (project.hasProperty("enableVersionChecks"))
-            copyExternalDependencies.dependsOn(checkJarVersions)
+
+        copyExternalDependencies.dependsOn(checkJarVersions)
+        project.project(":server").tasks.checkVersionConflicts.dependsOn(checkJarVersions)
     }
 
     /**

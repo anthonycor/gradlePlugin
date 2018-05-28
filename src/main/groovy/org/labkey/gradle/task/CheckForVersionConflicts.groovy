@@ -23,7 +23,7 @@ class CheckForVersionConflicts  extends DefaultTask
     /** The extension of the files to look for.  Null indicates all files **/
     String extension = null
     /** Indicates what should happen when a conflict is detected **/
-    ConflictAction conflictAction = ConflictAction.warn
+    ConflictAction conflictAction = ConflictAction.fail
     /** The collection of files to check for.  Usually this will come from a configuration. **/
     FileCollection collection
     /** The name of a task to run if conflicts are found that will resolve the conflict (presumably by cleaning out the directory) **/
@@ -109,7 +109,7 @@ class CheckForVersionConflicts  extends DefaultTask
                         f.delete()
                 })
             }
-            else if (conflictAction == ConflictAction.warn)
+            else if (action == ConflictAction.warn)
                 project.logger.warn("WARNING: " + message)
             else
                 throw new GradleException(message)

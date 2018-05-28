@@ -9,6 +9,23 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.3
+*Released*: ???
+(Earliest compatible LabKey version: 18.2)
+
+* Update ```checkModuleVersions```, ```checkWebInfLibJarVersions```,  ```checkModuleJarVersions``` tasks that check 
+version conflicts for jars and modules. These tasks are included as part of the usual build process but can also
+be run individually.  There is also a task ```checkVersionConflicts``` that will run all of these tasks.  The 
+default behavior is to fail when a version conflict is detected or if there are multiple versions found in the 
+deploy directory.  This behavior can be modified by setting the ```versionConflictAction``` parameter to one of 
+```delete```, ```fail``` (default), or ```warn```.  In any case, if multiple versions are detected, deletion will 
+have to be done manually.  
+* [Issue 33858](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33858) add checks for the 
+existence of internal/gwtsrc so we can move it to its proper home in api and parameterize location of some of the key, 
+non-standard modules to make them easier to move around
+* [Issue 33860](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33860): parameterization to 
+allow for moving or removing :schemas project
+ 
 ### version 1.2.7
 *Released*: 23 May 2018
 (Earliest compatible LabKey version: 18.2)
@@ -23,7 +40,7 @@ but also make certain assumptions that you may not want to impose on your module
 * update TeamCity plugin to get labkey.server from teamcity properties if available
 * update Gwt plugin to support later versions of gxt (artifact group name changed)
 * make it possible to remove obsolete chromextensions directory
-* [Issue 34078](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34078) - update destintion
+* [Issue 34078](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34078) - update destination
 directory for ajc compiler to reflect language-specific classes directories in Gradle 4+
 
 ### version 1.2.5
