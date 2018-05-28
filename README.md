@@ -13,13 +13,8 @@ but also make certain assumptions that you may not want to impose on your module
 *Released*: ???
 (Earliest compatible LabKey version: 18.2)
 
-* Update ```checkModuleVersions```, ```checkWebInfLibJarVersions```,  ```checkModuleJarVersions``` tasks that check 
-version conflicts for jars and modules. These tasks are included as part of the usual build process but can also
-be run individually.  There is also a task ```checkVersionConflicts``` that will run all of these tasks.  The 
-default behavior is to fail when a version conflict is detected or if there are multiple versions found in the 
-deploy directory.  This behavior can be modified by setting the ```versionConflictAction``` parameter to one of 
-```delete```, ```fail``` (default), or ```warn```.  In any case, if multiple versions are detected, deletion will 
-have to be done manually.  
+* Update tasks that check version conflicts for jars and modules. By default, the build will fail if version conflicts
+are found.  See the documentation on [Version Conflicts in Local Builds](https://labkey.org/Documentation/wiki-page.view?name=gradleDepend) for more information. 
 * [Issue 33858](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33858) add checks for the 
 existence of internal/gwtsrc so we can move it to its proper home in api and parameterize location of some of the key, 
 non-standard modules to make them easier to move around
