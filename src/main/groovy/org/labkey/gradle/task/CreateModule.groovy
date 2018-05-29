@@ -18,8 +18,10 @@ package org.labkey.gradle.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.TaskAction
 
+import java.nio.file.Paths
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -132,7 +134,23 @@ class CreateModule extends DefaultTask
         ]
 
         project.copy({ CopySpec copy ->
-            copy.from("${project.rootProject.projectDir}/server/moduleTemplate")
+            String serverModuleTemplateDir = "${project.rootProject.projectDir}/server/moduleTemplate"
+            File templateDir = new File(serverModuleTemplateDir)
+            if (templateDir.exists())
+                copy.from(serverModuleTemplateDir)
+            else
+            {
+                // This seems a very convoluted way to get to the zip file in the jar file.  Using the classLoader did not
+                // work as expected, however.  Following the example from here:
+                // https://discuss.gradle.org/t/gradle-plugin-copy-directory-tree-with-files-from-resources/12767/7
+                FileTree jarTree = project.zipTree(getClass().getProtectionDomain().getCodeSource().getLocation().toExternalForm())
+                File zipFile = jarTree.matching({
+                    include "moduleTemplate.zip"
+                }).singleFile
+                FileTree zipTree = project.zipTree(zipFile);
+
+                copy.from(zipTree)
+            }
             copy.into(moduleDestination)
             if (hasManagedSchema) {
                 copy.exclude("**/MODULE_NAMECodeOnlyModule.java")
