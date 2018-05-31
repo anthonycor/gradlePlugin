@@ -82,6 +82,11 @@ class XmlBeans implements Plugin<Project>
         schemasCompile.onlyIf {
             isApplicable(project)
         }
+        // remove the directories containing the generated java files and the compiled classes when we have to make changes.
+        schemasCompile.doFirst( {SchemaCompile task ->
+            project.delete(task.getSrcGenDir())
+            project.delete(task.getClassesDir())
+        })
 
         Task schemasJar = project.task('schemasJar',
                 group: GroupNames.XML_SCHEMA,

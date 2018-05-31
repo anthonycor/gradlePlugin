@@ -13,12 +13,14 @@ but also make certain assumptions that you may not want to impose on your module
 *Released*: ???
 (Earliest compatible LabKey version: 18.2)
 
+* [Issue 34388](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34388) - clean out directories
+created when compiling xsd's to jar file if a new jar is to be created.
 * Update tasks that check version conflicts for jars and modules. By default, the build will fail if version conflicts
 are found.  See the documentation on [Version Conflicts in Local Builds](https://labkey.org/Documentation/wiki-page.view?name=gradleDepend) for more information. 
 * [Issue 33858](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33858) add checks for the 
 existence of internal/gwtsrc so we can move it to its proper home in api and parameterize location of some of the key, 
 non-standard modules to make them easier to move around
-* [Issue 33860](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33860): parameterization to 
+* [Issue 33860](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33860) - parameterization to 
 allow for moving or removing :schemas project
  
 ### version 1.2.7
