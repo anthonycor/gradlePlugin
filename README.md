@@ -13,6 +13,8 @@ but also make certain assumptions that you may not want to impose on your module
 *Released*: ???
 (Earliest compatible LabKey version: 18.2)
 
+* [Issue 33473](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33473) - always overwrite tomcat
+lib jars to facilitate swithcing between newer and older versions of LabKey distributions
 * [Issue 34388](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34388) - clean out directories
 created when compiling xsd's to jar file if a new jar is to be created.
 * Update tasks that check version conflicts for jars and modules. By default, the build will fail if version conflicts

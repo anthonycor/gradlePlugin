@@ -108,6 +108,7 @@ class DoThenSetup extends DefaultTask
 
     }
 
+
     // labkeyXml is up to date if it was created after the current config file was created
     // and it has the current appDocBase
     boolean labkeyXmlUpToDate(String appDocBase)
@@ -141,7 +142,8 @@ class DoThenSetup extends DefaultTask
         project.ant.copy(
 
                 todir: project.staging.tomcatLibDir,
-                preserveLastModified: true
+                preserveLastModified: true,
+                overwrite: true // Issue 33473: overwrite the existing jars to facilitate switching to older versions of labkey with older dependencies
         )
             {
                 serverProject.configurations.tomcatJars { Configuration collection ->
@@ -175,8 +177,9 @@ class DoThenSetup extends DefaultTask
 
         // Then copy them into the tomcat/lib directory
         project.ant.copy(
-            todir: "${project.tomcatDir}/lib",
-            preserveLastModified: true
+                todir: "${project.tomcatDir}/lib",
+                preserveLastModified: true,
+                overwrite: true
         )
         {
             fileset(dir: project.staging.tomcatLibDir)
