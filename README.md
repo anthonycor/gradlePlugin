@@ -24,6 +24,9 @@ existence of internal/gwtsrc so we can move it to its proper home in api and par
 non-standard modules to make them easier to move around
 * [Issue 33860](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33860) - parameterization to 
 allow for moving or removing :schemas project
+* [Issue 30536](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=30536) - copy moduleTemplate into
+gradle plugins repository and modify build of plugins jar to include a zip of the moduleTemplate (that will include
+the empty directories that won't migrate to git).  Actual removal of moduleTemplate will not happen until LabKey 18.3.
  
 ### version 1.2.7
 *Released*: 23 May 2018
