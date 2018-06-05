@@ -152,18 +152,22 @@ class CreateModule extends DefaultTask
                 copy.from(zipTree)
             }
             copy.into(moduleDestination)
-            if (hasManagedSchema) {
+            if (hasManagedSchema)
+            {
                 copy.exclude("**/MODULE_NAMECodeOnlyModule.java")
             }
-            else {
+            else
+            {
                 copy.exclude("**/MODULE_NAMESchema.java")
                 copy.exclude("**/MODULE_NAMEModule.java")
                 copy.exclude("resources/schemas/**")
             }
-            if (!createTestFiles) {
+            if (!createTestFiles)
+            {
                 copy.exclude("test/**")
             }
-            if (!createApiFiles) {
+            if (!createApiFiles)
+            {
                 copy.exclude("api-src/**")
             }
 
@@ -175,6 +179,15 @@ class CreateModule extends DefaultTask
                 return line
             })
         })
+        if (createApiFiles)
+        {
+            File apiSrcDir = new File(moduleDestination, "api-src")
+            if (!apiSrcDir.exists())
+            {
+                File moduleApiPackageDir = Paths.get(moduleDestination, "api-src/org/labkey/api/MODULE_DIR_NAME/").toFile();
+                moduleApiPackageDir.mkdirs()
+            }
+        }
         File codeOnlyModule = new File("${moduleDestination}/src/org/labkey/MODULE_DIR_NAME/MODULE_NAMECodeOnlyModule.java")
         if (codeOnlyModule.exists()) {
             codeOnlyModule.renameTo(new File("${moduleDestination}/src/org/labkey/MODULE_DIR_NAME/MODULE_NAMEModule.java"))
