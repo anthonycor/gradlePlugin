@@ -9,11 +9,19 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.2.8
+*Released*: 5 June 2018
+(Earliest compatible LabKey version: 18.2)
+
+* added TeamCity parameter testValidationOnly for test that will do validation only (e.g. upgrade tests, blue-green)
+* dropDatabase will not happen if testValidationOnly is true
+
+
 ### version 1.2.7
 *Released*: 23 May 2018
 (Earliest compatible LabKey version: 18.2)
 
-* update ClientApiDistribution to include the new jdbc jar file.
+* update ClientApiDistribution to include the new jdbc jar file
 * enable multiple worker threads for the GWT compile
 
 ### version 1.2.6
