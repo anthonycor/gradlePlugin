@@ -306,7 +306,7 @@ class ModuleDistribution extends DefaultTask
             StagingExtension staging = project.getExtensions().getByType(StagingExtension.class)
 
             ant.zip(destfile: getZipArchivePath()) {
-                zipfileset(dir: "${project.rootProject.buildDir}/staging/labkeyWebapp",
+                zipfileset(dir: staging.webappDir,
                         prefix: "${archivePrefix}/labkeywebapp") {
                     exclude(name: "WEB-INF/classes/distribution")
                 }
@@ -314,9 +314,13 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
-                zipfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib")
+                zipfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib",
+                        // this exclusion is necessary because for some reason when buildFromSource=false,
+                        // the tomcat bootstrap jar is included in the staged libraries and the LabKey bootstrap jar is not.
+                        // Not sure why.
+                        exclude(name: "bootstrap.jar"))
 
-                zipfileset(dir: "${project.rootProject.buildDir}/staging/pipelineLib",
+                zipfileset(dir: staging.pipelineLibDir,
                         prefix: "${archivePrefix}/pipeline-lib")
                 zipfileset(dir: "${project.rootProject.projectDir}/external/windows/core",
                         prefix: "${archivePrefix}/bin") {
@@ -346,10 +350,12 @@ class ModuleDistribution extends DefaultTask
                     include(name: "VERSION")
                     include(name: "labkeywebapp/**")
                     include(name: "nlp/**")
+                    include(name: "labkey.xml")
                 }
                 zipfileset(dir: "${project.buildDir}/",
-                        prefix: "${archivePrefix}") {
-                    include(name: "labkey.xml")
+                        prefix: "${archivePrefix}",
+                        filemode: 744){
+                    include(name: "manual-upgrade.sh")
                 }
             }
         }

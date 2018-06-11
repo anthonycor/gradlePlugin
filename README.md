@@ -27,12 +27,20 @@ allow for moving or removing :schemas project
 * [Issue 30536](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=30536) - copy moduleTemplate into
 gradle plugins repository and modify build of plugins jar to include a zip of the moduleTemplate (that will include
 the empty directories that won't migrate to git).  Actual removal of moduleTemplate will not happen until LabKey 18.3.
+
+### version 1.2.8
+*Released*: 11 June 2018
+(Earliest compatible LabKey version: 18.2)
+
+* added TeamCity parameter testValidationOnly for test that will do validation only (e.g. upgrade tests, blue-green)
+* dropDatabase will not happen if testValidationOnly is true
+
  
 ### version 1.2.7
 *Released*: 23 May 2018
 (Earliest compatible LabKey version: 18.2)
 
-* update ClientApiDistribution to include the new jdbc jar file.
+* update ClientApiDistribution to include the new jdbc jar file
 * enable multiple worker threads for the GWT compile
 
 ### version 1.2.6
