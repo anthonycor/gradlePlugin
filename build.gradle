@@ -61,7 +61,7 @@ if (project.file("moduleTemplate").exists())
             {
                 archiveName = "moduleTemplate.zip"
                 from project.file("moduleTemplate")
-                destinationDir = new File("src/main/resources")
+                destinationDir = new File(project.projectDir, "src/main/resources")
             }
     )
     project.tasks.processResources.dependsOn(project.tasks.zipModuleTemplate)
