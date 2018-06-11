@@ -124,11 +124,6 @@ class JavaModule extends FileModule
                 java {
                     srcDirs = ['src']
                 }
-                resources {
-                    srcDirs = ['src'] // src is included because it contains some sql scripts
-                    exclude '**/*.java'
-                    exclude '**/*.jsp'
-                }
             }
         }
     }
