@@ -147,11 +147,9 @@ class Gwt implements Plugin<Project>
                             def paths = []
                             if (!project.gwt.allBrowserCompile)
                             {
-                                String gwtBrowser = System.getenv('LABKEY_GWT_USER_OVERRIDE')
+                                String gwtBrowser = project.gwtBrowser
                                 if (StringUtils.isEmpty(gwtBrowser))
-                                    gwtBrowser = System.getenv('gwt-user-override')
-                                if (StringUtils.isEmpty(gwtBrowser))
-                                    gwtBrowser = "gwt-user-firefox"
+                                    gwtBrowser = "gwt-user-chrome"
                                 paths += ["${project.rootProject.rootDir}/external/lib/build/${gwtBrowser}"]
                             }
                             paths += [
