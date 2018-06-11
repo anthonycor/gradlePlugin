@@ -13,6 +13,8 @@ but also make certain assumptions that you may not want to impose on your module
 *Released*: ???
 (Earliest compatible LabKey version: 18.2)
 
+* Change JavaModule plugin to remove ```src``` as a resource directory by default.  Individual modules can declare it as a resource if needed.
+* Parameterize gwt build so you can choose the target permutation browser in dev mode (using property gwtBrowser)
 * [Issue 33473](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33473) - always overwrite tomcat
 lib jars to facilitate switching between newer and older versions of LabKey distributions
 * [Issue 34388](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34388) - clean out directories
@@ -34,6 +36,7 @@ the empty directories that won't migrate to git).  Actual removal of moduleTempl
 
 * added TeamCity parameter testValidationOnly for test that will do validation only (e.g. upgrade tests, blue-green)
 * dropDatabase will not happen if testValidationOnly is true
+* include manual-upgrade.sh script in zip distributions
 
  
 ### version 1.2.7
