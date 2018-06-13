@@ -13,13 +13,16 @@ but also make certain assumptions that you may not want to impose on your module
 *Released*: ???
 (Earliest compatible LabKey version: 18.2)
 
+* [Issue 34523](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34523) - Change configuration for NPM plugin to download
+specific versions of node and npm if appropriate properties are set
+* Added cleanNodeModules task that will remove a project's node_modules directory
 * Change JavaModule plugin to remove ```src``` as a resource directory by default.  Individual modules can declare it as a resource if needed.
 * Parameterize gwt build so you can choose the target permutation browser in dev mode (using property gwtBrowser)
 * [Issue 33473](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33473) - always overwrite tomcat
 lib jars to facilitate switching between newer and older versions of LabKey distributions
 * [Issue 34388](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34388) - clean out directories
 created when compiling xsd's to jar file if a new jar is to be created.
-* Update tasks that check version conflicts for jars and modules. By default, the build will fail if version conflicts
+* Update tasks that check version conflicts for jars and modules (no longer incubating). By default, the build will fail if version conflicts
 are found.  See the documentation on [Version Conflicts in Local Builds](https://labkey.org/Documentation/wiki-page.view?name=gradleDepend) for more information. 
 * [Issue 33858](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33858) add checks for the 
 existence of ```internal/gwtsrc``` so we can move it to its proper home in api and parameterize the location of some of the key, 

@@ -18,6 +18,8 @@ package org.labkey.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.DeleteSpec
+import org.gradle.api.tasks.Delete
 import org.labkey.gradle.plugin.extension.LabKeyExtension
 import org.labkey.gradle.plugin.extension.NpmRunExtension
 import org.labkey.gradle.util.GroupNames
@@ -47,13 +49,50 @@ class NpmRun implements Plugin<Project>
     {
         project.extensions.create(EXTENSION_NAME, NpmRunExtension)
 
+        configurePlugin(project)
         project.afterEvaluate {
             addTasks(project)
         }
     }
 
+    private void configurePlugin(Project project)
+    {
+        project.node {
+            if (project.hasProperty('nodeVersion'))
+                // Version of node to use.
+                version = project.nodeVersion
+
+            if (project.hasProperty('npmVersion'))
+                // Version of npm to use.
+                npmVersion = project.npmVersion
+
+            // Version of Yarn to use.
+//            yarnVersion = '0.16.1'
+
+            // Base URL for fetching node distributions (change if you have a mirror).
+            if (project.hasProperty('nodeRepo'))
+                distBaseUrl = project.nodeRepo
+
+            // If true, it will download node using above parameters.
+            // If false, it will try to use globally installed node.
+            download = project.hasProperty('nodeVersion') && project.hasProperty('npmVersion')
+
+            // Set the work directory for unpacking node
+            workDir = project.file("${project.rootProject.projectDir}/.node")
+
+            // Set the work directory for NPM
+            npmWorkDir = project.file("${project.rootProject.projectDir}/.node")
+
+            // Set the work directory for Yarn
+//            yarnWorkDir = file("${project.buildDir}/yarn")
+
+            // Set the work directory where node_modules should be located
+            nodeModulesDir = project.file("${project.projectDir}")
+        }
+    }
     private void addTasks(Project project)
     {
+
         project.task("npmRunClean")
                 {Task task ->
                     task.group = GroupNames.NPM_RUN
@@ -97,6 +136,15 @@ class NpmRun implements Plugin<Project>
                 task.inputs.file project.file(NPM_PROJECT_LOCK_FILE)
         }
         project.tasks.npmInstall.outputs.upToDateWhen { project.file(NODE_MODULES_DIR).exists() }
+
+        project.task("cleanNodeModules",
+                group:  GroupNames.NPM_RUN,
+                type: Delete,
+                description: "Removes ${project.file(NODE_MODULES_DIR)}",
+                { DeleteSpec delete ->
+                    delete.delete (project.file(NODE_MODULES_DIR))
+                }
+        )
     }
 
 
