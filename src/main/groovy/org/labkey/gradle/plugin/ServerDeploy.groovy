@@ -151,6 +151,21 @@ class ServerDeploy implements Plugin<Project>
                 description: "Check for conflicts in version numbers on module files, WEB-INF/lib jar files and jar files in modules."
         ).dependsOn(checkModuleVersionsTask, checkJarsTask)
 
+        if (project.hasProperty('npmVersion')) {
+            project.task("symlinkNpm") {
+                File linkContainer = new File("${project.rootDir}/${project.npmWorkDirectory}")
+                if (!project.file("${linkContainer.getPath()}/npm").exists()) {
+                   linkContainer.mkdirs();
+                    Project coreProject = project.project((String) project.gradle.coreProjectPath)
+                    ant.symlink(link: "${linkContainer.getPath()}/npm",
+                            resource: "${coreProject.buildDir}/${project.npmWorkDirectory}/npm-v${project.npmVersion}",
+                            failonerror: false) // this is only a convenience so if it fails we'll get a warning
+                }
+            }
+            project.tasks.deployApp.dependsOn(project.tasks.symlinkNpm)
+        }
+
+
         Task stageRemotePipelineJarsTask = project.task(
                 "stageRemotePipelineJars",
                 group: GroupNames.DEPLOY,
