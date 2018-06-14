@@ -152,7 +152,9 @@ class ServerDeploy implements Plugin<Project>
         ).dependsOn(checkModuleVersionsTask, checkJarsTask)
 
         if (project.hasProperty('npmVersion')) {
-            project.task("symlinkNpm") {
+            project.task("symlinkNpm",
+                    group: GroupNames.DEPLOY,
+                    description: "Make a symbolic link to the npm directory for use in PATH environment variable").doFirst( {
                 File linkContainer = new File("${project.rootDir}/${project.npmWorkDirectory}")
                 if (!project.file("${linkContainer.getPath()}/npm").exists()) {
                    linkContainer.mkdirs();
@@ -161,7 +163,7 @@ class ServerDeploy implements Plugin<Project>
                             resource: "${coreProject.buildDir}/${project.npmWorkDirectory}/npm-v${project.npmVersion}",
                             failonerror: false) // this is only a convenience so if it fails we'll get a warning
                 }
-            }
+            })
             project.tasks.deployApp.dependsOn(project.tasks.symlinkNpm)
         }
 
