@@ -78,10 +78,10 @@ class NpmRun implements Plugin<Project>
             download = project.hasProperty('nodeVersion') && project.hasProperty('npmVersion')
 
             // Set the work directory for unpacking node
-            workDir = project.file("${project.rootProject.projectDir}/.node")
+            workDir = project.file("${project.buildDir}/.node/")
 
             // Set the work directory for NPM
-            npmWorkDir = project.file("${project.rootProject.projectDir}/.node")
+            npmWorkDir = project.file("${project.buildDir}/.node/")
 
             // Set the work directory for Yarn
 //            yarnWorkDir = file("${project.buildDir}/yarn")
