@@ -41,7 +41,7 @@ buildscript {
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.artifactory'
 
-project.version = "1.3-SNAPSHOT"
+project.version = "1.3"
 
 if (project.file("moduleTemplate").exists())
 {
