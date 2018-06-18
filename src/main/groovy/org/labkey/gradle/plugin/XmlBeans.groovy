@@ -55,9 +55,10 @@ class XmlBeans implements Plugin<Project>
                     xmlbeans
                     xmlSchema // Used for declaring artifacts
                 }
-        if (!project.path.equals(project.gradle.schemasProjectPath))
+        String schemasProjectPath = BuildUtils.getProjectPath(project.gradle, "schemasProjectPath", ":schemas")
+        if (!project.path.equals(schemasProjectPath))
         {
-            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: project.gradle.schemasProjectPath, depProjectConfig: 'xmlSchema', depVersion: project.labkeyVersion)
+            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: schemasProjectPath, depProjectConfig: 'xmlSchema', depVersion: project.labkeyVersion)
         }
         project.dependencies
                 {

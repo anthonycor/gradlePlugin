@@ -67,9 +67,9 @@ class Api implements Plugin<Project>
     {
         project.dependencies
                 {
-                    BuildUtils.addLabKeyDependency(project: project, config: 'apiCompile', depProjectPath: project.gradle.apiProjectPath)
-                    BuildUtils.addLabKeyDependency(project: project, config: 'apiCompile', depProjectPath: project.gradle.internalProjectPath)
-                    BuildUtils.addLabKeyDependency(project: project, config: "apiCompile", depProjectPath: project.gradle.remoteApiProjectPath, depVersion: project.labkeyVersion)
+                    BuildUtils.addLabKeyDependency(project: project, config: 'apiCompile', depProjectPath: BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api"))
+                    BuildUtils.addLabKeyDependency(project: project, config: 'apiCompile', depProjectPath: BuildUtils.getProjectPath(project.gradle, "internalProjectPath", ":server:internal"))
+                    BuildUtils.addLabKeyDependency(project: project, config: "apiCompile", depProjectPath: BuildUtils.getProjectPath(project.gradle, "remoteApiProjectPath", ":remoteapi:java"), depVersion: project.labkeyVersion)
                 }
     }
 

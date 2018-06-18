@@ -229,12 +229,13 @@ class JavaModule extends FileModule
         if (config == null)
             return config
         // trim nothing from api
-        if (project.path.equals(project.gradle.apiProjectPath))
+        String apiProjectPath = BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")
+        if (project.path.equals(apiProjectPath))
             return config
         // base modules should remove everything included by api
         else if (BuildUtils.getBaseModules(project.gradle).contains(project.path))
         {
-            return config - project.project(project.gradle.apiProjectPath).configurations.external
+            return config - project.project(BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")).configurations.external
         }
         else // all other modules should remove everything in the base modules
         {

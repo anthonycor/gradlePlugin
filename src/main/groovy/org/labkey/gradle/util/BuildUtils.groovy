@@ -105,11 +105,11 @@ class BuildUtils
     static List<String> getBaseModules(Gradle gradle)
     {
         return [
-                gradle.apiProjectPath,
-                gradle.bootstrapProjectPath,
-                gradle.remoteApiProjectPath,
-                gradle.schemasProjectPath, // does no harm if this project no longer exists
-                gradle.internalProjectPath,
+                getProjectPath(gradle, "apiProjectPath", ":server:api"),
+                getProjectPath(gradle, "bootstrapProjectPath", ":server:bootstrap"),
+                getProjectPath(gradle, "remoteApiProjectPath", ":remoteapi:java"),
+                getProjectPath(gradle, "schemasProjectPath", ":schemas"), // does no harm if this project no longer exists
+                getProjectPath(gradle, "internalProjectPath", ":server:internal"),
         ] + BASE_MODULES
     }
 
@@ -490,11 +490,11 @@ class BuildUtils
         }
 
         String moduleName
-        if (projectPath.endsWith(project.gradle.remoteApiProjectPath.substring(1)))
+        if (projectPath.endsWith(getProjectPath(project.gradle, "remoteApiProjectPath", ":remoteapi:java").substring(1)))
         {
             moduleName = "labkey-client-api"
         }
-        else if (projectPath.equals(project.gradle.bootstrapProjectPath))
+        else if (projectPath.equals(getProjectPath(project.gradle, "bootstrapProjectPath", ":server:bootstrap")))
         {
             moduleName = ServerBootstrap.JAR_BASE_NAME
         }
@@ -570,5 +570,10 @@ class BuildUtils
         if (i < thatVersionParts.length)
             return -1
         return 0
+    }
+
+    static String getProjectPath(Gradle gradle, String propertyName, String defaultValue)
+    {
+        return gradle.hasProperty(propertyName) ? gradle.getProperty(propertyName) : defaultValue
     }
 }

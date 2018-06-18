@@ -25,6 +25,7 @@ import org.gradle.api.tasks.Delete
 import org.labkey.gradle.plugin.extension.ServerDeployExtension
 import org.labkey.gradle.plugin.extension.StagingExtension
 import org.labkey.gradle.task.*
+import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 import java.nio.file.Files
@@ -158,7 +159,7 @@ class ServerDeploy implements Plugin<Project>
                 File linkContainer = new File("${project.rootDir}/${project.npmWorkDirectory}")
                 linkContainer.mkdirs()
 
-                Project coreProject = project.project((String) project.gradle.coreProjectPath)
+                Project coreProject = project.project(BuildUtils.getProjectPath(project.gradle, "coreProjectPath", ":server:modules:core"))
                 File npmLink = project.file("${linkContainer.getPath()}/npm")
                 String npmDirName = "npm-v${project.npmVersion}"
                 if (!npmLink.exists() || !Files.readSymbolicLink(npmLink.toPath()).getFileName().toString().equals(npmDirName))

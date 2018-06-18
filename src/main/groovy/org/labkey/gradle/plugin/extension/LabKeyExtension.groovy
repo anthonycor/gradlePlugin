@@ -16,6 +16,7 @@
 package org.labkey.gradle.plugin.extension
 
 import org.gradle.api.Project
+import org.labkey.gradle.util.BuildUtils
 
 /**
  * Created by susanh on 4/23/17.
@@ -61,7 +62,8 @@ class LabKeyExtension
      */
     static Boolean isBootstrapModule(Project project)
     {
-        return [project.gradle.schemasProjectPath, project.gradle.remoteApiProjectPath].contains(project.path)
+
+        return [BuildUtils.getProjectPath(project.gradle, "schemasProjectPath", ":schemas"), BuildUtils.getPRojectPath(project, "remoteApiProjectPath", ":remoteapi:java")].contains(project.path)
     }
 
     static String getDeployModeName(Project project)

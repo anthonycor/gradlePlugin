@@ -20,6 +20,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.util.BuildUtils
 
 /**
  * Created by susanh on 8/8/16.
@@ -53,7 +54,7 @@ class ServerSideJS extends DefaultTask
     private void concatenateExt3JsFiles()
     {
 
-        File ext3SrcDir = project.project(project.gradle.apiProjectPath).file("webapp/${project.labkey.ext3Dir}/src")
+        File ext3SrcDir = project.project(BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")).file("webapp/${project.labkey.ext3Dir}/src")
         if (!ext3SrcDir.exists())
             throw new GradleException("Unable to create server-side javascript files. Missing ext3 source directory: ${ext3SrcDir}")
         if (!scriptsDir.canWrite())
@@ -78,7 +79,7 @@ class ServerSideJS extends DefaultTask
     // create a combined Ext4.js usable by the core module's server-side scripts
     private void concatenateExt4JsFiles()
     {
-        File ext4SrcDir = project.project(project.gradle.apiProjectPath).file("webapp/${project.labkey.ext4Dir}/src")
+        File ext4SrcDir = project.project(BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")).file("webapp/${project.labkey.ext4Dir}/src")
         if (!ext4SrcDir.exists())
             throw new GradleException("Unable to create server-side javascript files. Missing ext4 source directory: ${ext4SrcDir}")
         if (!scriptsDir.canWrite())
@@ -106,7 +107,7 @@ class ServerSideJS extends DefaultTask
 
     private void concatenateLabKeyJsFile(String baseName)
     {
-        File baseFile = project.project(project.gradle.apiProjectPath).file("webapp/clientapi/core/${baseName}.js")
+        File baseFile = project.project(BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")).file("webapp/clientapi/core/${baseName}.js")
         if (!baseFile.exists())
             throw new GradleException("Unable to create server-side javascript files. Missing source file: ${baseFile}")
         if (!scriptsDir.canWrite())
