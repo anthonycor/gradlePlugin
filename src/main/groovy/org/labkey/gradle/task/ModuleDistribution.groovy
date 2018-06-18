@@ -314,11 +314,12 @@ class ModuleDistribution extends DefaultTask
                         prefix: "${archivePrefix}/modules") {
                     include(name: "*.module")
                 }
-                zipfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib",
-                        // this exclusion is necessary because for some reason when buildFromSource=false,
-                        // the tomcat bootstrap jar is included in the staged libraries and the LabKey bootstrap jar is not.
-                        // Not sure why.
-                        exclude(name: "bootstrap.jar"))
+                // this exclusion is necessary because for some reason when buildFromSource=false,
+                // the tomcat bootstrap jar is included in the staged libraries and the LabKey bootstrap jar is not.
+                // Not sure why.
+                zipfileset(dir: staging.tomcatLibDir, prefix: "${archivePrefix}/tomcat-lib") {
+                    exclude(name: "bootstrap.jar")
+                }
 
                 zipfileset(dir: staging.pipelineLibDir,
                         prefix: "${archivePrefix}/pipeline-lib")

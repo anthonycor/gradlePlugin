@@ -124,11 +124,6 @@ class JavaModule extends FileModule
                 java {
                     srcDirs = ['src']
                 }
-                resources {
-                    srcDirs = ['src'] // src is included because it contains some sql scripts
-                    exclude '**/*.java'
-                    exclude '**/*.jsp'
-                }
             }
         }
     }
@@ -205,17 +200,19 @@ class JavaModule extends FileModule
                 "checkModuleJarVersions",
                 group: GroupNames.MODULE,
                 type: CheckForVersionConflicts,
-                description: "Check for conflicts in version numbers of jar files to be included in the module and files already in the build directory ${project.labkey.explodedModuleDir}/lib",
+                description: "Check for conflicts in version numbers of jar files to be included in the module and files already in the build directory ${project.labkey.explodedModuleDir}/lib." +
+                        "Default action on detecting a conflict is to fail.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                        "conflicting version(s) in the ${project.labkey.explodedModuleDir}/lib directory to be removed.",
                 { CheckForVersionConflicts task ->
                     task.directory = new File("${project.labkey.explodedModuleDir}/lib")
                     task.extension = "jar"
                     task.cleanTask = "${project.path}:clean"
                     task.collection = allJars
-                    task.failOnConflict = true
                 }
         )
-        if (project.hasProperty("enableVersionChecks"))
-            copyExternalDependencies.dependsOn(checkJarVersions)
+
+        copyExternalDependencies.dependsOn(checkJarVersions)
+        project.project(":server").tasks.checkVersionConflicts.dependsOn(checkJarVersions)
     }
 
     /**
@@ -232,16 +229,16 @@ class JavaModule extends FileModule
         if (config == null)
             return config
         // trim nothing from api
-        if (project.path.equals(":server:api"))
+        if (project.path.equals(project.gradle.apiProjectPath))
             return config
         // base modules should remove everything included by api
-        else if (BuildUtils.BASE_MODULES.contains(project.path))
+        else if (BuildUtils.getBaseModules(project.gradle).contains(project.path))
         {
-            return config - project.project(":server:api").configurations.external
+            return config - project.project(project.gradle.apiProjectPath).configurations.external
         }
         else // all other modules should remove everything in the base modules
         {
-            for (String path : BuildUtils.BASE_MODULES)
+            for (String path : BuildUtils.getBaseModules(project.gradle))
             {
                 FileCollection otherExternal = project.project(path).configurations.external
                 if (otherExternal != null)

@@ -41,14 +41,14 @@ class Module extends JavaModule
     {
         project.dependencies
                 {
-                    // This is only required for :server:api to compile, but we exclude the declaration of dependencies from
-                    // the :server:api pom file because we cannot specify a version, since we rely on the local tomcat version.
+                    // This is only required for the api module to compile, but we exclude the declaration of dependencies from
+                    // the api module's pom file because we cannot specify a version, since we rely on the local tomcat version.
                     // Therefore, when relying on the api jar file not built from source, we require this extra definition;
                     // it will not find the tomcat jar files without this.
                     local project.fileTree(dir: "${project.ext.tomcatDir}/lib", includes: ['*.jar'], excludes: ['servlet-api.jar', 'mail.jar'])
 
-                    BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: ":server:internal", depVersion: project.labkeyVersion)
-                    BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: ":remoteapi:java", depVersion: project.labkeyVersion)
+                    BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: project.gradle.internalProjectPath, depVersion: project.labkeyVersion)
+                    BuildUtils.addLabKeyDependency(project: project, config: "compile", depProjectPath: project.gradle.remoteApiProjectPath, depVersion: project.labkeyVersion)
                     compile 'org.apache.tomcat:jsp-api'
                     compile 'org.apache.tomcat:jasper'
                     if (XmlBeans.isApplicable(project))

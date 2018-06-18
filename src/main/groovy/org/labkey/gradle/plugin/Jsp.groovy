@@ -99,8 +99,8 @@ class Jsp implements Plugin<Project>
                         'org.apache.tomcat:jsp-api',
                         'org.apache.tomcat:tomcat-juli'
                     jspCompile project.fileTree(dir: "${project.tomcatDir}/lib", includes: ['*.jar'])
-                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:api", depVersion: project.labkeyVersion)
-                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: ":server:internal", depVersion: project.labkeyVersion)
+                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: project.gradle.apiProjectPath, depVersion: project.labkeyVersion)
+                    BuildUtils.addLabKeyDependency(project: project, config: "jspCompile", depProjectPath: project.gradle.internalProjectPath, depVersion: project.labkeyVersion)
                     jspCompile project.files(project.tasks.jar)
                     if (project.hasProperty('apiJar'))
                         jspCompile project.files(project.tasks.apiJar)

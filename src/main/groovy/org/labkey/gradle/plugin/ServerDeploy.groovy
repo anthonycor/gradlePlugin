@@ -95,18 +95,20 @@ class ServerDeploy implements Plugin<Project>
         Task checkModuleVersionsTask = project.task(
                 "checkModuleVersions",
                 group: GroupNames.DEPLOY,
-                description: "Check for conflicts in version numbers of module files to be deployed and files in the deploy directory",
+                description: "Check for conflicts in version numbers of module files to be deployed and files in the deploy directory. " +
+                        "Default action on detecting a conflict is to fail.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                        "conflicting version(s) in the ${serverDeploy.modulesDir} directory to be removed.",
                 type: CheckForVersionConflicts,
                 { CheckForVersionConflicts task ->
                     task.directory = new File(serverDeploy.modulesDir)
                     task.extension = "module"
                     task.cleanTask = ":server:cleanDeploy"
                     task.collection = project.configurations.modules
-                    task.failOnConflict = true
                 }
         )
-        if (project.hasProperty('enableVersionChecks'))
-            stageModulesTask.dependsOn(checkModuleVersionsTask)
+
+        stageModulesTask.dependsOn(checkModuleVersionsTask)
+
 
         Task stageJarsTask = project.task(
                 "stageJars",
@@ -130,18 +132,62 @@ class ServerDeploy implements Plugin<Project>
         Task checkJarsTask = project.task(
                 "checkWebInfLibJarVersions",
                 group: GroupNames.DEPLOY,
-                description: "Check for conflicts in version numbers of jar files to be deployed to and files in the directory ${serverDeploy.webappDir}/WEB-INF/lib",
+                description: "Check for conflicts in version numbers of jar files to be deployed to and files in the directory ${serverDeploy.webappDir}/WEB-INF/lib." +
+                        "Default action on detecting a conflict is to fail.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                        "conflicting version(s) in the ${serverDeploy.webappDir}/WEB-INF/lib directory to be removed.",
                 type: CheckForVersionConflicts,
                 { CheckForVersionConflicts task ->
                     task.directory = new File("${serverDeploy.webappDir}/WEB-INF/lib")
                     task.extension = "jar"
                     task.cleanTask = ":server:cleanDeploy"
                     task.collection = project.configurations.jars
-                    task.failOnConflict = true
                 }
         )
-        if (project.hasProperty('enableVersionChecks'))
-            stageJarsTask.dependsOn(checkJarsTask)
+        stageJarsTask.dependsOn(checkJarsTask)
+
+        project.task(
+                "checkVersionConflicts",
+                group: GroupNames.DEPLOY,
+                description: "Check for conflicts in version numbers on module files, WEB-INF/lib jar files and jar files in modules."
+        ).dependsOn(checkModuleVersionsTask, checkJarsTask)
+
+        if (project.hasProperty('npmVersion') && project.hasProperty('nodeVersion')) {
+            project.task("symlinkNode",
+                    group: GroupNames.DEPLOY,
+                    description: "Make a symbolic link to the npm directory for use in PATH environment variable").doFirst( {
+                File linkContainer = new File("${project.rootDir}/${project.npmWorkDirectory}")
+                linkContainer.mkdirs()
+
+                Project coreProject = project.project((String) project.gradle.coreProjectPath)
+                File npmLink = project.file("${linkContainer.getPath()}/npm")
+                String npmDirName = "npm-v${project.npmVersion}"
+                if (!npmLink.exists() || !Files.readSymbolicLink(npmLink.toPath()).getFileName().toString().equals(npmDirName))
+                {
+                    ant.symlink(link: npmLink.toPath(),
+                            resource: "${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}",
+                            failonerror: false, // this is only a convenience so if it fails we'll get a warning
+                            overwrite: true) // if the symbolic link exists, we want to replace it
+                }
+
+                String nodeFilePrefix = "node-v${project.nodeVersion}-"
+                File nodeLink = project.file("${linkContainer.getPath()}/node")
+                if (!nodeLink.exists() || !Files.readSymbolicLink(nodeLink.toPath()).getFileName().toString().startsWith(nodeFilePrefix))
+                {
+                    File coreNodeDir = new File("${coreProject.buildDir}/${project.nodeWorkDirectory}")
+                    File[] nodeFiles  = coreNodeDir.listFiles({ File file -> file.name.startsWith(nodeFilePrefix) } as FileFilter )
+                    if (nodeFiles.length > 0)
+                    {
+                        ant.symlink(link: nodeLink.toPath(),
+                                resource: nodeFiles[0].getAbsolutePath(),
+                                failonerror: false, // this is only a convenience so if it fails we'll get a warning
+                                overwrite: true) // if the symbolic link exists, we want to replace it
+                    }
+                    else
+                        project.logger.warn("No file found with prefix ${coreNodeDir.path}/${nodeFilePrefix}.  Symbolic link in ${linkContainer.getPath()}/node not created.")
+                }
+            })
+            project.tasks.deployApp.dependsOn(project.tasks.symlinkNode)
+        }
 
 
         Task stageRemotePipelineJarsTask = project.task(

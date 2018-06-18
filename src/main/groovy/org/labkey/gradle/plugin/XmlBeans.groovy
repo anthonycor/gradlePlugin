@@ -55,9 +55,9 @@ class XmlBeans implements Plugin<Project>
                     xmlbeans
                     xmlSchema // Used for declaring artifacts
                 }
-        if (!project.name.equals("schemas"))
+        if (!project.path.equals(project.gradle.schemasProjectPath))
         {
-            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: ":schemas", depProjectConfig: 'xmlSchema', depVersion: project.labkeyVersion)
+            BuildUtils.addLabKeyDependency(project: project, config: 'xmlbeans', depProjectPath: project.gradle.schemasProjectPath, depProjectConfig: 'xmlSchema', depVersion: project.labkeyVersion)
         }
         project.dependencies
                 {
@@ -82,6 +82,11 @@ class XmlBeans implements Plugin<Project>
         schemasCompile.onlyIf {
             isApplicable(project)
         }
+        // remove the directories containing the generated java files and the compiled classes when we have to make changes.
+        schemasCompile.doFirst( {SchemaCompile task ->
+            project.delete(task.getSrcGenDir())
+            project.delete(task.getClassesDir())
+        })
 
         Task schemasJar = project.task('schemasJar',
                 group: GroupNames.XML_SCHEMA,

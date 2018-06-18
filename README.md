@@ -9,14 +9,39 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.3
+*Released*: ???
+(Earliest compatible LabKey version: 18.2)
+
+* [Issue 34523](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34523) - Change configuration for NPM plugin to download
+specific versions of node and npm if appropriate properties are set
+* Added cleanNodeModules task that will remove a project's node_modules directory
+* Change JavaModule plugin to remove ```src``` as a resource directory by default.  Individual modules can declare it as a resource if needed.
+* Parameterize gwt build so you can choose the target permutation browser in dev mode (using property gwtBrowser)
+* [Issue 33473](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33473) - always overwrite tomcat
+lib jars to facilitate switching between newer and older versions of LabKey distributions
+* [Issue 34388](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34388) - clean out directories
+created when compiling xsd's to jar file if a new jar is to be created.
+* Update tasks that check version conflicts for jars and modules (no longer incubating). By default, the build will fail if version conflicts
+are found.  See the documentation on [Version Conflicts in Local Builds](https://labkey.org/Documentation/wiki-page.view?name=gradleDepend) for more information. 
+* [Issue 33858](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33858) add checks for the 
+existence of ```internal/gwtsrc``` so we can move it to its proper home in api and parameterize the location of some of the key, 
+non-standard modules to make them easier to move around
+* [Issue 33860](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33860) - parameterization to 
+allow for moving or removing :schemas project
+* [Issue 30536](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=30536) - copy moduleTemplate into
+gradle plugins repository and modify build of plugins jar to include a zip of the moduleTemplate (that will include
+the empty directories that won't migrate to git).  Actual removal of moduleTemplate will not happen until LabKey 18.3.
+
 ### version 1.2.8
-*Released*: 5 June 2018
+*Released*: 11 June 2018
 (Earliest compatible LabKey version: 18.2)
 
 * added TeamCity parameter testValidationOnly for test that will do validation only (e.g. upgrade tests, blue-green)
 * dropDatabase will not happen if testValidationOnly is true
+* include manual-upgrade.sh script in zip distributions
 
-
+ 
 ### version 1.2.7
 *Released*: 23 May 2018
 (Earliest compatible LabKey version: 18.2)
@@ -31,7 +56,7 @@ but also make certain assumptions that you may not want to impose on your module
 * update TeamCity plugin to get labkey.server from teamcity properties if available
 * update Gwt plugin to support later versions of gxt (artifact group name changed)
 * make it possible to remove obsolete chromextensions directory
-* [Issue 34078](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34078) - update destintion
+* [Issue 34078](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34078) - update destination
 directory for ajc compiler to reflect language-specific classes directories in Gradle 4+
 
 ### version 1.2.5

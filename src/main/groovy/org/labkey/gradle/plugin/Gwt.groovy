@@ -147,18 +147,19 @@ class Gwt implements Plugin<Project>
                             def paths = []
                             if (!project.gwt.allBrowserCompile)
                             {
-                                String gwtBrowser = System.getenv('LABKEY_GWT_USER_OVERRIDE')
+                                String gwtBrowser = project.gwtBrowser
                                 if (StringUtils.isEmpty(gwtBrowser))
-                                    gwtBrowser = System.getenv('gwt-user-override')
-                                if (StringUtils.isEmpty(gwtBrowser))
-                                    gwtBrowser = "gwt-user-firefox"
+                                    gwtBrowser = "gwt-user-chrome"
                                 paths += ["${project.rootProject.rootDir}/external/lib/build/${gwtBrowser}"]
                             }
                             paths += [
                                     project.sourceSets.gwt.compileClasspath,       // Dep
-                                    project.sourceSets.gwt.java.srcDirs,           // Java source
-                                    project.project(":server:internal").file(project.gwt.srcDir),
+                                    project.sourceSets.gwt.java.srcDirs           // Java source
                             ]
+                            if (project.findProject(project.gradle.internalProjectPath) != null && project.project(project.gradle.internalProjectPath).file(project.gwt.srcDir).exists())
+                                paths += [project.project(project.gradle.internalProjectPath).file(project.gwt.srcDir)]
+                            else
+                                paths += [project.project(project.gradle.apiProjectPath).file(project.gwt.srcDir)]
                             java.classpath paths
 
                             java.args =
