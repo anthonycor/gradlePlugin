@@ -9,6 +9,12 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.3.1
+*Released*: ???
+(Earliest compatible LabKey version: 18.2)
+
+* Remove code that attempted (but failed) to create symbolic links to node and npm directories on Windows. 
+
 ### version 1.3
 *Released*: 18 June 2018
 (Earliest compatible LabKey version: 18.2)
@@ -27,8 +33,7 @@ are found.  See the documentation on [Version Conflicts in Local Builds](https:/
 * [Issue 33858](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33858) add checks for the 
 existence of ```internal/gwtsrc``` so we can move it to its proper home in api.  
 * Parameterize the location of some of the key, non-standard modules to make them easier to move around.  Parameter are ```apiProjectPath```,
-```bootstrapProjectPath```, ```internalProjectPath```, ```remoteapiProjectPath```, ```schemasProjectPath```, ```coreProjectPath```.  
-These parameters are attached to the Gradle extension in the ```settings.gradle``` file (via the ```gradle/settings/parameters.gradle``` file).
+```bootstrapProjectPath```, ```internalProjectPath```, ```remoteapiProjectPath```, ```schemasProjectPath```, ```coreProjectPath```.  These parameters are attached to the Gradle extension in the ```settings.gradle``` file (via the ```gradle/settings/parameters.gradle``` file).
 * [Issue 33860](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=33860) - parameterization to 
 allow for moving or removing :schemas project.  Parameter is ```schemasProjectPath``` attached to the Gradle extension in the 
 ```settings.gradle``` file.
