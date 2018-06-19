@@ -163,7 +163,7 @@ class ServerDeploy implements Plugin<Project>
                 File npmLink = project.file("${linkContainer.getPath()}/npm")
                 String npmDirName = "npm-v${project.npmVersion}"
                 File npmTarget = new File("${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}")
-                if (!npmLink.exists() || !Files.readSymbolicLink(npmLink.toPath()).getFileName().toString().equals(npmDirName))
+                if (!Files.isSymbolicLink(npmLink.toPath()) || !Files.readSymbolicLink(npmLink.toPath()).getFileName().toString().equals(npmDirName))
                 {
                     // if the symbolic link exists, we want to replace it
                     if (Files.isSymbolicLink(npmLink.toPath()))
@@ -178,7 +178,7 @@ class ServerDeploy implements Plugin<Project>
 
                 String nodeFilePrefix = "node-v${project.nodeVersion}-"
                 File nodeLink = project.file("${linkContainer.getPath()}/node")
-                if (!nodeLink.exists() || !Files.readSymbolicLink(nodeLink.toPath()).getFileName().toString().startsWith(nodeFilePrefix))
+                if (!Files.isSymbolicLink(nodeLink.toPath()) || !Files.readSymbolicLink(nodeLink.toPath()).getFileName().toString().startsWith(nodeFilePrefix))
                 {
                     File coreNodeDir = new File("${coreProject.buildDir}/${project.nodeWorkDirectory}")
                     File[] nodeFiles  = coreNodeDir.listFiles({ File file -> file.name.startsWith(nodeFilePrefix) } as FileFilter )
