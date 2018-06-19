@@ -10,7 +10,7 @@ but also make certain assumptions that you may not want to impose on your module
 ## Release Notes
 
 ### version 1.3.1
-*Released*: ???
+*Released*: 19 June 2018
 (Earliest compatible LabKey version: 18.2)
 
 * Remove code that attempted (but failed) to create symbolic links to node and npm directories on Windows. 
