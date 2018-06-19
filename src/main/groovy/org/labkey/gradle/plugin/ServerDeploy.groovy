@@ -160,8 +160,10 @@ class ServerDeploy implements Plugin<Project>
         //
         // So, for now, for Windows users, the symbolic links can be created manually using the following command when running as an administrator
         //   MKLINK /D <npmLinkPath> <npmTargetPath>
-        // At a later date, we can possibly make this task execute the mklink command.  This would require that the gradle tasks be run as an
-        // administrator, and that is possibly not ideal.
+        // or users can skip the link creation and put the target of the link in their path instead.
+        //
+        // At a later date, we can possibly make this task execute the mklink command (and its counterpart to remove the link).
+        // This would require that the gradle tasks be run as an administrator, and that is possibly not ideal.
         if (!SystemUtils.IS_OS_WINDOWS && project.hasProperty('npmVersion') && project.hasProperty('nodeVersion')) {
             project.task("symlinkNode",
                     group: GroupNames.DEPLOY,
