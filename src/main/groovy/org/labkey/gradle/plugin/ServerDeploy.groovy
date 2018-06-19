@@ -162,12 +162,18 @@ class ServerDeploy implements Plugin<Project>
                 Project coreProject = project.project(BuildUtils.getProjectPath(project.gradle, "coreProjectPath", ":server:modules:core"))
                 File npmLink = project.file("${linkContainer.getPath()}/npm")
                 String npmDirName = "npm-v${project.npmVersion}"
+                File npmTarget = new File("${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}")
                 if (!npmLink.exists() || !Files.readSymbolicLink(npmLink.toPath()).getFileName().toString().equals(npmDirName))
                 {
-                    ant.symlink(link: npmLink.toPath(),
-                            resource: "${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}",
-                            failonerror: false, // this is only a convenience so if it fails we'll get a warning
-                            overwrite: true) // if the symbolic link exists, we want to replace it
+                    // if the symbolic link exists, we want to replace it
+                    if (Files.isSymbolicLink(npmLink.toPath()))
+                        Files.delete(npmLink.toPath())
+
+                    Files.createSymbolicLink(npmLink.toPath(), npmTarget.toPath())
+//                    ant.symlink(link: npmLink.toPath(),
+//                            resource: "${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}",
+//                            failonerror: false, // this is only a convenience so if it fails we'll get a warning
+//                            overwrite: true) // if the symbolic link exists, we want to replace it
                 }
 
                 String nodeFilePrefix = "node-v${project.nodeVersion}-"
@@ -178,10 +184,15 @@ class ServerDeploy implements Plugin<Project>
                     File[] nodeFiles  = coreNodeDir.listFiles({ File file -> file.name.startsWith(nodeFilePrefix) } as FileFilter )
                     if (nodeFiles.length > 0)
                     {
-                        ant.symlink(link: nodeLink.toPath(),
-                                resource: nodeFiles[0].getAbsolutePath(),
-                                failonerror: false, // this is only a convenience so if it fails we'll get a warning
-                                overwrite: true) // if the symbolic link exists, we want to replace it
+                        // if the symbolic link exists, we want to replace it
+                        if (Files.isSymbolicLink(nodeLink.toPath()))
+                            Files.delete(nodeLink.toPath())
+
+                        Files.createSymbolicLink(nodeLink.toPath(), nodeFiles[0].toPath())
+//                        ant.symlink(link: nodeLink.toPath(),
+//                                resource: nodeFiles[0].getAbsolutePath(),
+//                                failonerror: false, // this is only a convenience so if it fails we'll get a warning
+//                                overwrite: true) // if the symbolic link exists, we want to replace it
                     }
                     else
                         project.logger.warn("No file found with prefix ${coreNodeDir.path}/${nodeFilePrefix}.  Symbolic link in ${linkContainer.getPath()}/node not created.")
