@@ -15,6 +15,7 @@
  */
 package org.labkey.gradle.plugin
 
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -152,7 +153,16 @@ class ServerDeploy implements Plugin<Project>
                 description: "Check for conflicts in version numbers on module files, WEB-INF/lib jar files and jar files in modules."
         ).dependsOn(checkModuleVersionsTask, checkJarsTask)
 
-        if (project.hasProperty('npmVersion') && project.hasProperty('nodeVersion')) {
+        // Creating symbolic links on Windows requires elevated permissions.  Even with these permissions, the createSymbolicLink method fails
+        // with a message "required privilege is not held by the client".  Using the ant.symlink task "succeeds", but it causes .sys files to be created in the
+        // .node directory, which are not symbolic links and will cause failures with a message "java.nio.file.NotLinkException: The file or directory is not a reparse point."
+        // the next time the command is run.
+        //
+        // So, for now, for Windows users, the symbolic links can be created manually using the following command when running as an administrator
+        //   MKLINK /D <npmLinkPath> <npmTargetPath>
+        // At a later date, we can possibly make this task execute the mklink command.  This would require that the gradle tasks be run as an
+        // administrator, and that is possibly not ideal.
+        if (!SystemUtils.IS_OS_WINDOWS && project.hasProperty('npmVersion') && project.hasProperty('nodeVersion')) {
             project.task("symlinkNode",
                     group: GroupNames.DEPLOY,
                     description: "Make a symbolic link to the npm directory for use in PATH environment variable").doFirst( {
@@ -160,39 +170,31 @@ class ServerDeploy implements Plugin<Project>
                 linkContainer.mkdirs()
 
                 Project coreProject = project.project(BuildUtils.getProjectPath(project.gradle, "coreProjectPath", ":server:modules:core"))
-                File npmLink = project.file("${linkContainer.getPath()}/npm")
+                Path npmLinkPath = Paths.get("${linkContainer.getPath()}/npm")
                 String npmDirName = "npm-v${project.npmVersion}"
-                File npmTarget = new File("${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}")
-                if (!Files.isSymbolicLink(npmLink.toPath()) || !Files.readSymbolicLink(npmLink.toPath()).getFileName().toString().equals(npmDirName))
+                Path npmTargetPath = Paths.get("${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}")
+                if (!Files.isSymbolicLink(npmLinkPath) || !Files.readSymbolicLink(npmLinkPath).getFileName().toString().equals(npmDirName))
                 {
                     // if the symbolic link exists, we want to replace it
-                    if (Files.isSymbolicLink(npmLink.toPath()))
-                        Files.delete(npmLink.toPath())
+                    if (Files.isSymbolicLink(npmLinkPath))
+                        Files.delete(npmLinkPath)
 
-                    Files.createSymbolicLink(npmLink.toPath(), npmTarget.toPath())
-//                    ant.symlink(link: npmLink.toPath(),
-//                            resource: "${coreProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}",
-//                            failonerror: false, // this is only a convenience so if it fails we'll get a warning
-//                            overwrite: true) // if the symbolic link exists, we want to replace it
+                    Files.createSymbolicLink(npmLinkPath, npmTargetPath)
                 }
 
                 String nodeFilePrefix = "node-v${project.nodeVersion}-"
-                File nodeLink = project.file("${linkContainer.getPath()}/node")
-                if (!Files.isSymbolicLink(nodeLink.toPath()) || !Files.readSymbolicLink(nodeLink.toPath()).getFileName().toString().startsWith(nodeFilePrefix))
+                Path nodeLinkPath = Paths.get("${linkContainer.getPath()}/node")
+                if (!Files.isSymbolicLink(nodeLinkPath) || !Files.readSymbolicLink(nodeLinkPath).getFileName().toString().startsWith(nodeFilePrefix))
                 {
                     File coreNodeDir = new File("${coreProject.buildDir}/${project.nodeWorkDirectory}")
                     File[] nodeFiles  = coreNodeDir.listFiles({ File file -> file.name.startsWith(nodeFilePrefix) } as FileFilter )
                     if (nodeFiles.length > 0)
                     {
                         // if the symbolic link exists, we want to replace it
-                        if (Files.isSymbolicLink(nodeLink.toPath()))
-                            Files.delete(nodeLink.toPath())
+                        if (Files.isSymbolicLink(nodeLinkPath))
+                            Files.delete(nodeLinkPath)
 
-                        Files.createSymbolicLink(nodeLink.toPath(), nodeFiles[0].toPath())
-//                        ant.symlink(link: nodeLink.toPath(),
-//                                resource: nodeFiles[0].getAbsolutePath(),
-//                                failonerror: false, // this is only a convenience so if it fails we'll get a warning
-//                                overwrite: true) // if the symbolic link exists, we want to replace it
+                        Files.createSymbolicLink(nodeLinkPath, nodeFiles[0].toPath())
                     }
                     else
                         project.logger.warn("No file found with prefix ${coreNodeDir.path}/${nodeFilePrefix}.  Symbolic link in ${linkContainer.getPath()}/node not created.")
