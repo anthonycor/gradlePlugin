@@ -135,15 +135,6 @@ class Gwt implements Plugin<Project>
 
                             java.main = 'com.google.gwt.dev.Compiler'
 
-                            /* The Ant user override property
-                                <!-- Use environment variable gwt-user.jar, if set -->
-                                <condition property="gwt-user-override" value="${env.gwt-user-override}">
-                                    <isset property="env.gwt-user-override"/>
-                                </condition>
-                                <condition property="gwt-user-override" value="${env.LABKEY_GWT_USER_OVERRIDE}">
-                                    <isset property="env.LABKEY_GWT_USER_OVERRIDE"/>
-                                </condition>
-                             */
                             def paths = []
                             if (!project.gwt.allBrowserCompile)
                             {
