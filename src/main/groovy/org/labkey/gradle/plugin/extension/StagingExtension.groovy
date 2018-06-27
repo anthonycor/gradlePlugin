@@ -46,7 +46,7 @@ class StagingExtension
         webInfDir = "${project.rootProject.buildDir}/${STAGING_WEBINF_DIR}"
         webappDir = "${project.rootProject.buildDir}/${STAGING_WEBAPP_DIR}"
         modulesDir = "${project.rootProject.buildDir}/${STAGING_MODULES_DIR}"
-        tomcatLibDir = "${dir}/tomcat-lib"
+        tomcatLibDir = "${dir}/tomcat-lib" // Note: Keep this path in sync with AdminController.getTomcatJars()
         pipelineLibDir = "${dir}/pipelineLib"
     }
 }
