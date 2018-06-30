@@ -9,6 +9,13 @@ but also make certain assumptions that you may not want to impose on your module
 
 ## Release Notes
 
+### version 1.3.2
+*Release*: ???
+(Earliest compatible LabKey version: 18.2)
+
+* [Issue 34390](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34523) - make createModule use lower case name
+for directory name (to correspond to package name)
+
 ### version 1.3.1
 *Released*: 19 June 2018
 (Earliest compatible LabKey version: 18.2)

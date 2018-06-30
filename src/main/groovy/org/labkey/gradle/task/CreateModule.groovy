@@ -21,7 +21,6 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Paths
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -128,7 +127,7 @@ class CreateModule extends DefaultTask
         }
 
         Map<String, String> substitutions = [
-                'MODULE_DIR_NAME' : moduleName,
+                'MODULE_DIR_NAME' : moduleName.toLowerCase(),
                 'MODULE_LOWERCASE_NAME' : moduleName.toLowerCase(),
                 'MODULE_NAME' : moduleName,
         ]
