@@ -185,8 +185,8 @@ class CreateModule extends DefaultTask
         //copy.rename only looks at file names, rather than files and directories.
         renameCrawler(project.file(moduleDestination), substitutions)
 
-        project.logger.info("Module created in ${moduleDestination}")
-        project.logger.info("Refresh the Gradle window to add this module to your IntelliJ project to start editing the code.")
+        project.logger.quiet("Module created in ${moduleDestination}")
+        project.logger.quiet("Refresh the Gradle window to add this module to your IntelliJ project to start editing the code.")
     }
 
     void renameCrawler(File currFile, Map<String, String> substitutions) {
