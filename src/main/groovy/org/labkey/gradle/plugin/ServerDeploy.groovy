@@ -37,7 +37,7 @@ import java.nio.file.Paths
  */
 class ServerDeploy implements Plugin<Project>
 {
-    public static final List<String> TOMCAT_LIB_UNVERSIONED_JARS = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar"]
+    public static final List<String> TOMCAT_LIB_UNVERSIONED_JARS = ["ant.jar", "mail.jar", "jtds.jar", "mysql.jar", "postgresql.jar", "javax.activation.jar"]
 
     private ServerDeployExtension serverDeploy
 
