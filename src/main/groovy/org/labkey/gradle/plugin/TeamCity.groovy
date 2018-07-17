@@ -332,12 +332,20 @@ class TeamCity extends Tomcat
                     {
                         arg(line: "/F /IM firefox.exe")
                     }
+            project.ant.exec(executable: "taskkill")
+                    {
+                        arg(line: "/F /IM geckodriver.exe")
+                    }
         }
         else if (SystemUtils.IS_OS_UNIX)
         {
             project.ant.exec(executable: "killall")
                     {
                         arg(line: "-q firefox")
+                    }
+            project.ant.exec(executable: "killall")
+                    {
+                        arg(line: "-q geckodriver")
                     }
         }
     }
