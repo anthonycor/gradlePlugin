@@ -86,7 +86,7 @@ class Jsp implements Plugin<Project>
                 }
         project.configurations.getByName('jspCompile') {
             resolutionStrategy {
-                force "javax.servlet:servlet-api:${project.servletApiVersion}" // the version number here is sort of irrelevant until we use a repository other than the file system; it just needs to be something other than the old 2.4 version in external/libs/build
+                force "javax.servlet:servlet-api:${project.servletApiVersion}"
             }
         }
     }
