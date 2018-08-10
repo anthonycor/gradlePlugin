@@ -90,6 +90,7 @@ class NpmRun implements Plugin<Project>
             nodeModulesDir = project.file("${project.projectDir}")
         }
     }
+
     private void addTasks(Project project)
     {
 
@@ -146,7 +147,6 @@ class NpmRun implements Plugin<Project>
                 }
         )
     }
-
 
     private void addTaskInputOutput(Task task)
     {
