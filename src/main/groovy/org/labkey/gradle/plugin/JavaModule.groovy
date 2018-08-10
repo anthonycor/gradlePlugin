@@ -100,8 +100,13 @@ class JavaModule extends FileModule
         super.addConfigurations(project)
         project.configurations
                 {
+//                    local.extendsFrom(implementation)
+//                    external.extendsFrom(api)
                     local
+                    labkey // use this configuration for dependencies to labkey API jars that are needed for a module
+                           // but don't need to show up in the dependencies.txt and jars.txt
                     compile.extendsFrom(external)
+                    compile.extendsFrom(labkey)
                     compile.extendsFrom(local)
                 }
     }
@@ -225,9 +230,14 @@ class JavaModule extends FileModule
      */
     static FileCollection getTrimmedExternalFiles(Project project)
     {
+        FileCollection labkeyConfig = project.configurations.labkey
         FileCollection config = project.configurations.external
-        if (config == null)
-            return config
+
+        if (config == null && labkeyConfig == null)
+            return null
+
+        config = labkeyConfig == null ? config : (config == null ? labkeyConfig : config + labkeyConfig)
+
         // trim nothing from api
         String apiProjectPath = BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")
         if (project.path.equals(apiProjectPath))
