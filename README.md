@@ -16,6 +16,7 @@ but also make certain assumptions that you may not want to impose on your module
 * [Issue 34390](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34523) - make createModule use lower case name
 for directory name (to correspond to package name)
 * Clean up geckdriver processes on TeamCity (Selenium 3 support)
+* Add new labkey configuration for use in declaring dependencies that do not need to be in the jars.txt file
 
 ### version 1.3.1
 *Released*: 19 June 2018
