@@ -66,10 +66,10 @@ class ShowDiscrepancies extends DefaultTask
         {
             if (entry.value.size() > 1)
             {
-                println("${entry.key} has ${entry.value.size()} versions as follows: ")
+                project.logger.error("${entry.key} has ${entry.value.size()} versions as follows: ")
                 for (Map.Entry<String, List<String>> versionEntry : entry.value.entrySet())
                 {
-                    println("\t${versionEntry.key}\t${versionEntry.value}")
+                    project.logger.error("\t${versionEntry.key}\t${versionEntry.value}")
                 }
             }
 
