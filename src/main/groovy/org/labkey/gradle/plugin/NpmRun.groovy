@@ -47,6 +47,8 @@ class NpmRun implements Plugin<Project>
     @Override
     void apply(Project project)
     {
+        // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
+        project.apply plugin: 'com.moowork.node'
         project.extensions.create(EXTENSION_NAME, NpmRunExtension)
 
         configurePlugin(project)
