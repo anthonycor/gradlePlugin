@@ -15,6 +15,7 @@
  */
 package org.labkey.gradle.task
 
+import com.sun.xml.internal.ws.util.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.CopySpec
@@ -28,6 +29,7 @@ import java.util.regex.Pattern
 /**
  * Creates a new module based on the contents of trunk/server/moduleTemplate. Sources properties from commandline or
  * user input based on the prompt flag.
+ * Documented at <a href='https://www.labkey.org/Documentation/wiki-page.view?name=createNewModule'>labkey.org</a>
  */
 class CreateModule extends DefaultTask
 {
@@ -38,6 +40,7 @@ class CreateModule extends DefaultTask
         boolean hasManagedSchema
         boolean createTestFiles
         boolean createApiFiles
+        boolean deleteExisting
 
         if (project.hasProperty('moduleName')) {
             moduleName =  project.moduleName
@@ -47,7 +50,14 @@ class CreateModule extends DefaultTask
                     message: "\nEnter the name for your new module: ",
                     addProperty: "new_moduleName"
             )
-            moduleName = ant.new_moduleName
+            moduleName = ant.new_moduleName.trim()
+        }
+        if (moduleName == null || moduleName == "") {
+            throw new GradleException("moduleName is not specified")
+        }
+        Pattern namePattern = Pattern.compile("[a-zA-Z][a-zA-Z_\\-\\d]*");
+        if (!namePattern.matcher(moduleName).matches()) {
+            throw new GradleException("Invalid module name: " + moduleName)
         }
 
         if (project.hasProperty('moduleDestination')) {
@@ -55,10 +65,25 @@ class CreateModule extends DefaultTask
         }
         else {
             project.ant.input(
-                    message: "\nEnter the full path for where to put the new module: ",
+                    message: "\nEnter the location for the new module (absolute or relative to '" + new File("").getAbsolutePath() + "'): ",
                     addProperty: "new_moduleDestination"
             )
-            moduleDestination = ant.new_moduleDestination
+            moduleDestination = ant.new_moduleDestination.trim()
+        }
+        if (moduleDestination == null || moduleDestination == "") {
+            throw new GradleException("moduleDestination is not specified")
+        }
+        File moduleDestinationFile = new File(moduleDestination).getAbsoluteFile()
+        if (moduleDestinationFile.exists())
+        {
+            ant.input(
+                    message: "\nModule directory already exists (${moduleDestinationFile.getAbsolutePath()}). " +
+                            "Delete directory and create module anyway? (y/N)\"",
+                    addProperty: "shouldCreateNewModule"
+            )
+            deleteExisting = ant.shouldCreateNewModule.toLowerCase().equals("y")
+            if (!deleteExisting)
+                throw new GradleException("Select a different destination")
         }
 
         if (project.hasProperty('createFiles')) {
@@ -71,63 +96,41 @@ class CreateModule extends DefaultTask
                     message: "\nWill this module create and manage a database schema? (Y/n)",
                     addProperty: "new_hasManagedSchema"
             )
-            hasManagedSchema = !(ant.new_hasManagedSchema.toLowerCase().equals("n"))
+            hasManagedSchema = !(ant.new_hasManagedSchema.trim().equalsIgnoreCase("n"))
 
             project.ant.input(
                     message: "\nCreate test stubs (y/N)",
                     addProperty: "new_createTestFiles"
             )
-            createTestFiles = ant.new_createTestFiles.toLowerCase().equals("y")
+            createTestFiles = ant.new_createTestFiles.trim().equalsIgnoreCase("y")
 
             project.ant.input(
                     message: "\nCreate API stubs (y/N)",
                     addProperty: "new_createApiFiles"
             )
-            createApiFiles = ant.new_createApiFiles.toLowerCase().equals("y")
+            createApiFiles = ant.new_createApiFiles.trim().equalsIgnoreCase("y")
         }
 
-        if (moduleName == null || moduleName == "") {
-            throw new GradleException("moduleName is not specified")
-        }
-        if (moduleDestination == null || moduleDestination == "") {
-            throw new GradleException("moduleDestination is not specified")
-        }
-
-        boolean shouldCreate = true
-
-        File existingModuleDir = new File(moduleDestination)
-        if (existingModuleDir.exists()) {
-            ant.input(
-                    message: "\nModule directory already exists (${moduleDestination}). " +
-                            "Delete directory and create module anyway? (y/N)\"",
-                    addProperty: "shouldCreateNewModule"
-            )
-            shouldCreate = ant.shouldCreateNewModule.toLowerCase().equals("y")
-            if (shouldCreate) {
-                project.logger.info("Attempting to delete existing module directory... " + existingModuleDir.deleteDir() ? "Succeeded" : "Failed")
+        if (deleteExisting) {
+            boolean deleted = moduleDestinationFile.deleteDir()
+            project.logger.lifecycle("Attempting to delete existing module directory... " + deleted ? "Succeeded" : "Failed")
+            if (!deleted) {
+                throw new GradleException("Failed to delete existing module directory: ${moduleDestinationFile.getAbsolutePath()}")
             }
         }
 
-        if (shouldCreate) {
-            createNewModule(moduleName,
-                    moduleDestination,
-                    hasManagedSchema,
-                    createTestFiles,
-                    createApiFiles)
-        }
+        createNewModule(moduleName,
+                moduleDestinationFile,
+                hasManagedSchema,
+                createTestFiles,
+                createApiFiles)
     }
 
-    void createNewModule(String moduleName, String moduleDestination, boolean hasManagedSchema, boolean createTestFiles, boolean createApiFiles)
+    void createNewModule(String moduleName, File moduleDestinationFile, boolean hasManagedSchema, boolean createTestFiles, boolean createApiFiles)
     {
-        try {
-            project.mkdir(moduleDestination)
+        if (!moduleDestinationFile.mkdir()) {
+            throw new GradleException("Failed to create new module directory at ${moduleDestinationFile.getAbsolutePath()}")
         }
-        catch (Exception e) {
-            project.logger.error("Failed to create new module directory at ${(new File(moduleDestination)).getAbsolutePath()}")
-            throw new GradleException(e.getMessage())
-        }
-
-
 
         Map<String, String> substitutions = [
                 'MODULE_DIR_NAME' : moduleName.toLowerCase(),
@@ -155,7 +158,7 @@ class CreateModule extends DefaultTask
 
                 copy.from(zipTree)
             }
-            copy.into(moduleDestination)
+            copy.into(moduleDestinationFile)
             if (hasManagedSchema)
             {
                 copy.exclude("**/MODULE_NAMECodeOnlyModule.java")
@@ -183,14 +186,14 @@ class CreateModule extends DefaultTask
                 return line
             })
         })
-        File codeOnlyModule = new File("${moduleDestination}/src/org/labkey/MODULE_DIR_NAME/MODULE_NAMECodeOnlyModule.java")
+        File codeOnlyModule = new File(moduleDestinationFile, "src/org/labkey/MODULE_DIR_NAME/MODULE_NAMECodeOnlyModule.java")
         if (codeOnlyModule.exists()) {
-            codeOnlyModule.renameTo(new File("${moduleDestination}/src/org/labkey/MODULE_DIR_NAME/MODULE_NAMEModule.java"))
+            codeOnlyModule.renameTo(new File(moduleDestinationFile, "src/org/labkey/MODULE_DIR_NAME/MODULE_NAMEModule.java"))
         }
         //copy.rename only looks at file names, rather than files and directories.
-        renameCrawler(project.file(moduleDestination), substitutions)
+        renameCrawler(moduleDestinationFile, substitutions)
 
-        project.logger.quiet("Module created in ${moduleDestination}")
+        project.logger.quiet("Module created in ${moduleDestinationFile.getAbsolutePath()}")
         project.logger.quiet("Refresh the Gradle window to add this module to your IntelliJ project to start editing the code.")
     }
 
