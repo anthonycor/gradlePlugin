@@ -20,6 +20,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.TaskAction
+import org.labkey.gradle.util.BuildUtils
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -126,10 +127,14 @@ class CreateModule extends DefaultTask
             throw new GradleException(e.getMessage())
         }
 
+
+
         Map<String, String> substitutions = [
                 'MODULE_DIR_NAME' : moduleName.toLowerCase(),
                 'MODULE_LOWERCASE_NAME' : moduleName.toLowerCase(),
                 'MODULE_NAME' : moduleName,
+                'CURRENT_YEAR': Calendar.getInstance().get(Calendar.YEAR).toString(),
+                'LABKEY_VERSION_NUMBER': BuildUtils.getLabKeyModuleVersion(project.rootProject) + '0'
         ]
 
         project.copy({ CopySpec copy ->
@@ -192,9 +197,14 @@ class CreateModule extends DefaultTask
     void renameCrawler(File currFile, Map<String, String> substitutions) {
         for (File f : currFile.listFiles()) {
             renameCrawler(f, substitutions)
+            String newPath = f.getPath()
             substitutions.each({curr, updated ->
-                f.renameTo(f.getPath().replace(curr, updated))
+                newPath = newPath.replace(curr, updated);
             })
+            if (!newPath.equals(f.getPath()))
+            {
+                f.renameTo(newPath)
+            }
         }
     }
 }

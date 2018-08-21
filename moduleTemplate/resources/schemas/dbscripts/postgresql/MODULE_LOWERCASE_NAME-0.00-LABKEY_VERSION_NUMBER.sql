@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 LabKey Corporation
+ * Copyright (c) @@CURRENT_YEAR@@ LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,4 +17,3 @@
 -- Create schema, tables, indexes, and constraints used for @@MODULE_NAME@@ module here
 -- All SQL VIEW definitions should be created in @@MODULE_LOWERCASE_NAME@@-create.sql and dropped in @@MODULE_LOWERCASE_NAME@@-drop.sql
 CREATE SCHEMA @@MODULE_LOWERCASE_NAME@@;
-GO
