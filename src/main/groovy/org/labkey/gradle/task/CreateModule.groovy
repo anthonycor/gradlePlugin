@@ -135,7 +135,7 @@ class CreateModule extends DefaultTask
         Map<String, String> substitutions = [
                 'MODULE_DIR_NAME' : moduleName.toLowerCase(),
                 'MODULE_LOWERCASE_NAME' : moduleName.toLowerCase(),
-                'MODULE_NAME' : moduleName,
+                'MODULE_NAME' : StringUtils.capitalize(moduleName),
                 'CURRENT_YEAR': Calendar.getInstance().get(Calendar.YEAR).toString(),
                 'LABKEY_VERSION_NUMBER': BuildUtils.getLabKeyModuleVersion(project.rootProject) + '0'
         ]
@@ -200,13 +200,13 @@ class CreateModule extends DefaultTask
     void renameCrawler(File currFile, Map<String, String> substitutions) {
         for (File f : currFile.listFiles()) {
             renameCrawler(f, substitutions)
-            String newPath = f.getPath()
+            String name = f.getName()
             substitutions.each({curr, updated ->
-                newPath = newPath.replace(curr, updated);
+                name = name.replace(curr, updated);
             })
-            if (!newPath.equals(f.getPath()))
+            if (!name.equals(f.getName()))
             {
-                f.renameTo(newPath)
+                f.renameTo("${f.getParent()}/${name}")
             }
         }
     }
