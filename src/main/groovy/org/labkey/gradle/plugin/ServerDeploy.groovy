@@ -172,7 +172,7 @@ class ServerDeploy implements Plugin<Project>
                 linkContainer.mkdirs()
 
                 // default to core project path for backward compatibility.  npmSetup introduced for :server in 18.3
-                Project npmLinkProject = project.project(BuildUtils.getProjectPath(project.gradle, "serverProjectPath", ":server:modules:core"))
+                Project npmLinkProject = project.project(BuildUtils.getProjectPath(project.gradle, "nodeBinProjectPath", ":server:modules:core"))
                 Path npmLinkPath = Paths.get("${linkContainer.getPath()}/npm")
                 String npmDirName = "npm-v${project.npmVersion}"
                 Path npmTargetPath = Paths.get("${npmLinkProject.buildDir}/${project.npmWorkDirectory}/${npmDirName}")
@@ -189,9 +189,9 @@ class ServerDeploy implements Plugin<Project>
                 Path nodeLinkPath = Paths.get("${linkContainer.getPath()}/node")
                 if (!Files.isSymbolicLink(nodeLinkPath) || !Files.readSymbolicLink(nodeLinkPath).getFileName().toString().startsWith(nodeFilePrefix))
                 {
-                    File coreNodeDir = new File("${npmLinkProject.buildDir}/${project.nodeWorkDirectory}")
-                    File[] nodeFiles  = coreNodeDir.listFiles({ File file -> file.name.startsWith(nodeFilePrefix) } as FileFilter )
-                    if (nodeFiles.length > 0)
+                    File nodeDir = new File("${npmLinkProject.buildDir}/${project.nodeWorkDirectory}")
+                    File[] nodeFiles  = nodeDir.listFiles({ File file -> file.name.startsWith(nodeFilePrefix) } as FileFilter )
+                    if (nodeFiles != null && nodeFiles.length > 0)
                     {
                         // if the symbolic link exists, we want to replace it
                         if (Files.isSymbolicLink(nodeLinkPath))
@@ -200,7 +200,7 @@ class ServerDeploy implements Plugin<Project>
                         Files.createSymbolicLink(nodeLinkPath, nodeFiles[0].toPath())
                     }
                     else
-                        project.logger.warn("No file found with prefix ${coreNodeDir.path}/${nodeFilePrefix}.  Symbolic link in ${linkContainer.getPath()}/node not created.")
+                        project.logger.warn("No file found with prefix ${nodeDir.path}/${nodeFilePrefix}.  Symbolic link in ${linkContainer.getPath()}/node not created.")
                 }
             })
             project.tasks.deployApp.dependsOn(project.tasks.symlinkNode)
