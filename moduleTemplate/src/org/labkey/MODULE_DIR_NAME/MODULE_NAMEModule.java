@@ -40,8 +40,7 @@ public class @@MODULE_NAME@@Module extends DefaultModule
     @Override
     public double getVersion()
     {
-        // TODO @@LABKEY_VERSION_NUMBER@@
-        return 18.21;
+        return @@LABKEY_VERSION_NUMBER@@;
     }
 
     @Override

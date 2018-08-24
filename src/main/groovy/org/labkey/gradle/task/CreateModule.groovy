@@ -132,12 +132,14 @@ class CreateModule extends DefaultTask
             throw new GradleException("Failed to create new module directory at ${moduleDestinationFile.getAbsolutePath()}")
         }
 
+        String[] versionParts = BuildUtils.getLabKeyModuleVersion(project.rootProject).split("\\.");
+        String version = versionParts[0] + "." + (Integer.parseInt(versionParts[1])-1) + "1"
         Map<String, String> substitutions = [
                 'MODULE_DIR_NAME' : moduleName.toLowerCase(),
                 'MODULE_LOWERCASE_NAME' : moduleName.toLowerCase(),
                 'MODULE_NAME' : StringUtils.capitalize(moduleName),
                 'CURRENT_YEAR': Calendar.getInstance().get(Calendar.YEAR).toString(),
-                'LABKEY_VERSION_NUMBER': BuildUtils.getLabKeyModuleVersion(project.rootProject) + '0'
+                'LABKEY_VERSION_NUMBER': version
         ]
 
         project.copy({ CopySpec copy ->
