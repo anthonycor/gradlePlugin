@@ -100,6 +100,7 @@ class JavaModule extends FileModule
         super.addConfigurations(project)
         project.configurations
                 {
+                    // We will use these when moving away from the deprecated compile configuration from Gradle
 //                    local.extendsFrom(implementation)
 //                    external.extendsFrom(api)
                     local
