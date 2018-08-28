@@ -39,7 +39,6 @@ buildscript {
 }
 
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.artifactory'
 
 project.version = "1.3.2-SNAPSHOT"
 
@@ -77,8 +76,10 @@ publishing {
     }
 }
 
+
 if (project.hasProperty('artifactory_contextUrl') && project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
 {
+    apply plugin: 'com.jfrog.artifactory'
     artifactory {
         contextUrl = "${artifactory_contextUrl}"
         publish {
@@ -101,3 +102,4 @@ if (project.hasProperty('artifactory_contextUrl') && project.hasProperty('artifa
 //        }
     }
 }
+
