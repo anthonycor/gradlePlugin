@@ -15,7 +15,7 @@
  */
 package org.labkey.gradle.task
 
-import com.sun.xml.internal.ws.util.StringUtils
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.CopySpec
