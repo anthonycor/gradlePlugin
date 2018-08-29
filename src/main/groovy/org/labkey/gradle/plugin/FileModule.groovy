@@ -118,6 +118,7 @@ class FileModule implements Plugin<Project>
         {
             if (ModuleResources.isApplicable(project))
                 project.apply plugin: 'org.labkey.moduleResources'
+
             if (SpringConfig.isApplicable(project))
                 project.apply plugin: 'org.labkey.springConfig'
 
@@ -128,11 +129,7 @@ class FileModule implements Plugin<Project>
                 project.apply plugin: 'org.labkey.clientLibraries'
 
             if (NpmRun.isApplicable(project))
-            {
-                // This brings in nodeSetup and npmInstall tasks.  See https://github.com/srs/gradle-node-plugin
-                project.apply plugin: 'com.moowork.node'
                 project.apply plugin: 'org.labkey.npmRun'
-            }
         }
     }
 

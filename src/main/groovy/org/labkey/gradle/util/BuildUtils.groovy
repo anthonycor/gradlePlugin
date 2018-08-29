@@ -435,8 +435,8 @@ class BuildUtils
                                     String depProjectConfig,
                                     String depVersion,
                                     String depExtension,
-                                    Boolean transitive,
-                                    Closure specialParams
+                                    Boolean isTransitive,
+                                    Closure closure
                                     )
     {
         Project depProject = parentProject.rootProject.findProject(depProjectPath)
@@ -444,9 +444,9 @@ class BuildUtils
         {
             parentProject.logger.info("Found project ${depProjectPath}; building ${depProjectPath} from source")
             if (depProjectConfig != null)
-                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig, transitive: transitive))
+                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, configuration: depProjectConfig, transitive: isTransitive), closure)
             else
-                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, transitive: transitive))
+                parentProject.dependencies.add(parentProjectConfig, parentProject.dependencies.project(path: depProjectPath, transitive: isTransitive), closure)
         }
         else
         {
@@ -463,14 +463,7 @@ class BuildUtils
                 if (depVersion == null)
                     depVersion = depProject.version
             }
-            if (specialParams != null)
-            {
-                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(parentProject, depProjectPath, depProjectConfig, depVersion, depExtension), specialParams)
-            }
-            else
-            {
-                parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(parentProject, depProjectPath, depProjectConfig, depVersion, depExtension))
-            }
+            parentProject.dependencies.add(parentProjectConfig, getLabKeyArtifactName(parentProject, depProjectPath, depProjectConfig, depVersion, depExtension), closure)
         }
     }
 
