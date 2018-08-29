@@ -10,7 +10,7 @@ but also make certain assumptions that you may not want to impose on your module
 ## Release Notes
 
 ### version 1.3.2
-*Release*: ???
+*Release*: 29 Aug 2019
 (Earliest compatible LabKey version: 18.2)
 
 * [Issue 34390](https://www.labkey.org/home/Developer/issues/issues-details.view?issueId=34523) - make createModule use lower case name
